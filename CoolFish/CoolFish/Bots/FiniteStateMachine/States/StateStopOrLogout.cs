@@ -5,7 +5,6 @@ using System.Threading;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -76,14 +75,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                     dead = ObjectManager.Me.Dead;
                 }
 
-                return BagsCondition || LureCondition || dead; //||
-                //  StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3;
+                return BagsCondition || LureCondition || dead ||
+                       StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3;
             }
         }
 
         public override void Run()
         {
-
             if (BagsCondition)
             {
                 Logging.Write("Bags are full.");

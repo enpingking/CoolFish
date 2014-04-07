@@ -4,23 +4,16 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CoolFishNS.Bots;
 using CoolFishNS.Management;
 using CoolFishNS.PluginSystem;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
-using Application = System.Windows.Application;
-using CheckBox = System.Windows.Controls.CheckBox;
 using MessageBox = System.Windows.Forms.MessageBox;
-using Timer = System.Threading.Timer;
 
 namespace CoolFishNS
 {
@@ -32,43 +25,14 @@ namespace CoolFishNS
         private readonly IList<IBot> _bots = new List<IBot>();
         private readonly ICollection<CheckBox> _pluginCheckBoxesList = new Collection<CheckBox>();
         private Process[] _processes;
-        private Timer _timer;
 
         public MainWindow()
         {
-            AppDomain.CurrentDomain.UnhandledException += UnhandledException;
             InitializeComponent();
         }
 
-
-        private static void Callback(object state)
-        {
-            if (!Updater.ShouldRun)
-            {
-                BotManager.StopActiveBot();
-                BotManager.WasCut = true;
-                MessageBox.Show(LocalSettings.Translations["Warning Message"]);
-            }
-        }
-
-        public void UnhandledException(object sender, UnhandledExceptionEventArgs ex)
-        {
-            Exception e = (Exception) ex.ExceptionObject;
-            Logging.Log(e.ToString());
-
-            MessageBox.Show(LocalSettings.Translations["Unhandled Exception"]);
-
-            MessageBox.Show(e.ToString());
-
-            MetroWindow_Closing_1(sender, null);
-
-            Environment.Exit(1);
-        }
-
-
         private void UpdateControlSettings()
         {
-            LanguageCB.SelectedIndex = LocalSettings.Settings["LanguageIndex"];
             if (LocalSettings.Settings["BlackBackground"])
             {
                 BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x0, 0x0, 0x0);
@@ -77,7 +41,7 @@ namespace CoolFishNS
 
             foreach (var plugin in PluginManager.Plugins)
             {
-                var cb = new CheckBox { Content = plugin.Key };
+                var cb = new CheckBox {Content = plugin.Key};
                 cb.Checked += changedCheck;
                 cb.Unchecked += changedCheck;
                 cb.IsChecked = LocalSettings.Plugins.ContainsKey(plugin.Key) && (LocalSettings.Plugins[plugin.Key].isEnabled == true);
@@ -91,24 +55,21 @@ namespace CoolFishNS
 
         private void SaveControlSettings()
         {
-            LocalSettings.Settings["LanguageIndex"] = BotSetting.As(LanguageCB.SelectedIndex);
-
-
             foreach (CheckBox script in _pluginCheckBoxesList)
             {
                 LocalSettings.Plugins[script.Content.ToString()] = new SerializablePlugin
-                                          {
-                                              fileName = script.Content.ToString(),
-                                              isEnabled = script.IsChecked
-                                          };
+                {
+                    fileName = script.Content.ToString(),
+                    isEnabled = script.IsChecked
+                };
             }
         }
 
-        private void RefreshProcesses(bool getAllIfNoWow = false)
+        private void RefreshProcesses()
         {
             ProcessCB.Items.Clear();
 
-            _processes = GetWowProcesses(getAllIfNoWow);
+            _processes = GetWowProcesses();
 
             foreach (Process process in _processes)
             {
@@ -127,24 +88,21 @@ namespace CoolFishNS
         ///     Gets a List of 32-bit Wow processes currently running on the system
         /// </summary>
         /// <returns>List of Process objects</returns>
-        public static Process[] GetWowProcesses(bool getAllIfNoWow = false)
+        public static Process[] GetWowProcesses()
         {
-            var proc = Process.GetProcessesByName("WoW");
+            Process[] proc = Process.GetProcessesByName("WoW");
+            Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
 
             if (!proc.Any())
             {
-                if (getAllIfNoWow)
+                if (proc64Bit.Any())
                 {
-                    DialogResult result =
-                        MessageBox.Show(
-                            LocalSettings.Translations["No Processes Found"],
-                            LocalSettings.Translations["Warning"], MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                            MessageBoxDefaultButton.Button2);
-
-                    if (result == System.Windows.Forms.DialogResult.Yes)
-                    {
-                        proc = Process.GetProcesses();
-                    }
+                    Logging.Write(
+                        "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
+                }
+                else
+                {
+                    Logging.Write("No WoW processes were found.");
                 }
             }
 
@@ -152,38 +110,25 @@ namespace CoolFishNS
             return proc;
         }
 
-
         private void AppendMessage(object sender, MessageEventArgs args)
         {
-            try
+            Application.Current.Dispatcher.InvokeAsync(() =>
             {
-
-                string message = Log.TimeStamp + " " + args.Message;
-
-                if (!OutputRTB.Dispatcher.CheckAccess())
+                try
                 {
-                    OutputRTB.Dispatcher.Invoke(
-                        DispatcherPriority.Normal,
-                        new Action(
-                            delegate
-                            {
-                                OutputRTB.AppendText(message + Environment.NewLine);
-                                OutputRTB.ScrollToEnd();
-                            }
-                            ));
+                    if (OutputText.Text.Length > 5000)
+                    {
+                        OutputText.Text = string.Empty;
+                    }
+                    OutputText.Text += Log.TimeStamp + " " + args.Message + Environment.NewLine;
+                    OutputText.ScrollToEnd();
                 }
-                else
+                catch (Exception ex)
                 {
-                    OutputRTB.AppendText(message + Environment.NewLine);
-                    OutputRTB.ScrollToEnd();
+                    Logging.Log("Exception while writing: \n" + ex);
                 }
-            }
-            catch (Exception ex)
-            {
-                Logging.Log(ex);
-            }
+            }, DispatcherPriority.Background);
         }
-
 
         #region EventHandlers
 
@@ -195,7 +140,7 @@ namespace CoolFishNS
             }
             else
             {
-                Logging.Write(LocalSettings.Translations["Pick Process"]);
+                Logging.Write("Please pick a process to attach to.");
             }
         }
 
@@ -203,50 +148,34 @@ namespace CoolFishNS
         {
             try
             {
-                RefreshProcesses(true);
+                RefreshProcesses();
             }
             catch (Exception ex)
             {
                 Logging.Log(ex);
             }
-
-            // this code is necessary so we don't constantly refresh the list and potentially post error messages
-            // and not give the user a chance to correct it
-            ProcessCB.DropDownOpened -= ComboBox_DropDownOpened_1;
-            ProcessCB.IsDropDownOpen = true;
-            ProcessCB.DropDownOpened += ComboBox_DropDownOpened_1;
         }
 
         private void MetroWindow_Closing_1(object sender, CancelEventArgs e)
         {
-            SaveControlSettings();
-
             try
             {
+                SaveControlSettings();
                 BotManager.ShutDown();
-
             }
             catch (Exception ex)
             {
                 Logging.Log(ex);
             }
-
-            _timer.Dispose();
-            Logging.Instance.Dispose();
         }
 
         private void StartBTN_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                Title = BotManager.GetToonName();
                 SaveControlSettings();
                 LocalSettings.SaveSettings();
                 BotManager.StartActiveBot();
-                StartBTN.IsEnabled = false;
-                BotBaseCB.IsEnabled = false;
-                AttachBTN.IsEnabled = false;
-                ProcessCB.IsEnabled = false;
             }
             catch (Exception ex)
             {
@@ -257,10 +186,6 @@ namespace CoolFishNS
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             BotManager.StopActiveBot();
-            StartBTN.IsEnabled = true;
-            BotBaseCB.IsEnabled = true;
-            AttachBTN.IsEnabled = true;
-            ProcessCB.IsEnabled = true;
         }
 
         private void HelpBTN_Click(object sender, RoutedEventArgs e)
@@ -279,9 +204,8 @@ namespace CoolFishNS
 
         private void UpdateBTN_Click(object sender, RoutedEventArgs e)
         {
-
             TabControlTC.SelectedItem = MainTab;
-            new Task(Updater.Update).Start();
+            Updater.Update();
         }
 
         private void MainTab_Click(object sender, RoutedEventArgs e)
@@ -308,10 +232,8 @@ namespace CoolFishNS
             TabControlTC.SelectedItem = DonateTab;
         }
 
-
         private void SecretBTN_Click(object sender, RoutedEventArgs e)
         {
-
             TabControlTC.SelectedItem = MainTab;
 
 
@@ -330,25 +252,15 @@ namespace CoolFishNS
             Logging.Write(Properties.Resources.SecretBTNMessage);
         }
 
-
         private void MetroWindow_Loaded_1(object sender, RoutedEventArgs e)
         {
-
-            Log.Initialize();
-            Logging.Instance = new Logging();
             Logging.OnWrite += AppendMessage;
-            OutputRTB.AppendText(Updater.GetNews() + Environment.NewLine);
-            OutputRTB.ScrollToEnd();
-
+            OutputText.Text = Updater.GetNews() + Environment.NewLine;
             Logging.Log("CoolFish Version: " + Utilities.Utilities.Version);
 
             BotManager.StartUp();
 
             UpdateControlSettings();
-
-            Utilities.Utilities.SetLanguage(this);
-
-            _timer = new Timer(Callback, null, 0, 30 * 60 * 1000);
 
             if (DateTime.Now.Month == 4 && DateTime.Now.Day == 1)
             {
@@ -361,14 +273,14 @@ namespace CoolFishNS
             BotBaseCB_DropDownOpened(null, null);
             BotBaseCB.SelectedIndex = 0;
 
-            new Task(Updater.Update).Start();
-
             _processes = GetWowProcesses();
             if (_processes.Length == 1)
             {
                 BotManager.AttachToProcess(_processes[0]);
             }
-            
+
+            Updater.Update();
+            Updater.StatCount();
         }
 
 
@@ -391,31 +303,25 @@ namespace CoolFishNS
 
             if (item != null)
             {
-                try
+                var cb = (CheckBox) item;
+
+                PluginContainer plugin = PluginManager.Plugins.ContainsKey(cb.Content.ToString())
+                    ? PluginManager.Plugins[cb.Content.ToString()]
+                    : null;
+
+                if (plugin != null)
                 {
-                    var cb = (CheckBox) item;
-
-                    PluginContainer plugin = PluginManager.Plugins.ContainsKey(cb.Content.ToString())
-                        ? PluginManager.Plugins[cb.Content.ToString()]
-                        : null;
-
-                    if (plugin != null)
+                    try
                     {
                         plugin.Plugin.OnConfig();
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex);
-                    Logging.Write(LocalSettings.Translations["Error"]);
+                    catch (Exception ex)
+                    {
+                        Logging.Log(ex);
+                        Logging.Write("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name);
+                    }
                 }
             }
-        }
-
-        private void LanguageCB_DropDownClosed(object sender, EventArgs e)
-        {
-            LocalSettings.Settings["LanguageIndex"] = BotSetting.As(LanguageCB.SelectedIndex);
-            Utilities.Utilities.SetLanguage(this);
         }
 
         private void ScriptsLB_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -428,8 +334,8 @@ namespace CoolFishNS
                 IPlugin p = PluginManager.Plugins[cb.Content.ToString()].Plugin;
 
                 DescriptionBox.Text = p.Description;
-                AuthorTB.Text = LocalSettings.Translations["Author"] + ": " + p.Author;
-                VersionTB.Text = LocalSettings.Translations["Version"] + ": " + p.Version;
+                AuthorTB.Text = "Author: " + p.Author;
+                VersionTB.Text = "Version: " + p.Version;
             }
         }
 
@@ -445,15 +351,7 @@ namespace CoolFishNS
 
         private void btn_Settings_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                BotManager.ActiveBot.Settings();
-            }
-            catch (Exception ex)
-            {
-                Logging.Write(LocalSettings.Translations["Unhandled Exception"]);
-                Logging.Log(ex);
-            }
+            BotManager.Settings();
         }
 
         private void BotBaseCB_DropDownOpened(object sender, EventArgs e)
@@ -462,8 +360,8 @@ namespace CoolFishNS
             _bots.Clear();
             foreach (var pair in BotManager.LoadedBots)
             {
-                BotBaseCB.Items.Add(pair.Value.GetName() + " (" + pair.Value.GetVersion() + ") by " +
-                                    pair.Value.GetAuthor());
+                BotBaseCB.Items.Add(pair.Value.Name + " (" + pair.Value.Version + ") by " +
+                                    pair.Value.Author);
                 _bots.Add(pair.Value);
             }
         }

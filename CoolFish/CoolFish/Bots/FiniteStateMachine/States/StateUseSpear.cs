@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -27,20 +26,20 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (!LocalSettings.Settings["UseSpear"])
-                {
-                    return false;
-                }
-
                 string res =
                     DxHook.Instance.ExecuteScript("local startTime, duration,enable = GetItemCooldown(88535) " +
-                                                        " expires =  GetTime() - (startTime + duration) " +
-                                                        " if expires > 0 and enable == 1 then expires=1 else expires = 0 end; ",
+                                                  " expires =  GetTime() - (startTime + duration) " +
+                                                  " if expires > 0 and enable == 1 then expires=1 else expires = 0 end; ",
                         "expires");
 
 
                 return res == "1";
             }
+        }
+
+        public override string Name
+        {
+            get { return "Using Spear"; }
         }
 
         /// <summary>
@@ -50,10 +49,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Logging.Write(Name);
 
-           string weaponId = DxHook.Instance.ExecuteScript("SpellStopCasting() " +
-                                          " weaponId = GetInventoryItemID(\"player\", 16); " +
-                                          " EquipItemByName(88535);","weaponId");
-            
+            string weaponId = DxHook.Instance.ExecuteScript("SpellStopCasting() " +
+                                                            " weaponId = GetInventoryItemID(\"player\", 16); " +
+                                                            " EquipItemByName(88535);", "weaponId");
+
 
             if (weaponId == "88535")
             {

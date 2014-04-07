@@ -1,6 +1,5 @@
 ﻿using System;
 using CoolFishNS.Management.CoolManager.Objects;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States

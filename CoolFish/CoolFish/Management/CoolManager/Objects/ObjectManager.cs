@@ -13,7 +13,29 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <summary>
         ///     A list of all Objects.
         /// </summary>
-        public static List<WoWObject> Objects { get { return GetObjects(); } }
+        public static List<WoWObject> Objects
+        {
+            get { return GetObjects(); }
+        }
+
+        /// <summary>
+        ///     The local player.
+        /// </summary>
+        public static WoWPlayerMe Me
+        {
+            get { return GetMe(); }
+        }
+
+
+        internal static IntPtr CurrentManager
+        {
+            get { return BotManager.Memory.Read<IntPtr>(Offsets.Addresses["s_curMgr"]); }
+        }
+
+        internal static ulong PlayerGuid
+        {
+            get { return BotManager.Memory.Read<ulong>(CurrentManager + (int) Offsets.ObjectManager.LocalGuid); }
+        }
 
         #region <Enums>
 
@@ -69,12 +91,6 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
         #endregion <Enums>
 
-
-        /// <summary>
-        ///     The local player.
-        /// </summary>
-        public static WoWPlayerMe Me { get { return GetMe(); }}
-
         private static WoWPlayerMe GetMe()
         {
             try
@@ -86,33 +102,11 @@ namespace CoolFishNS.Management.CoolManager.Objects
                 }
                 return new WoWPlayerMe(pointer);
             }
-            catch (AccessViolationException ex)
-            {
-                Logging.Log(ex);
-            }
             catch (Exception ex)
             {
                 Logging.Log(ex);
             }
             return null;
-
-        }
-
-
-        internal static IntPtr CurrentManager
-        {
-            get
-            {
-                return BotManager.Memory.Read<IntPtr>(Offsets.Addresses["s_curMgr"]);
-            }
-        }
-
-        internal static ulong PlayerGuid
-        {
-            get
-            {
-                return BotManager.Memory.Read<ulong>(CurrentManager + (int)Offsets.ObjectManager.LocalGuid);
-            }
         }
 
         private static List<WoWObject> GetObjects()
@@ -120,7 +114,6 @@ namespace CoolFishNS.Management.CoolManager.Objects
             var objects = new List<WoWObject>();
             try
             {
-               
                 var currentObject =
                     new WoWObject(
                         BotManager.Memory.Read<IntPtr>(CurrentManager + (int) Offsets.ObjectManager.FirstObject));
@@ -163,7 +156,6 @@ namespace CoolFishNS.Management.CoolManager.Objects
                     }
 
 
-
                     currentObject.BaseAddress =
                         BotManager.Memory.Read<IntPtr>(
                             currentObject.BaseAddress + (int) Offsets.ObjectManager.NextObject);
@@ -174,12 +166,10 @@ namespace CoolFishNS.Management.CoolManager.Objects
             }
             catch (Exception ex)
             {
-
                 Logging.Log(ex);
             }
 
             return objects;
-
         }
 
         /// <summary>
@@ -189,7 +179,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns></returns>
         public static List<T> GetObjectsOfType<T>() where T : WoWObject
         {
-            return (from t1 in Objects let t = t1.GetType() where t == typeof (T) select t1).OfType<T>().ToList();            
+            return (from t1 in Objects let t = t1.GetType() where t == typeof (T) select t1).OfType<T>().ToList();
         }
     }
 }

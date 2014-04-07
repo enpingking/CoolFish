@@ -29,6 +29,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             }
         }
 
+        public override string Name
+        {
+            get { return "Looting items"; }
+        }
+
         /// <summary>
         ///     If the loot window is open, then execute the lua to loot the items. See DoLoot.lua in the Resources for code
         /// </summary>

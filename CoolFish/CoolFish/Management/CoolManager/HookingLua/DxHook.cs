@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.Management.CoolManager.D3D;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 using GreyMagic;
 
@@ -18,12 +17,11 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
     /// <summary>
     ///     This class handles Hooking Endscene/Present function so that we can inject ASM if we need to do so.
     /// </summary>
-    public class DxHook : IDisposable
+    public class DxHook
     {
         private const int CODECAVESIZE = 0x1000;
         private static readonly DxHook SingletonInstance = new DxHook();
         private readonly byte[] _eraser = new byte[CODECAVESIZE];
-        private readonly object _injectLock = new object();
         private readonly object _lockObject = new object();
         private readonly Random _random = new Random();
 
@@ -58,60 +56,22 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </value>
         public bool IsApplied { get; private set; }
 
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~DxHook()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            Restore();
-
-
-            if (disposing)
-            {
-                try
-                {
-                    // free managed resources
-                    if (_dxAddress != null)
-                    {
-                        _dxAddress.Device.Dispose();
-                        _dxAddress = null;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex);
-                }
-            }
-        }
-
-        #endregion
-
         private static int Inject(IEnumerable<string> asm, IntPtr address)
         {
             BotManager.Memory.Asm.Clear();
             BotManager.Memory.Asm.SetMemorySize(0x4096);
 
-            foreach (var s in asm)
+            foreach (string s in asm)
             {
                 BotManager.Memory.Asm.AddLine(s);
             }
 
             int size = BotManager.Memory.Asm.Assemble().Length;
             bool returnVal = BotManager.Memory.Asm.Inject((uint) address);
-           
-            if(!returnVal)
+
+            if (!returnVal)
             {
-               Logging.Log("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
+                Logging.Log("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
             }
             return size;
         }
@@ -157,156 +117,126 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         ///     Apply the DirectX function hook to the WoW process
         /// </summary>
         /// <returns>true if it applied correctly. Otherwise, false</returns>
-        public bool Apply()
+        internal bool Apply()
         {
-            //Lets check if we are already hooked.
-            if (IsApplied)
+            lock (_lockObject)
             {
-                //Were already hooked.
-                //So lets restore the original bytes.
-                Restore();
-            }
-
-            _allocatedMemory = BotManager.Memory.CreateAllocatedMemory(CODECAVESIZE + 0x1000 + 0x4 + 0x4);
-
-            _dxAddress = new Dirext3D(BotManager.Memory.Process);
-
-
-            // store original bytes
-            _endSceneOriginalBytes = BotManager.Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
-
-            int jumpLoc = 0;
-
-            if (_endSceneOriginalBytes[5] == 0xE9)
-            {
-                DialogResult result = MessageBox.Show(LocalSettings.Translations["Hook Found"],
-                    LocalSettings.Translations["Warning"], MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-
-
-                if (result == DialogResult.No)
+                //Lets check if we are already hooked.
+                if (IsApplied)
                 {
+                    return true;
+                }
+
+                _allocatedMemory = BotManager.Memory.CreateAllocatedMemory(CODECAVESIZE + 0x1000 + 0x4 + 0x4);
+
+                _dxAddress = new Dirext3D(BotManager.Memory.Process);
+
+
+                // store original bytes
+                _endSceneOriginalBytes = BotManager.Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
+
+                if (_endSceneOriginalBytes[5] == 0xE9)
+                {
+                    Logging.Log("Detected Another hook");
+                    MessageBox.Show(
+                        "A hook has already been detected. Please assure you aren't running any other programs that hook DirectX functions in WoW. If this continues, please post for help on the forums.");
+                    return false;
+                }
+                if (_endSceneOriginalBytes[0] == 0xE9)
+                {
+                    MessageBox.Show(
+                        "It seems CoolFish might have crashed before it could clean up after itself. Please restart WoW and reattach the bot.");
                     return false;
                 }
 
-                Logging.Log("Detected Another hook. Trying to hook anyway.");
-
-                var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
-                jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
-            }
-
-            foreach (int b in _endSceneOriginalBytes.Where(b => b == 0xE9).Select((b, i) => i))
-            {
-                Logging.Log("E9 byte Detected at index: " + b);
-            }
-
-            if (_endSceneOriginalBytes[0] == 0xE9)
-            {
-                MessageBox.Show(LocalSettings.Translations["Reattach"]);
-                return false;
-            }
-
-
-            try
-            {
-                _allocatedMemory.WriteBytes("codeCavePtr", _eraser);
-                _allocatedMemory.WriteBytes("injectedCode", _eraser);
-                _allocatedMemory.Write("addressInjection", 0);
-                _allocatedMemory.Write("returnInjectionAsm", 0);
-
-                var asm = new List<string>
+                try
                 {
-                    "pushad", // save registers to the stack
-                    "pushfd",
-                    "mov eax, [" + _allocatedMemory["addressInjection"] + "]",
-                    "test eax, eax", // Test if you need launch injected code
-                    "je @out",
-                    "mov eax, [" + _allocatedMemory["addressInjection"] + "]",
-                    "call eax", // Launch Function
-                    "mov [" + _allocatedMemory["returnInjectionAsm"] + "], eax", // Copy pointer return value
-                    "mov edx, " + _allocatedMemory["addressInjection"], // Enter value 0 of so we know we are done
-                    "mov ecx, 0",
-                    "mov [edx], ecx",
-                    "@out:", // Close function
-                    "popfd", // load reg
-                    "popad"
-                };
+                    _allocatedMemory.WriteBytes("codeCavePtr", _eraser);
+                    _allocatedMemory.WriteBytes("injectedCode", _eraser);
+                    _allocatedMemory.Write("addressInjection", 0);
+                    _allocatedMemory.Write("returnInjectionAsm", 0);
 
-                asm = AddRandomAsm(asm);
+                    var asm = new List<string>
+                    {
+                        "pushad", // save registers to the stack
+                        "pushfd",
+                        "mov eax, [" + _allocatedMemory["addressInjection"] + "]",
+                        "test eax, eax", // Test if you need launch injected code
+                        "je @out",
+                        "mov eax, [" + _allocatedMemory["addressInjection"] + "]",
+                        "call eax", // Launch Function
+                        "mov [" + _allocatedMemory["returnInjectionAsm"] + "], eax", // Copy pointer return value
+                        "mov edx, " + _allocatedMemory["addressInjection"], // Enter value 0 of so we know we are done
+                        "mov ecx, 0",
+                        "mov [edx], ecx",
+                        "@out:", // Close function
+                        "popfd", // load reg
+                        "popad"
+                    };
 
-                // injected code
+                    asm = AddRandomAsm(asm);
 
-                int sizeAsm = Inject(asm, _allocatedMemory["injectedCode"]);
+                    // injected code
 
-                // Size asm jumpback
+                    int sizeAsm = Inject(asm, _allocatedMemory["injectedCode"]);
 
-                int sizeJumpBack;
+                    // Size asm jumpback
 
-                // copy and save original instructions
-                if (jumpLoc != 0)
-                {
-                    asm.Clear();
-
-                    asm.Add("jmp " + (uint) jumpLoc);
-                    Inject(asm, IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm));
-                    sizeJumpBack = 5;
-                }
-                else
-                {
+                    // copy and save original instructions
                     BotManager.Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
                         new[] {_endSceneOriginalBytes[5], _endSceneOriginalBytes[6]});
-                    sizeJumpBack = 2;
+
+
+                    asm.Clear();
+                    asm.Add("jmp " + ((uint) _dxAddress.HookPtr + 2)); // short jump takes 2 bytes.
+
+                    // create jump back stub
+                    Inject(asm, _allocatedMemory["injectedCode"] + sizeAsm + 2);
+
+                    // create hook jump
+                    asm.Clear();
+                    asm.Add("@top:");
+                    asm.Add("jmp " + _allocatedMemory["injectedCode"]);
+                    asm.Add("jmp @top");
+
+                    Inject(asm, _dxAddress.HookPtr - 5);
+                    IsApplied = true;
                 }
-
-
-                asm.Clear();
-                asm.Add("jmp " + ((uint) _dxAddress.HookPtr + sizeJumpBack)); // short jump takes 2 bytes.
-
-                // create jump back stub
-                Inject(asm, _allocatedMemory["injectedCode"] + sizeAsm + sizeJumpBack);
-
-                // create hook jump
-                asm.Clear();
-                asm.Add("@top:");
-                asm.Add("jmp " + _allocatedMemory["injectedCode"]);
-                asm.Add("jmp @top");
-
-                Inject(asm, _dxAddress.HookPtr - 5);
-                IsApplied = true;
+                catch (Exception ex)
+                {
+                    Logging.Log(ex);
+                    return false;
+                }
+                return true;
             }
-            catch (Exception ex)
-            {
-                Logging.Log(ex);
-                return false;
-            }
-            return true;
         }
 
         /// <summary>
         ///     Restore the original Endscene function and remove the function hook
         /// </summary>
-        public void Restore()
+        internal void Restore()
         {
-            //Lets check if were hooked
-            if (!IsApplied)
+            lock (_lockObject)
             {
-                //Were not hooked, so im gonna do nothing.
-                return;
-            }
-            if (BotManager.Memory.Process.HasExited)
-            {
+                //Lets check if were hooked
+                if (!IsApplied)
+                {
+                    return;
+                }
+                if (BotManager.Memory.Process.HasExited)
+                {
+                    IsApplied = false;
+                    return;
+                }
+
+                // Restore original endscene:
+                BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
+
+                _allocatedMemory.Dispose();
+                _dxAddress.Device.Dispose();
+
                 IsApplied = false;
-                return;
             }
-
-            // Restore original endscene:
-            BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
-
-
-            _allocatedMemory.Dispose();
-
-
-            IsApplied = false;
         }
 
         /// <summary>
@@ -316,18 +246,28 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <returns>true if the code was injected. Otherwise false.</returns>
         private void InjectAndExecute(IEnumerable<string> asm)
         {
-            lock (_injectLock)
+            lock (_lockObject)
             {
+                if (!IsApplied)
+                {
+                    throw new Exception(
+                        "Tried to inject code when the Hook was not applied");
+                }
                 //Lets Inject the passed ASM
                 Inject(asm, _allocatedMemory["codeCavePtr"]);
 
 
-
                 _allocatedMemory.Write("addressInjection", _allocatedMemory["codeCavePtr"]);
-               
+
+                int count = 0;
                 while (_allocatedMemory.Read<int>("addressInjection") > 0)
                 {
                     Thread.Sleep(1);
+                    count++;
+                    if (count >= 5000)
+                    {
+                        throw new Exception("Failed to inject code after 5 seconds");
+                    }
                 } // Wait to launch code
 
 
@@ -351,22 +291,17 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
                             stackTrace.GetFrame(1).GetMethod().Name);
             }
-            if (!IsApplied)
-            {
-                throw new Exception(
-                    "Tried to Execute Lua Code when our hook wasn't applied. You should check Hook.IsApplied First!");
-            }
             if (command == null)
             {
                 throw new Exception("ExecuteScript command can not be null!");
             }
 
             ExecuteScript(command, new string[0]);
-
         }
 
         /// <summary>
-        ///     Execute custom LUA code into the Wow process and retrieve a global LUA variable (via GetLocalizedText) all in one method
+        ///     Execute custom LUA code into the Wow process and retrieve a global LUA variable (via GetLocalizedText) all in one
+        ///     method
         /// </summary>
         /// <param name="command">Lua code to execute</param>
         /// <param name="returnVariableName">Name of the global LUA variable to return</param>
@@ -388,12 +323,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 throw new Exception("ExecuteScript arguments can not be null!");
             }
 
-            return ExecuteScript(command, new[]{returnVariableName})[returnVariableName];
-
+            return ExecuteScript(command, new[] {returnVariableName})[returnVariableName];
         }
 
         /// <summary>
-        ///     Execute custom LUA code into the Wow process and retrieve a list of global LUA variables (via GetLocalizedText) all in one method
+        ///     Execute custom LUA code into the Wow process and retrieve a list of global LUA variables (via GetLocalizedText) all
+        ///     in one method
         /// </summary>
         /// <param name="executeCommand">Lua code to execute</param>
         /// <param name="commands">Collection of string name of global lua variables to retrieve</param>
@@ -408,12 +343,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
                             stackTrace.GetFrame(1).GetMethod().Name);
             }
-
-            if (!IsApplied)
-            {
-                throw new Exception(
-                    "Tried to Execute Lua Code when our hook wasn't applied. You should check Hook.IsApplied First!");
-            }
             var returnDict = new Dictionary<string, string>();
 
             if (executeCommand == null || commands == null)
@@ -421,14 +350,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 throw new Exception("ExecuteScript arguments can not be null!");
             }
 
-            var enumerable = commands as List<string> ?? commands.ToList();
+            List<string> enumerable = commands as List<string> ?? commands.ToList();
 
             var builder = new StringBuilder(enumerable.Count);
 
             if (enumerable.Any())
             {
                 enumerable.RemoveAll(string.IsNullOrWhiteSpace);
-                foreach (var s in enumerable)
+                foreach (string s in enumerable)
                 {
                     builder.Append(s);
                     builder.Append('\0');
@@ -439,42 +368,39 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             {
                 builder.Append('\0');
             }
-           
-            
 
 
             int commandSpace = Encoding.UTF8.GetBytes(builder.ToString()).Length;
             commandSpace += commandSpace%4;
             int commandExecuteSpace = Encoding.UTF8.GetBytes(executeCommand).Length + 1;
             commandExecuteSpace += commandExecuteSpace%4;
-            int returnAddressSpace = enumerable.Count == 0 ? 0x4 : enumerable.Count * 0x4;
+            int returnAddressSpace = enumerable.Count == 0 ? 0x4 : enumerable.Count*0x4;
 
             AllocatedMemory mem =
                 BotManager.Memory.CreateAllocatedMemory(commandSpace + commandExecuteSpace + returnAddressSpace +
                                                         0x4 + 0x4);
-            
+
 
             mem.WriteBytes("command", Encoding.UTF8.GetBytes(builder.ToString()));
             mem.WriteBytes("commandExecute", Encoding.UTF8.GetBytes(executeCommand));
             if (enumerable.Count != 0)
             {
-                mem.WriteBytes("returnVarsPtr", new byte[enumerable.Count * 0x4]);
+                mem.WriteBytes("returnVarsPtr", new byte[enumerable.Count*0x4]);
             }
             else
             {
                 mem.WriteBytes("returnVarsPtr", new byte[0x4]);
             }
-            
+
             mem.Write("numberOfReturnVarsAddress", 0);
             mem.Write("returnVarsNamesPtr", mem["command"]);
 
 
             try
             {
-                lock (_lockObject)
-                {
-                    InternalExecute(mem["commandExecute"], mem["returnVarsNamesPtr"], enumerable.Count, mem["returnVarsPtr"], mem["numberOfReturnVarsAddress"]);
-                }
+                InternalExecute(mem["commandExecute"], mem["returnVarsNamesPtr"], enumerable.Count, mem["returnVarsPtr"],
+                    mem["numberOfReturnVarsAddress"]);
+
 
                 if (enumerable.Count > 0)
                 {
@@ -501,10 +427,9 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                             offset += 0x4; //modify local variable 
                             return offset; // value to be passed to next iteration
                         },
-                        finalResult =>{}
+                        finalResult => { }
                         );
                 }
-                
             }
             catch (Exception ex)
             {
@@ -540,7 +465,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             {
                 throw new Exception("GetLocalizedText arguments can not be null!");
             }
-            var result = GetLocalizedText(new[] {command})[command];
+            string result = GetLocalizedText(new[] {command})[command];
 
             if (LocalSettings.Settings["DoDebugging"].As<bool>())
             {
@@ -567,12 +492,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                             stackTrace.GetFrame(1).GetMethod().Name);
             }
 
-            if (!IsApplied)
-            {
-                throw new Exception(
-                    "Tried to Execute Lua Code when our hook wasn't applied. You should check Hook.IsApplied First!");
-            }
-
 
             var returnDict = new Dictionary<string, string>();
 
@@ -581,7 +500,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 return returnDict;
             }
 
-            var enumerable = commands.ToList();
+            List<string> enumerable = commands.ToList();
 
             if (!enumerable.Any())
             {
@@ -589,7 +508,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             }
             var builder = new StringBuilder(enumerable.Count);
             enumerable.RemoveAll(string.IsNullOrWhiteSpace);
-            foreach (var s in enumerable)
+            foreach (string s in enumerable)
             {
                 builder.Append(s);
                 builder.Append('\0');
@@ -612,10 +531,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
             try
             {
-                lock (_lockObject)
-                {
-                    InternalExecute(IntPtr.Zero, mem["returnVarsNamesPtr"], enumerable.Count, mem["returnVarsPtr"], mem["numberOfReturnVarsAddress"]);
-                }
+                InternalExecute(IntPtr.Zero, mem["returnVarsNamesPtr"], enumerable.Count, mem["returnVarsPtr"], mem["numberOfReturnVarsAddress"]);
 
 
                 byte[] address = BotManager.Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
@@ -641,7 +557,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                         offset += 0x4; //modify local variable 
                         return offset; // value to be passed to next iteration
                     },
-                    finalResult => {}
+                    finalResult => { }
                     );
             }
             catch (Exception ex)
@@ -663,6 +579,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
             if (executeCommandPtr != IntPtr.Zero)
             {
+                // We want to call ExecuteScriptBuffer
                 asm.AddRange(new[]
                 {
                     "mov eax, " + executeCommandPtr,
@@ -677,6 +594,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             if (returnVarsNamesPtr != IntPtr.Zero && numberOfReturnVarsAddress != IntPtr.Zero &&
                 returnVarsPtr != IntPtr.Zero)
             {
+                // We want to call GetLocalizedText
                 asm.AddRange(new[]
                 {
                     "call " + Offsets.Addresses["ClntObjMgrGetActivePlayerObj"],

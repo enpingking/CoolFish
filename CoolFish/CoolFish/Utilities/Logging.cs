@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace CoolFishNS.Utilities
 {
@@ -36,21 +36,29 @@ namespace CoolFishNS.Utilities
 
         #endregion
 
-        /// <summary>
-        ///     The active logging instance for logging stuff to a file/textbox
-        /// </summary>
-        public static Logging Instance;
+        private static readonly Logging Instance;
 
         private readonly ManualResetEvent _hasNewItems = new ManualResetEvent(false);
-
         private readonly ConcurrentQueue<Action> _queue = new ConcurrentQueue<Action>();
         private readonly ManualResetEvent _terminate = new ManualResetEvent(false);
         private readonly ManualResetEvent _waiting = new ManualResetEvent(false);
+        private uint _exceptionCount;
         private Thread _processThread;
 
-        internal Logging()
+        static Logging()
         {
-            _processThread = new Thread(ProcessQueue) {IsBackground = true};
+            CoolFishNS.Utilities.Log.StartUp();
+            Instance = new Logging();
+        }
+
+        private Logging()
+        {
+            _processThread = new Thread(ProcessQueue)
+            {
+                IsBackground = true,
+                CurrentUICulture = new CultureInfo("en-US"),
+                CurrentCulture = new CultureInfo("en-US")
+            };
             _processThread.Start();
         }
 
@@ -101,15 +109,16 @@ namespace CoolFishNS.Utilities
                     _waiting.Set();
                     int i = WaitHandle.WaitAny(new WaitHandle[] {_hasNewItems, _terminate});
 
-
                     _hasNewItems.Reset();
                     _waiting.Reset();
+
+
                     while (!_queue.IsEmpty)
                     {
-                        Action item;
-                        if (_queue.TryDequeue(out item))
+                        Action action;
+                        if (_queue.TryDequeue(out action))
                         {
-                            item();
+                            action();
                         }
                     }
 
@@ -120,11 +129,16 @@ namespace CoolFishNS.Utilities
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.ToString());
-                    return;
+                    _exceptionCount++;
+                    if (_exceptionCount > 5)
+                    {
+                        throw new Exception("Exception while trying to Log", ex);
+                    }
+                    Log("Exception while trying to Log:" + ex);
                 }
             }
         }
+
 
         /// <summary>
         ///     Blocks the current thread until all messages have been flushed from the logging queue
@@ -146,17 +160,16 @@ namespace CoolFishNS.Utilities
         {
             if (disposing)
             {
-                _terminate.Set();
-                _processThread = null;
                 try
                 {
+                    _terminate.Set();
+                    _processThread = null;
                     _waiting.Dispose();
                     _terminate.Dispose();
                     _hasNewItems.Dispose();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Log(ex);
                 }
             }
         }

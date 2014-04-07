@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Management.CoolManager.Objects
 {
@@ -28,9 +26,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
         {
             get
             {
-
-                return BotManager.Memory.Read<float>(BotManager.Memory.Read<IntPtr>(BaseAddress + (int)Offsets.WoWPlayer.Speed1) + (int)Offsets.WoWPlayer.Speed2);
-
+                return
+                    BotManager.Memory.Read<float>(BotManager.Memory.Read<IntPtr>(BaseAddress + (int) Offsets.WoWPlayer.Speed1) +
+                                                  (int) Offsets.WoWPlayer.Speed2);
             }
         }
 
@@ -157,7 +155,6 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <summary>
         ///     The unit's DisplayID.
         /// </summary>
-        [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
         public int DisplayID
         {
             get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.DisplayID); }

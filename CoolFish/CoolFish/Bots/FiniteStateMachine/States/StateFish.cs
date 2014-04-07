@@ -4,7 +4,6 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -31,6 +30,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public override bool NeedToRun
         {
             get { return ObjectManager.Me.Channeling == 0; }
+        }
+
+        public override string Name
+        {
+            get { return "Casting Fishing"; }
         }
 
         /// <summary>

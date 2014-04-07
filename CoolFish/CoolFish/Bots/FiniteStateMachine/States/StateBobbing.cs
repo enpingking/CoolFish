@@ -66,6 +66,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             }
         }
 
+        public override string Name
+        {
+            get { return "Caught a fish. Clicking bobber"; }
+        }
+
         /// <summary>
         ///     Interact with the bobber so we can catch the fish
         /// </summary>
@@ -74,7 +79,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             Logging.Write(Name);
             BuggedTimer.Restart();
 
-            Thread.Sleep(Random.Next(500, 2000));
+            Thread.Sleep(Random.Next(500, 1750));
 
             BotManager.Memory.Write(Offsets.Addresses["MouseOverGUID"], _bobber.Guid);
             DxHook.Instance.ExecuteScript("InteractUnit(\"mouseover\");");
