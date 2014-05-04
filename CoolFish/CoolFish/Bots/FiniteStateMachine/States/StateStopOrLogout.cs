@@ -105,17 +105,17 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 StateBobbing.BuggedTimer.Stop();
             }
 
-
-            Logging.Write("Stopping Engine.");
             BotManager.StopActiveBot();
 
-
-            for (int i = 0; i < 3; i++)
+            new Thread(() =>
             {
-                SystemSounds.Hand.Play();
-                Thread.Sleep(3000);
-            }
-
+                for (int i = 0; i < 3; i++)
+                {
+                    SystemSounds.Hand.Play();
+                    Thread.Sleep(3000);
+                }
+            }).Start();
+            
 
             if (LocalSettings.Settings["CloseWoWonStop"].As<bool>())
             {
