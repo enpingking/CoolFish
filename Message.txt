@@ -1,4 +1,6 @@
-News:
+News: 
 Coolfish for Wow 5.4.7 32-bit Client Only
-Updated for the latest patch. Let me know of any bugs. In the process of moving the site to Github slowly as my web host time runs out.
+ 
+Many internal changes in latest release.
+Project updated to .NET framekwork 4.5 so make sure you have it
 http://unknowndev.github.io/CoolFish/
