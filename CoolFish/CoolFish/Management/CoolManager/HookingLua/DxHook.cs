@@ -134,20 +134,34 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                 // store original bytes
                 _endSceneOriginalBytes = BotManager.Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
-
-                if (_endSceneOriginalBytes[5] == 0xE9)
-                {
-                    Logging.Log("Detected Another hook");
-                    MessageBox.Show(
-                        "A hook has already been detected. Please assure you aren't running any other programs that hook DirectX functions in WoW. If this continues, please post for help on the forums.");
-                    return false;
-                }
                 if (_endSceneOriginalBytes[0] == 0xE9)
                 {
                     MessageBox.Show(
                         "It seems CoolFish might have crashed before it could clean up after itself. Please restart WoW and reattach the bot.");
                     return false;
                 }
+                int jumpLoc = 0;
+
+                if (_endSceneOriginalBytes[5] == 0xE9)
+                {
+                    DialogResult result =
+                        MessageBox.Show(
+                            "Another Application was detected that may interfere with CoolFish. Would you like to continue anyway? (This may crash WoW, the other application, or cause CoolFish to not work properly. USE AT YOUR OWN RISK)",
+                            "Warning", MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning);
+
+
+                    if (result == DialogResult.No)
+                    {
+                        return false;
+                    }
+
+                    Logging.Log("Detected Another hook. Trying to hook anyway.");
+
+                    var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
+                    jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
+                }
+                
 
                 try
                 {
@@ -181,17 +195,30 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     int sizeAsm = Inject(asm, _allocatedMemory["injectedCode"]);
 
                     // Size asm jumpback
+                    int sizeJumpBack;
 
                     // copy and save original instructions
-                    BotManager.Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
-                        new[] {_endSceneOriginalBytes[5], _endSceneOriginalBytes[6]});
+                    if (jumpLoc != 0)
+                    {
+                        asm.Clear();
+
+                        asm.Add("jmp " + (uint)jumpLoc);
+                        Inject(asm, IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm));
+                        sizeJumpBack = 5;
+                    }
+                    else
+                    {
+                        BotManager.Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
+                            new[] { _endSceneOriginalBytes[5], _endSceneOriginalBytes[6] });
+                        sizeJumpBack = 2;
+                    }
 
 
                     asm.Clear();
-                    asm.Add("jmp " + ((uint) _dxAddress.HookPtr + 2)); // short jump takes 2 bytes.
+                    asm.Add("jmp " + ((uint) _dxAddress.HookPtr + sizeJumpBack)); // short jump takes 2 bytes.
 
                     // create jump back stub
-                    Inject(asm, _allocatedMemory["injectedCode"] + sizeAsm + 2);
+                    Inject(asm, _allocatedMemory["injectedCode"] + sizeAsm + sizeJumpBack);
 
                     // create hook jump
                     asm.Clear();
@@ -205,6 +232,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 catch (Exception ex)
                 {
                     Logging.Log(ex);
+                    IsApplied = false;
                     return false;
                 }
                 return true;
