@@ -29,7 +29,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </value>
         public override bool NeedToRun
         {
-            get { return ObjectManager.Me.Channeling == 0; }
+            get
+            {
+                string result = DxHook.Instance.ExecuteScript("loot = IsFishingLoot();", "loot");
+                return (ObjectManager.Me.Channeling == 0) && (result != "1");
+            }
         }
 
         public override string Name
