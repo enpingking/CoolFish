@@ -1,7 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using CoolFishNS.Management;
+using CoolFishNS.Utilities;
 
 namespace CoolFishNS
 {
@@ -12,25 +15,36 @@ namespace CoolFishNS
     {
         static App()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+            // Change culture under which this application runs
+            var ci = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = ci;
+            Thread.CurrentThread.CurrentUICulture = ci;
+            AppDomain.CurrentDomain.UnhandledException += UnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
         }
 
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
         {
-            if (args.Name.Contains("GreyMagic"))
+            Logging.Write("Unhandled error has occurred on another thread. This may cause an unstable state of the application.");
+            Logging.Log(unobservedTaskExceptionEventArgs.Exception);
+        }
+
+        public static void UnhandledException(object sender, UnhandledExceptionEventArgs ex)
+        {
+            try
             {
-                return Assembly.Load(CoolFishNS.Properties.Resources.GreyMagic);
+                var e = (Exception) ex.ExceptionObject;
+                Logging.Log(e.ToString());
+                MessageBox.Show("An unhandled Error has occurred. Please send the log file to the developer. The application will now exit.");
+                Logging.Flush();
+                BotManager.ShutDown();
             }
-            if (args.Name.Contains("MahApps"))
+            catch
             {
-                return Assembly.Load(CoolFishNS.Properties.Resources.MahApps_Metro);
             }
-            if (args.Name.Contains("Interactivity"))
-            {
-                return Assembly.Load(CoolFishNS.Properties.Resources.System_Windows_Interactivity);
-            }
-          
-            return null;
+
+
+            Environment.Exit(-1);
         }
     }
 }

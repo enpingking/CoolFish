@@ -13,53 +13,76 @@ namespace CoolFishNS.Management.CoolManager
     /// </summary>
     public static class Offsets
     {
-        // ReSharper disable InconsistentNaming
-        internal static readonly Dictionary<string, IntPtr> Addresses = new Dictionary<string, IntPtr>();
+        private static Dictionary<string, IntPtr> _addresses = new Dictionary<string, IntPtr>();
 
-        internal static bool FindOffsets(Process woWProc)
+        /// <summary>
+        ///     The offsets that the bot uses to read from the WoW process.
+        ///     Returns a copy of the internally found offsets to assure it is unmodified
+        /// </summary>
+        public static Dictionary<string, IntPtr> Addresses
         {
-            Addresses.Clear();
+            get { return new Dictionary<string, IntPtr>(_addresses); }
+        }
+
+        /// <summary>
+        ///     Find the offsets for the <see cref="Process" /> opened by <see cref="BotManager.Memory" />
+        /// </summary>
+        /// <returns>
+        ///     true if we find all offsets successfully; otherwise false. <see cref="Offsets.Addresses" /> will still
+        ///     contain the offsets that were found despite error.
+        /// </returns>
+        internal static bool FindOffsets()
+        {
+            var addresses = new Dictionary<string, IntPtr>(_addresses.Count);
+            if (BotManager.Memory == null || !BotManager.Memory.IsProcessOpen)
+            {
+                Logging.Write("Not attached to a process");
+                return false;
+            }
+
+            Process woWProc = BotManager.Memory.Process;
+
+            if (woWProc == null)
+            {
+                Logging.Write("Not attached to a process");
+                return false;
+            }
+
             var fp = new FindPattern(new MemoryStream(Encoding.UTF8.GetBytes(Resources.Patterns)), woWProc);
-            var baseAddr = (int)woWProc.MainModule.BaseAddress;
-                try
+            var baseAddr = (int) woWProc.MainModule.BaseAddress;
+            try
+            {
+                foreach (var pattern in fp._patterns)
                 {
-                    foreach (var pattern in fp._patterns)
+                    switch (pattern.Key)
                     {
-                        switch (pattern.Key)
-                        {
-                            case "FrameScript_ExecuteBuffer":
-                            case "FrameScript_GetLocalizedText":
-                            case "ClntObjMgrGetActivePlayerObj":
-                                Addresses.Add(pattern.Key,fp.Get(pattern.Key));
-                                break;
-                            default:
-                                Addresses.Add(pattern.Key, fp.Get(pattern.Key) - baseAddr);
-                                break;
-                        }
+                        case "FrameScript_ExecuteBuffer":
+                        case "FrameScript_GetLocalizedText":
+                        case "ClntObjMgrGetActivePlayerObj":
+                            addresses.Add(pattern.Key, fp.Get(pattern.Key));
+                            break;
+                        default:
+                            addresses.Add(pattern.Key, fp.Get(pattern.Key) - baseAddr);
+                            break;
                     }
-
-                    Logging.Log("Base: 0x" + baseAddr.ToString("X"));
-                    foreach (var address in Addresses)
-                    {
-                        Logging.Log(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
-                    }
-
-                    
-                    
-                    
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex);
-                    return false;
                 }
 
-
+                Logging.Log("Base: 0x" + baseAddr.ToString("X"));
+                foreach (var address in addresses)
+                {
+                    Logging.Log(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logging.Log(ex);
+            }
+            _addresses = addresses;
             return fp.NotFoundCount == 0;
         }
 
         /****
-         * Missing XML Documentation warnings by ReSharper are being supressed in
+         * Missing XML Documentation warnings by ReSharper are being suppressed in
          * this file with the use of the #pragma statement below.
          */
 
@@ -67,8 +90,9 @@ namespace CoolFishNS.Management.CoolManager
 
         /// <summary>
         ///     Memory locations specific to the WoWPlayer type.
+        ///     Version: 5.4
         /// </summary>
-        public enum WoWPlayer
+        internal enum WoWPlayer
         {
             NameStore = 0xC85368,
             NameMask = 0x24,
@@ -81,21 +105,25 @@ namespace CoolFishNS.Management.CoolManager
             Speed2 = 0x80
         }
 
-        public enum CTM
+        /// <summary>
+        ///     Memory locations for ClickToMove
+        ///     Version: 5.3
+        /// </summary>
+        internal enum CTM
         {
-            CTM_Push = 0x1C, // 5.3
-            CTM_X = 0x8C, // 5.3
-            CTM_Y = CTM_X + 0x4, // 5.3
-            CTM_Z = CTM_X + 0x8, // 5.3
-            CTM_GUID = 0x20, // 5.3
-            CTM_Distance = 0xC // 5.3
+            CTM_Push = 0x1C,
+            CTM_X = 0x8C,
+            CTM_Y = CTM_X + 0x4,
+            CTM_Z = CTM_X + 0x8,
+            CTM_GUID = 0x20,
+            CTM_Distance = 0xC
         }
 
         /// <summary>
         ///     Memory locations for reading WoWUnit stuff
-        ///     Version: 5.4
+        ///     Version: 5.4.0
         /// </summary>
-        public enum WoWUnit
+        internal enum WoWUnit
         {
             // PowerOffset = 0xC7C91C, TODO: out of date
             Name1 = 0x9AC,
@@ -104,9 +132,9 @@ namespace CoolFishNS.Management.CoolManager
 
         /// <summary>
         ///     Memory locations specific to the ObjectManager.
-        ///     Version: 5.4
+        ///     Version: 5.4.0
         /// </summary>
-        public enum ObjectManager
+        internal enum ObjectManager
         {
             LocalGuid = 0xE8, //5.4.2
             FirstObject = 0xCC,
@@ -118,7 +146,7 @@ namespace CoolFishNS.Management.CoolManager
         ///     Memory locations specific to the WowObject type.
         ///     Version: 5.4.0
         /// </summary>
-        public enum WowObject
+        internal enum WowObject
         {
             X = 0x830,
             Y = X + 0x4,
@@ -136,10 +164,10 @@ namespace CoolFishNS.Management.CoolManager
         ///     Memory locations specific to the WowGameObject type.
         ///     Version: 5.4.2
         /// </summary>
-        public enum WowGameObject : uint
+        internal enum WowGameObject : uint
         {
             Name1 = 0x1C0,
-            Name2 = 0xB0,  
+            Name2 = 0xB0,
             AnimationState = 0xCC,
         }
 
@@ -184,7 +212,7 @@ namespace CoolFishNS.Management.CoolManager
         }
 
         [Flags]
-        public enum CorpseFlags
+        internal enum CorpseFlags
         {
             CORPSE_FLAG_NONE = 0x00,
             CORPSE_FLAG_BONES = 0x01,
@@ -196,7 +224,7 @@ namespace CoolFishNS.Management.CoolManager
         }
 
         [Flags]
-        public enum UnitDynamicFlags
+        internal enum UnitDynamicFlags
         {
             None = 0,
             Lootable = 0x1,
@@ -210,7 +238,7 @@ namespace CoolFishNS.Management.CoolManager
         }
 
         [Flags]
-        public enum UnitFlags : uint
+        internal enum UnitFlags : uint
         {
             None = 0,
             Sitting = 0x1,
@@ -274,7 +302,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum ObjectFields
+        internal enum ObjectFields
         {
             Guid = 0x0,
             Data = 0x8,
@@ -285,7 +313,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWItemFields
+        internal enum WoWItemFields
         {
             Owner = 0x20,
             ContainedIn = 0x28,
@@ -305,14 +333,14 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWContainerFields
+        internal enum WoWContainerFields
         {
             Slots = 0x114,
             NumSlots = 0x234,
         };
 
 
-        public enum WoWUnitFields
+        internal enum WoWUnitFields
         {
             Charm = 0x20,
             Summon = 0x28,
@@ -397,7 +425,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWPlayerFields
+        internal enum WoWPlayerFields
         {
             DuelArbiter = 0x280,
             PlayerFlags = 0x288,
@@ -492,7 +520,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWGameObjectFields
+        internal enum WoWGameObjectFields
         {
             CreatedBy = 0x20,
             DisplayID = 0x28,
@@ -505,7 +533,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWDynamicObjectFields
+        internal enum WoWDynamicObjectFields
         {
             Caster = 0x20,
             TypeAndVisualID = 0x28,
@@ -515,7 +543,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWCorpseFields
+        internal enum WoWCorpseFields
         {
             Owner = 0x20,
             PartyGUID = 0x28,
@@ -528,7 +556,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWAreaTriggerFields
+        internal enum WoWAreaTriggerFields
         {
             Caster = 0x20,
             Duration = 0x28,
@@ -538,7 +566,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        public enum WoWSceneObjectFields
+        internal enum WoWSceneObjectFields
         {
             ScriptPackageID = 0x20,
             RndSeedVal = 0x24,

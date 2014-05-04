@@ -25,16 +25,15 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (!LocalSettings.Settings["UseCharm"])
-                {
-                    return false;
-                }
-
-
                 string res = DxHook.Instance.ExecuteScript(Resources.NeedToRunCharm, "expires");
 
                 return res == "1";
             }
+        }
+
+        public override string Name
+        {
+            get { return "Using Charm"; }
         }
 
         /// <summary>

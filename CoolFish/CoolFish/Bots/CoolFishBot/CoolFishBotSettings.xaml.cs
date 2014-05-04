@@ -4,9 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Windows.Threading;
 using CoolFishNS.Management;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 using MessageBox = System.Windows.Forms.MessageBox;
 
@@ -23,8 +21,8 @@ namespace CoolFishNS.Bots.CoolFishBot
         {
             InitializeComponent();
             var col1 = new DataGridTextColumn {Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150};
-            col1.SetValue(NameProperty,"ItemColumn");
-            
+            col1.SetValue(NameProperty, "ItemColumn");
+
             ItemsGrid.Columns.Add(col1);
             UpdateControlSettings();
         }
@@ -45,15 +43,9 @@ namespace CoolFishNS.Bots.CoolFishBot
             }
         }
 
-        private void LanguageCB_DropDownClosed(object sender, EventArgs e)
-        {
-            LocalSettings.Settings["LanguageIndex"] = BotSetting.As(LanguageCB.SelectedIndex);
-            Utilities.Utilities.SetLanguage(this);
-        }
-
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (!BotManager.ActiveBot.IsRunning())
+            if (!BotManager.ActiveBot.IsRunning)
             {
                 SaveControlSettings();
                 LocalSettings.SaveSettings();
@@ -64,7 +56,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 MessageBox.Show("Can't save settings while the bot is running. Please stop the bot first.");
             }
-            
         }
 
         private void CloseButton_OnClick(object sender, RoutedEventArgs e)
@@ -79,8 +70,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 ItemsGrid.ItemsSource = null;
                 ItemsGrid.ItemsSource = _items;
-
-
             }
             catch (Exception ex)
             {
@@ -106,8 +95,10 @@ namespace CoolFishNS.Bots.CoolFishBot
             UseCharmCB.IsChecked = LocalSettings.Settings["UseCharm"];
             UseRumseyCB.IsChecked = LocalSettings.Settings["UseRumsey"];
             UseSpearCB.IsChecked = LocalSettings.Settings["UseSpear"];
-            DoDebugCB.IsChecked =  LocalSettings.Settings["DoDebugging"];
-            LanguageCB.SelectedIndex = LocalSettings.Settings["LanguageIndex"];
+            DoDebugCB.IsChecked = LocalSettings.Settings["DoDebugging"];
+            CastFishingCB.IsChecked = LocalSettings.Settings["DoFishing"];
+            ClickBobberCB.IsChecked = LocalSettings.Settings["DoBobbing"];
+            DoLootingCB.IsChecked = LocalSettings.Settings["DoLoot"];
             _items = LocalSettings.Items;
             FillDataGrid();
 
@@ -116,41 +107,36 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x0, 0x0, 0x0);
             }
-            LanguageCB_DropDownClosed(null, null);
         }
 
         private void SaveControlSettings()
         {
-            LocalSettings.Settings["NoLure"] = BotSetting.As(NoLureCB.IsChecked);
-            LocalSettings.Settings["LootOnlyItems"] = BotSetting.As(LootOnlyItemsCB.IsChecked);
-            LocalSettings.Settings["LogoutOnStop"] = BotSetting.As(LogoutCB.IsChecked);
-            LocalSettings.Settings["UseRaft"] = BotSetting.As(UseRaftCB.IsChecked);
-            LocalSettings.Settings["StopOnTime"] = BotSetting.As(StopTimeCB.IsChecked);
-            LocalSettings.Settings["StopOnNoLures"] = BotSetting.As(StopNoLuresCB.IsChecked);
-            LocalSettings.Settings["StopOnBagsFull"] = BotSetting.As(StopFullBagsCB.IsChecked);
-            LocalSettings.Settings["CloseWoWonStop"] = BotSetting.As(CloseAppsCB.IsChecked);
-            LocalSettings.Settings["ShutdownPConStop"] = BotSetting.As(ShutdownCB.IsChecked);
-            LocalSettings.Settings["DontLootLeft"] = BotSetting.As(DontLootCB.IsChecked);
-            LocalSettings.Settings["LootQuality"] = BotSetting.As(QualityCMB.SelectedIndex - 1);
-            LocalSettings.Settings["SoundOnWhisper"] = BotSetting.As(SoundWhisperCB.IsChecked);
-            LocalSettings.Settings["UseCharm"] = BotSetting.As(UseCharmCB.IsChecked);
-            LocalSettings.Settings["UseRumsey"] = BotSetting.As(UseRumseyCB.IsChecked);
-            LocalSettings.Settings["UseSpear"] = BotSetting.As(UseSpearCB.IsChecked);
-            LocalSettings.Settings["DoDebugging"] = BotSetting.As(DoDebugCB.IsChecked);
-            LocalSettings.Settings["LanguageIndex"] = BotSetting.As(LanguageCB.SelectedIndex);
+            LocalSettings.Settings["NoLure"] = NoLureCB.IsChecked;
+            LocalSettings.Settings["LootOnlyItems"] = LootOnlyItemsCB.IsChecked;
+            LocalSettings.Settings["LogoutOnStop"] = LogoutCB.IsChecked;
+            LocalSettings.Settings["UseRaft"] = UseRaftCB.IsChecked;
+            LocalSettings.Settings["StopOnTime"] = StopTimeCB.IsChecked;
+            LocalSettings.Settings["StopOnNoLures"] = StopNoLuresCB.IsChecked;
+            LocalSettings.Settings["StopOnBagsFull"] = StopFullBagsCB.IsChecked;
+            LocalSettings.Settings["CloseWoWonStop"] = CloseAppsCB.IsChecked;
+            LocalSettings.Settings["ShutdownPConStop"] = ShutdownCB.IsChecked;
+            LocalSettings.Settings["DontLootLeft"] = DontLootCB.IsChecked;
+            LocalSettings.Settings["LootQuality"] = QualityCMB.SelectedIndex - 1;
+            LocalSettings.Settings["SoundOnWhisper"] = SoundWhisperCB.IsChecked;
+            LocalSettings.Settings["UseCharm"] = UseCharmCB.IsChecked;
+            LocalSettings.Settings["UseRumsey"] = UseRumseyCB.IsChecked;
+            LocalSettings.Settings["UseSpear"] = UseSpearCB.IsChecked;
+            LocalSettings.Settings["DoDebugging"] = DoDebugCB.IsChecked;
+            LocalSettings.Settings["DoFishing"] = CastFishingCB.IsChecked;
+            LocalSettings.Settings["DoBobbing"] = ClickBobberCB.IsChecked;
+            LocalSettings.Settings["DoLoot"] = DoLootingCB.IsChecked;
             LocalSettings.Items = _items;
-                double result;
-                if (!double.TryParse(StopTimeMinutesTB.Text, out result))
-                {
-                    Logging.Log("Invalid Stop Time.");
-                }
-                LocalSettings.Settings["MinutesToStop"] = BotSetting.As(result);
-
-            
+            double result;
+            if (!double.TryParse(StopTimeMinutesTB.Text, out result))
+            {
+                Logging.Write("Invalid Stop Time.");
+            }
+            LocalSettings.Settings["MinutesToStop"] = BotSetting.As(result);
         }
-
-
-
-
     }
 }

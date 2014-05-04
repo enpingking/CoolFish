@@ -69,9 +69,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
         public void MoveTo(float toX, float toY, float toZ)
         {
             BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int) Offsets.CTM.CTM_X, toX);
-            BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int)Offsets.CTM.CTM_Y, toY);
-            BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int)Offsets.CTM.CTM_Z, toZ);
-            BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int)Offsets.CTM.CTM_Push, 4);
+            BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int) Offsets.CTM.CTM_Y, toY);
+            BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int) Offsets.CTM.CTM_Z, toZ);
+            BotManager.Memory.Write(Offsets.Addresses["CTM_Base"] + (int) Offsets.CTM.CTM_Push, 4);
         }
 
         /// <summary>

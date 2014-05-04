@@ -35,14 +35,14 @@ namespace CoolFishNS.Management.CoolManager.D3D
         {
             LoadDxgiDll();
             var scd = new SwapChainDescription
-                      {
-                          BufferCount = 1,
-                          ModeDescription = new ModeDescription {Format = DXGI_FORMAT_R8G8B8A8_UNORM},
-                          Usage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-                          OutputHandle = Form.Handle,
-                          SampleDescription = new SampleDescription {Count = 1},
-                          IsWindowed = true
-                      };
+            {
+                BufferCount = 1,
+                ModeDescription = new ModeDescription {Format = DXGI_FORMAT_R8G8B8A8_UNORM},
+                Usage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+                OutputHandle = Form.Handle,
+                SampleDescription = new SampleDescription {Count = 1},
+                IsWindowed = true
+            };
 
             unsafe
             {

@@ -42,11 +42,11 @@ namespace CoolFishNS.Management.CoolManager.D3D
                 throw new Exception("Failed to create D3D.");
 
             var parameters = new D3DPresentParameters
-                             {
-                                 Windowed = true,
-                                 SwapEffect = 1,
-                                 BackBufferFormat = 0
-                             };
+            {
+                Windowed = true,
+                SwapEffect = 1,
+                BackBufferFormat = 0
+            };
 
             IntPtr createDevicePtr = GetVTableFuncAddress(_pD3D, VTableIndexes.Direct3D9CreateDevice);
             var createDevice = GetDelegate<CreateDeviceDelegate>(createDevicePtr);

@@ -61,28 +61,6 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;الرئيسية&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;الاعدادات&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;الاعدادات&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;الاضافات&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;تبرع&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;تحديث&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;مساعده/تبليغ/المميزات&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;اطفاء الجهاز بعد التوقف&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- أقل جوده يتم التقاطها --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;رصاصي&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;أبيض&quot; /&gt;
-        ///    &lt;Uncom [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string ar {
-            get {
-                return ResourceManager.GetString("ar", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ~Unknown~.
         /// </summary>
         internal static string BotAuthor {
@@ -111,27 +89,6 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Hauptmenü&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Einstellungen&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Einstellungen&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Spenden&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Update&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Hilfe/Fehler/Feature&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Herunterfahren des PC&apos;s bei STOP des bots&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Minimale Qualität der Beute --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Schlecht/Grau&quot; /&gt;
-        ///    &lt;Comm [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string de_DE {
-            get {
-                return ResourceManager.GetString("de_DE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to local numLootItems = GetNumLootItems()
         ///for i=1,numLootItems do 
         ///local Link = GetLootSlotLink(i)
@@ -145,76 +102,11 @@ namespace CoolFishNS.Properties {
         ///                for j=1,# ItemsList do
         ///                    nameMatch = ItemsList[j] == name
         ///                    idMatch = ItemsList[j] == id
-        ///          [rest of string was truncated]&quot;;.
+        ///                    if [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DoLoot {
             get {
                 return ResourceManager.GetString("DoLoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Αρχική&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Ρυθμίσεις&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Ρυθμίσεις&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Donate&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Ενημέρωση&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Βοήθεια/Λάθη προγράμματος/Ιδιότητες&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Κλείσιμο Η/Y όταν σταματήσει το bot&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Ελάχιστη ποιότητα για μάζεμα --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Poor&quot; /&gt;
-        ///    &lt;CommonQualit [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string el_GR {
-            get {
-                return ResourceManager.GetString("el_GR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Main&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Settings&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Settings&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Donate&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Update&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Help/Bug/Feature&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Shutdown PC on Stop&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Minimum Loot Quality --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Poor&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;Common&quot; /&gt;
-        ///    &lt;UncommonQualityCho [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string en_US {
-            get {
-                return ResourceManager.GetString("en_US", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Principal&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Config&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Config&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Donar&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Actualizar&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Ayuda/Error/Rasgo&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Apague el PC en la parada&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;--La calidad mínima de los artículos--&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Pobre&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;Común&quot; /&gt;
-        /// [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string es_ES {
-            get {
-                return ResourceManager.GetString("es_ES", resourceCulture);
             }
         }
         
@@ -228,27 +120,6 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Principal&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Réglages&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Réglages&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Contribution&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Mise à jour&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Aide/Bug/Fonctionnalités&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Éteindre le PC à l&apos;arrêt du bot&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Qualité minimum des loots --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Médiocre&quot; /&gt;
-        ///    &lt;CommonQualityChoi [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string fr_FR {
-            get {
-                return ResourceManager.GetString("fr_FR", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Count = 0; 
         ///LureName = nil; 
         ///local ItemID = GetInventoryItemID(&quot;player&quot;,1); 
@@ -256,28 +127,19 @@ namespace CoolFishNS.Properties {
         ///    local start, duration = GetInventoryItemCooldown(&quot;player&quot;, 1);
         ///    if start+duration-GetTime() &lt; 0 then 
         ///	    LureName = GetItemInfo(ItemID);
-        ///		Count = 1; 
+        ///		Count = 1;
+        ///		return; 
         ///    end 
         ///end
         ///
         ///for i=0,4 do numberOfSlots = GetContainerNumSlots(i); 
         ///    for j=1,numberOfSlots do itemid = GetContainerItemID(i,j) 
         ///        if itemid == 67407 or itemid == 69907 or itemid == 6529 or 
-        ///           itemid [rest of string was truncated]&quot;;.
+        ///           itemid ==  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetLureName {
             get {
                 return ResourceManager.GetString("GetLureName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] GreyMagic {
-            get {
-                object obj = ResourceManager.GetObject("GreyMagic", resourceCulture);
-                return ((byte[])(obj));
             }
         }
         
@@ -287,16 +149,6 @@ namespace CoolFishNS.Properties {
         internal static string HitTimeLimit {
             get {
                 return ResourceManager.GetString("HitTimeLimit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] MahApps_Metro {
-            get {
-                object obj = ResourceManager.GetObject("MahApps_Metro", resourceCulture);
-                return ((byte[])(obj));
             }
         }
         
@@ -351,7 +203,7 @@ namespace CoolFishNS.Properties {
         ///end 
         ///else 
         ///if englishClass == &quot;WARLOCK&quot; and GetSpecialization() == 1 then 
-        ///name = GetSpellInfo(5697); _,_,_,_,_ [rest of string was truncated]&quot;;.
+        ///name = GetSpellInfo(5697); _,_,_,_,_,_,expires = Uni [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string NeedToRunUseRaft {
             get {
@@ -389,7 +241,10 @@ namespace CoolFishNS.Properties {
         ///&lt; 30 then
         ///  expires= 1
         ///  else
-        ///  expir [rest of string was truncated]&quot;;.
+        ///  expires= 0
+        ///  end
+        ///  else
+        ///  expires= [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string NeedToRunUseRumsey {
             get {
@@ -398,58 +253,15 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Begin&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Instellingen&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Instellingen&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Doneren&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Updaten&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Help/Fout/Functies&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Bij stop PC uitschakelen&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Minimum Loot Kwaliteit --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Poor&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;Common&quot; /&gt;
-        ///    [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string nl_NL {
-            get {
-                return ResourceManager.GetString("nl_NL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Hovedside&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Instillinger&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Instillinger&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Donèr&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Oppdater&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Hjelp/Feil/Funksjoner&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Skru av Datamaskin på stopp&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Minste loot verdi --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Poor&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;Common&quot; /&gt;        /// [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string nn_NO {
-            get {
-                return ResourceManager.GetString("nn_NO", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///
         ///&lt;Patterns&gt;
-        ///  &lt;Pattern desc=&quot;ClntObjMgrGetActivePlayerObj&quot; 
+        ///  &lt;Pattern desc=&quot;ClntObjMgrGetActivePlayerObj&quot;
         ///           pattern=&quot;\xa1\x00\x00\x00\x00\x85\xc0\x75\x00\xe8\x00\x00\x00\x00\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\x6a\x10\x52\x50\xe8\x00\x00\x00\x00\x83\xc4\x14\xa3\x00\x00\x00\x00\xc3&quot;
         ///           mask=&quot;x????xxx?x????x????x????xxxxx????xxxx????x&quot;&gt;
         ///  &lt;/Pattern&gt;
         ///  &lt;Pattern desc=&quot;PlayerPointer&quot;
-        ///         pattern=&quot;\xa1\x00\x00\x00\x00\x85\xc0\x75\x00\xe8\x00\x00\x00\x00\x68\x00\x00\x00\x00\x68\x00\x00\x [rest of string was truncated]&quot;;.
+        ///           pattern=&quot;\xa1\x00\x00\x00\x00\x85\xc0\x75\x00\xe8\x00\x00\x00\x00\x68\x00\x00\x00\x00\x68\x00\x00\ [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Patterns {
             get {
@@ -485,27 +297,6 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Главная&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Настройки&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Настройки&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Плагины&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Донат&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Обновление&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Помощь/Ошибки/Характеристики&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Выключить ПК по Остановке&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;--Выберите качество добычи--&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Низкое качество&quot; /&gt;
-        ///    &lt;CommonQualityChoice Val [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string ru_RU {
-            get {
-                return ResourceManager.GetString("ru_RU", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Congrats. You found the secret button..
         /// </summary>
         internal static string SecretBTNMessage {
@@ -520,37 +311,6 @@ namespace CoolFishNS.Properties {
         internal static string ShouldRunException {
             get {
                 return ResourceManager.GetString("ShouldRunException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;Huvudmeny&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;Inställningar&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;Inställningar&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;Plugins&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;Donation&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;Uppdatera&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;Hjälp/Bug/Feature&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;Stäng av PC när botten stoppas&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- Minimum Loot Kvalitet --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;Grå Saker&quot; /&gt;
-        ///    &lt;CommonQualityChoice Valu [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string sv_SE {
-            get {
-                return ResourceManager.GetString("sv_SE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] System_Windows_Interactivity {
-            get {
-                object obj = ResourceManager.GetObject("System_Windows_Interactivity", resourceCulture);
-                return ((byte[])(obj));
             }
         }
         
@@ -575,7 +335,8 @@ namespace CoolFishNS.Properties {
         ///&lt; 1  then
         ///  name= GetSpellInfo(101976)
         ///  CastSpellByName( name)
-        ///  while UnitChann [rest of string was truncated]&quot;;.
+        ///  while UnitChannelInfo(&quot;player&quot;) do
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string UseRaft {
             get {
@@ -604,54 +365,6 @@ namespace CoolFishNS.Properties {
         internal static string WhisperNotes {
             get {
                 return ResourceManager.GetString("WhisperNotes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;主界面&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;设置&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;设置&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;插件&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;捐赠&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;更新&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;帮助&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;停止后关闭电脑&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- 最低拾取标准 --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;劣质&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;普通&quot; /&gt;
-        ///    &lt;UncommonQualityChoice Value=&quot;优秀&quot; /&gt;
-        ///    &lt;RareQualityChoice Value=&quot;精良&quot; /&gt;
-        ///    &lt;EpicQualit [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string zh_CHS {
-            get {
-                return ResourceManager.GetString("zh_CHS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;Language&gt;
-        ///  &lt;Controls&gt;
-        ///    &lt;MainTabBTN Value=&quot;主界面&quot; /&gt;
-        ///    &lt;SettingsTabBTN Value=&quot;設定&quot; /&gt;
-        ///    &lt;SettingsBTN Value=&quot;設定&quot; /&gt;
-        ///    &lt;PluginsTabBTN Value=&quot;插件&quot; /&gt;
-        ///    &lt;DonateTabBTN Value=&quot;捐贈&quot; /&gt;
-        ///    &lt;UpdateTabBTN Value=&quot;更新&quot; /&gt;
-        ///    &lt;HelpTabBTN Value=&quot;幫助&quot; /&gt;
-        ///    &lt;ShutdownCB Value=&quot;停止後關閉電腦&quot; /&gt;
-        ///    &lt;MinQualityChoice Value=&quot;-- 最低拾取標準 --&quot; /&gt;
-        ///    &lt;PoorQualityChoice Value=&quot;粗糙&quot; /&gt;
-        ///    &lt;CommonQualityChoice Value=&quot;普通&quot; /&gt;
-        ///    &lt;UncommonQualityChoice Value=&quot;優秀&quot; /&gt;
-        ///    &lt;RareQualityChoice Value=&quot;精良&quot; /&gt;
-        ///    &lt;EpicQualit [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string zh_CHT {
-            get {
-                return ResourceManager.GetString("zh_CHT", resourceCulture);
             }
         }
     }

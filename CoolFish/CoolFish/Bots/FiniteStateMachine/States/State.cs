@@ -24,7 +24,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Name of the state. returns the Class name by default
         /// </summary>
-        public string Name
+        public virtual string Name
         {
             get { return GetType().Name; }
         }

@@ -226,7 +226,6 @@ namespace CoolFishNS.Management.CoolManager
             var p = obj as Point;
             if (p != null)
             {
-               
                 if (X > p.X && Y > p.Y && Z > p.Z)
                 {
                     return 1;

@@ -121,42 +121,6 @@
   <data name="btn_donate_SM" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\btn_donate_SM.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="en_US" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\en-US.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="es_ES" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\es-ES.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="ru_RU" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\ru-RU.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="fr_FR" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\fr-FR.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="de_DE" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\de-DE.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="el_GR" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\el-GR.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="nn_NO" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\nn-NO.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="zh_CHS" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\zh-CHS.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="zh_CHT" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\zh-CHT.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="ar" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\ar.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="nl_NL" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\nl-NL.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="sv_SE" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Languages\sv-SE.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
   <data name="BotIsNotReadyError" xml:space="preserve">
     <value>Please attach to a process and select a bot base to use.</value>
   </data>
@@ -210,14 +174,5 @@
   </data>
   <data name="WhisperNotes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Bots\LuaResources\WhisperNotes.lua;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="GreyMagic" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\GreyMagic.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="MahApps_Metro" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\MahApps.Metro.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="System_Windows_Interactivity" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\System.Windows.Interactivity.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

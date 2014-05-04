@@ -25,16 +25,15 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (!LocalSettings.Settings["UseRumsey"])
-                {
-                    return false;
-                }
-
-
                 string res = DxHook.Instance.ExecuteScript(Resources.NeedToRunUseRumsey, "expires");
 
                 return res == "1";
             }
+        }
+
+        public override string Name
+        {
+            get { return "Using Rumsey"; }
         }
 
         /// <summary>
