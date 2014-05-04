@@ -1,21 +1,25 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace CoolFishNS.Utilities
 {
     internal static class Log
     {
         private static string _fileNameDate;
-        private static readonly object LockObject = new object();
+        private static int _id;
 
         internal static string TimeStamp
         {
             get { return string.Format("[{0}] ", DateTime.Now.ToLongTimeString()); }
         }
 
-        internal static void Initialize()
+        internal static void StartUp()
         {
             _fileNameDate = DateTime.Now.ToShortDateString().Replace("/", "-") + " " + TimeStamp.Replace(":", ".");
+            _id = Process.GetCurrentProcess().Id;
             if (!Directory.Exists(Utilities.ApplicationPath + "\\Logs"))
             {
                 Directory.CreateDirectory(Utilities.ApplicationPath + "\\Logs");
@@ -24,18 +28,17 @@ namespace CoolFishNS.Utilities
             Logging.OnWrite += LogMessage;
         }
 
-        internal static void LogMessage(object sender, MessageEventArgs messageEventArgs)
+        internal static void LogMessage(object sender, MessageEventArgs eventArgs)
         {
-            lock (LockObject)
+            Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 using (TextWriter tw =
                     new StreamWriter(
-                        String.Format("{0}\\Logs\\[CoolFish] {1} Log.txt", Utilities.ApplicationPath, _fileNameDate),
-                        true))
+                        String.Format("{0}\\Logs\\[CoolFish-{1}] {2} Log.txt", Utilities.ApplicationPath, _id, _fileNameDate), true))
                 {
-                    tw.WriteLine(TimeStamp + " " + messageEventArgs.Message);
+                    tw.WriteLine(TimeStamp + " " + eventArgs.Message);
                 }
-            }
+            }, DispatcherPriority.Background);
         }
     }
 }

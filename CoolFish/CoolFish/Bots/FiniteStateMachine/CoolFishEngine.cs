@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CoolFishNS.Bots.FiniteStateMachine.States;
 using CoolFishNS.Management;
-using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
@@ -16,7 +14,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
     /// <summary>
     ///     The main driving Engine of the Finite State Machine. This performs all the state running logic.
     /// </summary>
-    internal class CoolFishEngine
+    public class CoolFishEngine
     {
         #region StatePriority enum
 
@@ -41,95 +39,105 @@ namespace CoolFishNS.Bots.FiniteStateMachine
 
         #endregion
 
-        private readonly List<State> _states;
+        private Task _workerTask;
 
         /// <summary>
         ///     True if the Engine is running. False otherwise.
         /// </summary>
-        public bool Running;
+        public bool Running { get; private set; }
 
-        private Task _workerTask;
-
-        /// <summary>
-        ///     ctor to the Engine. Adds all of the states we plan to use and sorts them.
-        /// </summary>
-        public CoolFishEngine()
-        {
-            _states = new List<State>
-                      {
-                          new StateBobbing(),
-                          new StateFish(),
-                          new StateDoNothing(),
-                          new StateApplyLure(),
-                          new StateUseCharm(),
-                          new StateDoLoot(),
-                          new StateUseRaft(),
-                          new StateStopOrLogout(),
-                          new StateDoWhisper(),
-                          new StateUseRumsey(),
-                          new StateUseSpear(),
-                      };
-
-            _states.Sort();
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether logged into the game and on a player character.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if logged in; otherwise, <c>false</c>.
-        /// </value>
-        private static bool LoggedIn
-        {
-            get
-            {
-                try
-                {
-                    return BotManager.Memory.Read<uint>(Offsets.Addresses["LoadingScreen"]) == 1;
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex); // if we can't read it, we're probably logged out
-                    return false;
-                }
-            }
-        }
-
+        private List<State> States { get; set; }
 
         /// <summary>
         ///     Starts the engine.
         /// </summary>
         public void StartEngine()
         {
-
-            if (!LoggedIn)
+            if (!BotManager.LoggedIn)
             {
                 Logging.Write("Please log into the game first");
-                return;
             }
-            
 
             if (_workerTask != null && _workerTask.Status == TaskStatus.Running)
             {
-                Logging.Write(LocalSettings.Translations["Already Running"]);
- 
+                Logging.Write("The bot is already running.");
             }
-            else
-            {
-                _workerTask = Task.Factory.StartNew(Run);
-                Logging.Write(LocalSettings.Translations["Engine Running"]);
-                Running = true;
-            }
-            
 
+            Running = true;
+            _workerTask = Task.Run(() => Run());
         }
 
-        private static void InitOptions()
+        /// <summary>
+        ///     Stops the engine.
+        /// </summary>
+        public void StopEngine()
         {
+            if (_workerTask == null || _workerTask.Status != TaskStatus.Running)
+            {
+                // Nothing to do.
+                Logging.Write("The bot is not running");
+                return;
+            }
+
+            Running = false;
+            if (!_workerTask.Wait(5000))
+            {
+                Logging.Write("Bot thread failed to stop on its own. Status: " + _workerTask.Status);
+            }
+        }
+
+        private void AddStates()
+        {
+            States = new List<State> {new StateDoNothing(), new StateStopOrLogout()};
+
+            if (LocalSettings.Settings["DoFishing"])
+            {
+                States.Add(new StateFish());
+            }
+            if (LocalSettings.Settings["DoBobbing"])
+            {
+                States.Add(new StateBobbing());
+            }
+            if (LocalSettings.Settings["DoLoot"])
+            {
+                States.Add(new StateDoLoot());
+            }
+            if (!LocalSettings.Settings["NoLure"])
+            {
+                States.Add(new StateApplyLure());
+            }
+            if (LocalSettings.Settings["UseCharm"])
+            {
+                States.Add(new StateUseCharm());
+            }
+            if (LocalSettings.Settings["UseRaft"])
+            {
+                States.Add(new StateUseRaft());
+            }
+            if (LocalSettings.Settings["SoundOnWhisper"])
+            {
+                States.Add(new StateDoWhisper());
+            }
+            if (LocalSettings.Settings["UseRumsey"])
+            {
+                States.Add(new StateUseRumsey());
+            }
+            if (LocalSettings.Settings["UseSpear"])
+            {
+                States.Add(new StateUseSpear());
+            }
+
+
+            States.Sort();
+        }
+
+        private void InitOptions()
+        {
+            AddStates();
             StateBobbing.BuggedTimer.Restart();
             var builder = new StringBuilder();
 
-            foreach (var serializableItem in LocalSettings.Items)
+            foreach (SerializableItem serializableItem in LocalSettings.Items)
             {
                 builder.Append("\"" + serializableItem.Value + "\",");
             }
@@ -146,7 +154,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                            LocalSettings.Settings["LootOnlyItems"].ToString()
                                .ToLower() + " \n");
             builder.Append("DontLootLeft = " +
-                                          LocalSettings.Settings["DontLootLeft"].ToString().ToLower() + " \n");
+                           LocalSettings.Settings["DontLootLeft"].ToString().ToLower() + " \n");
             builder.Append("LootQuality = " + LocalSettings.Settings["LootQuality"] + " \n");
             builder.Append(Resources.WhisperNotes + " \n");
             builder.Append("LootLog = {} \n");
@@ -154,7 +162,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             builder.Append("DODEBUG = " + LocalSettings.Settings["DoDebugging"].ToString().ToLower());
 
             DxHook.Instance.ExecuteScript(builder.ToString());
-            
         }
 
 
@@ -163,26 +170,37 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             try
             {
                 InitOptions();
-
-                // This will immitate a games FPS
-                // and attempt to 'pulse' each frame
-                while (LoggedIn && Running)
+                Logging.Write("Started Engine");
+                while (Running && BotManager.LoggedIn)
                 {
-                    Pulse();
+                    // This starts at the highest priority state,
+                    // and iterates its way to the lowest priority.
+                    foreach (State state in States)
+                    {
+                        if (Running && BotManager.LoggedIn && state.NeedToRun)
+                        {
+                            state.Run();
 
+                            // Break out of the iteration,
+                            // as we found a state that has run.
+                            // We don't want to run any more states
+                            // this time around.
+                            break;
+                        }
+                    }
 
                     Thread.Sleep(1000/60);
                 }
             }
             catch (Exception ex)
             {
-                Logging.Write(LocalSettings.Translations["Unhandled Exception"]);
-                Logging.Log(ex.ToString());
+                Logging.Write("An unhandled error has occurred.");
+                Logging.Log(ex);
             }
 
             try
             {
-                if (LoggedIn)
+                if (BotManager.LoggedIn && DxHook.Instance.IsApplied)
                 {
                     DxHook.Instance.ExecuteScript(
                         "if CoolFrame then CoolFrame:UnregisterAllEvents(); end print(\"|cff00ff00---Loot Log---\"); for key,value in pairs(LootLog) do local _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end print(\"|cffff0000---DID NOT Loot Log---\"); for key,value in pairs(NoLootLog) do _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end");
@@ -193,41 +211,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 Logging.Log(ex);
             }
 
-            Running = false;
-            Logging.Write(LocalSettings.Translations["Engine Stopped"]);
-        }
-
-        private void Pulse()
-        {
-            // This starts at the highest priority state,
-            // and iterates its way to the lowest priority.
-            foreach (State state in _states.TakeWhile(state => LoggedIn).Where(state => state.NeedToRun))
-            {
-                state.Run();
-
-                // Break out of the iteration,
-                // as we found a state that has run.
-                // We don't want to run any more states
-                // this time around.
-                break;
-            }
-        }
-
-        /// <summary>
-        ///     Stops the engine.
-        /// </summary>
-        public void StopEngine()
-        {
-            if (_workerTask == null || _workerTask.Status != TaskStatus.Running)
-            {
-                // Nothing to do.
-                Logging.Write(LocalSettings.Translations["Engine Not Running"]);
-                return;
-            }
-
-            Running = false;
-            Logging.Write("Stopping Engine...");
-            
+            Logging.Write("Engine Stopped");
         }
     }
 }

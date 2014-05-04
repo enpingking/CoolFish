@@ -4,11 +4,9 @@ using System.Diagnostics;
 using System.Text;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
-using CoolFishNS.Bots.PoolFishingBot;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 using GreyMagic;
 
@@ -21,15 +19,25 @@ namespace CoolFishNS.Management
     {
         internal static readonly Dictionary<string, IBot> LoadedBots = new Dictionary<string, IBot>();
 
-        internal static bool WasCut;
-
         static BotManager()
         {
-            LoadBot(new CoolFishBot(), true);
-            LoadBot(new PoolFishingBot());
+            var bot = new CoolFishBot();
+            LoadBot(bot);
+            SetActiveBot(bot);
         }
 
+        /// <summary>
+        ///     The main ExternalProcessReader object that reads/writes memory to the attached process
+        /// </summary>
         public static ExternalProcessReader Memory { get; private set; }
+
+        /// <summary>
+        ///     Returns true if we are attached to a Wow process and can perform memory operations and DXHook methods
+        /// </summary>
+        public static bool IsAttached
+        {
+            get { return Memory != null && Memory.IsProcessOpen && DxHook.Instance.IsApplied; }
+        }
 
         /// <summary>
         ///     Currently active IBot object that the user interface will interact with.
@@ -37,31 +45,63 @@ namespace CoolFishNS.Management
         /// </summary>
         public static IBot ActiveBot { get; private set; }
 
-
-        private static bool IsReadyToBot
+        /// <summary>
+        ///     Get the currently logged in toon's name
+        /// </summary>
+        /// <returns>string of the player's name</returns>
+        public static string GetToonName
         {
-            get { return Memory != null && ActiveBot != null && Memory.IsProcessOpen && DxHook.Instance.IsApplied && !ActiveBot.IsRunning(); }
+            get
+            {
+                try
+                {
+                    return Memory.ReadString(Offsets.Addresses["PlayerName"], Encoding.UTF8);
+                }
+                catch (Exception ex)
+                {
+                    Logging.Log(ex);
+                    return string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether logged into the game and on a player character.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if logged in; otherwise, <c>false</c>.
+        /// </value>
+        public static bool LoggedIn
+        {
+            get
+            {
+                try
+                {
+                    return Memory.Read<uint>(Offsets.Addresses["LoadingScreen"]) == 1;
+                }
+                catch (Exception ex)
+                {
+                    Logging.Log(ex); // if we can't read it, we're probably logged out
+                    return false;
+                }
+            }
         }
 
         /// <summary>
         ///     Loads an IBot implementing class into CoolFish's BotManager for display and use from the interface
         /// </summary>
         /// <param name="botToLoad">IBot implementing instance to load into CoolFish</param>
-        /// <param name="setAsActive">true to set the loaded bot as the currently active one; otherwise, set to false</param>
-        public static void LoadBot(IBot botToLoad, bool setAsActive = false)
+        public static void LoadBot(IBot botToLoad)
         {
+            string id = GetBotId(botToLoad);
             if (!IsBotLoaded(botToLoad))
             {
-                LoadedBots.Add(GetBotId(botToLoad), botToLoad);
+                Logging.Write("Loaded " + id);
+                LoadedBots[id] = botToLoad;
             }
             else
             {
-                Logging.Write("Bot \"" + GetBotId(botToLoad) + "\" has already been loaded. Skipping load...");
-            }
-
-            if (setAsActive)
-            {
-                SetActiveBot(botToLoad);
+                Logging.Write("Bot " + id + " has already been loaded. Skipping load...");
             }
         }
 
@@ -84,7 +124,7 @@ namespace CoolFishNS.Management
         /// <returns>string identifier of the IBot class</returns>
         public static string GetBotId(IBot bot)
         {
-            return bot.GetName() + "-" + bot.GetVersion();
+            return bot.Name + "-" + bot.Version;
         }
 
         /// <summary>
@@ -96,11 +136,13 @@ namespace CoolFishNS.Management
         {
             if (!IsBotLoaded(bot))
             {
-                Logging.Write("Bot \"" + GetBotId(bot) + "\" has not yet been loaded");
-                return false;
+                LoadBot(bot);
+            }
+            if (ActiveBot != null && ActiveBot.IsRunning)
+            {
+                StopActiveBot();
             }
 
-            StopActiveBot();
             ActiveBot = LoadedBots[GetBotId(bot)];
             return true;
         }
@@ -112,43 +154,19 @@ namespace CoolFishNS.Management
         /// <param name="process"></param>
         public static void AttachToProcess(Process process)
         {
-            if (WasCut)
+            Memory = new ExternalProcessReader(process);
+            if (Offsets.FindOffsets())
             {
-                return;
-            }
-            StopActiveBot();
-            try
-            {
-                if (Offsets.FindOffsets(process))
+                if (DxHook.Instance.Apply())
                 {
-                    Memory = new ExternalProcessReader(process);
-
-
-                    if (DxHook.Instance.Apply())
-                    {
-                        Logging.Write(LocalSettings.Translations["Attached to"] + ": " +
-                                      process.Id);
-                    }
-                    else
-                    {
-                        Logging.Write(LocalSettings.Translations["Error"]);
-
-                        Memory.Dispose();
-                        Memory = null;
-                    }
+                    Memory.ProcessExited += (sender, args) => DxHook.Instance.Restore();
+                    Logging.Write("Attached to: " + process.Id);
+                    return;
                 }
-                else
-                {
-                    Logging.Write(LocalSettings.Translations["Unhandled Exception"]);
-                }
+                Memory.Dispose();
+                Memory = null;
             }
-            catch (Exception ex)
-            {
-
-                Logging.Write(LocalSettings.Translations["Unhandled Exception"]);
-                Logging.Log(ex);
-            }
-            
+            Logging.Write("Failed to attach to: " + process.Id);
         }
 
         /// <summary>
@@ -156,18 +174,8 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StartActiveBot()
         {
-            if (WasCut)
-            {
-                return;
-            }
-            if (IsReadyToBot)
-            {
-                ActiveBot.StartBot();
-            }
-            else
-            {
-                Logging.Write(Resources.BotIsNotReadyError);
-            }
+            Logging.Write("Starting bot...");
+            ActiveBot.StartBot();
         }
 
         /// <summary>
@@ -175,10 +183,16 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StopActiveBot()
         {
-            if (ActiveBot != null && ActiveBot.IsRunning())
-            {
-                ActiveBot.StopBot();
-            }
+            Logging.Write("Stopping bot...");
+            ActiveBot.StopBot();
+        }
+
+        /// <summary>
+        ///     Calls <see cref="IBot.Settings()" /> for the currently ActiveBot
+        /// </summary>
+        public static void Settings()
+        {
+            ActiveBot.Settings();
         }
 
         internal static void StartUp()
@@ -202,24 +216,15 @@ namespace CoolFishNS.Management
 
             LocalSettings.SaveSettings();
 
-            DxHook.Instance.Dispose();
+            DxHook.Instance.Restore();
 
             if (Memory != null)
             {
                 Memory.Dispose();
             }
-            
+
 
             Logging.Log("Shut Down.");
-        }
-
-        /// <summary>
-        ///     Get the currently logged in toon's name
-        /// </summary>
-        /// <returns>string of the player's name</returns>
-        public static string GetToonName()
-        {
-            return Offsets.Addresses.ContainsKey("PlayerName") ? Memory.ReadString(Offsets.Addresses["PlayerName"], Encoding.UTF8) : string.Empty;
         }
     }
 }

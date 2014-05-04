@@ -76,19 +76,17 @@ namespace CoolFishNS.Management.CoolManager
         }
 
 
-
-
 #if !X64
         public FindPattern(Stream stream, Process process)
 #else
         public FindPattern(Stream stream, IntPtr processHandle, ulong startAddress, ulong endAddress)
 #endif
         {
-            var basObject = process.MainModule;
-            var baseAddress = basObject.BaseAddress;
+            ProcessModule basObject = process.MainModule;
+            IntPtr baseAddress = basObject.BaseAddress;
             // Get a temporary set of data to work with. :)
-            byte[] data = ReadBytes(process.Handle, baseAddress , basObject.ModuleMemorySize );
-            LoadFile(XElement.Load(stream), data, (uint)baseAddress);
+            byte[] data = ReadBytes(process.Handle, baseAddress, basObject.ModuleMemorySize);
+            LoadFile(XElement.Load(stream), data, (uint) baseAddress);
         }
 
         /// <summary>

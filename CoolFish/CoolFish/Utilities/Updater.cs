@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Cache;
-using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using CoolFishNS.Properties;
+using Octokit;
 
 namespace CoolFishNS.Utilities
 {
@@ -14,69 +16,16 @@ namespace CoolFishNS.Utilities
     /// </summary>
     internal static class Updater
     {
-        private static bool _ignoreDevCheck;
-
-        /// <summary>
-        ///     Gets a value indicating whether the bot [should run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [should run]; otherwise, <c>false</c>.
-        /// </value>
-        public static bool ShouldRun
+        internal static void StatCount()
         {
-            get
+            using (var wc = new WebClient())
             {
-                if (_ignoreDevCheck)
-                {
-                    return true;
-                }
-
-                try
-                {
-                    WebRequest request = WebRequest.Create("http://coolfish.unknowndev.com/ShouldRun.php?version=" + Utilities.Version);
-
-                    request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Reload);
-                    WebResponse response = request.GetResponse();
-
-                    Stream stream = response.GetResponseStream();
-
-                    if (stream != null)
-                    {
-                        var reader = new StreamReader(stream);
-
-                        string result = reader.ReadToEnd();
-
-                        return result.Contains("true");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logging.Write(LocalSettings.Translations["ShouldRun Error"]);
-
-                    Logging.Log(ex);
-
-
-                    DialogResult ret =
-                        MessageBox.Show(
-                            Resources.ShouldRunException,
-                            "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                    if (ret == DialogResult.Yes)
-                    {
-                        _ignoreDevCheck = true;
-                        return true;
-                    }
-                }
-                return false;
+                wc.Headers[HttpRequestHeader.UserAgent] = "CoolFish";
+                wc.DownloadDataAsync(new Uri("http://c.statcounter.com/9756717/0/323389f4/1/"));
             }
         }
 
-
-        /// <summary>
-        ///     Gets the news from the svn message.
-        /// </summary>
-        /// <returns></returns>
-        public static string GetNews()
+        internal static string GetNews()
         {
             try
             {
@@ -100,56 +49,74 @@ namespace CoolFishNS.Utilities
             return string.Empty;
         }
 
-        public static void Update()
+        internal static void Update()
         {
-           
-            try
+            Task.Run(() =>
             {
-                WebRequest request = WebRequest.Create("http://unknowndev.github.io/CoolFish/LatestVersion.txt");
-                WebResponse response = request.GetResponse();
-                Stream stream = response.GetResponseStream();
-                if (stream != null)
+                try
                 {
-                    var reader = new StreamReader(stream);
+                    var client = new GitHubClient(new ProductHeaderValue("CoolFish"));
+                    IReadOnlyList<Release> releases = client.Release.GetAll("unknowndev", "CoolFish").Result;
 
-                    string info = reader.ReadToEnd();
-
-                    Version ver = new Version(info);
-
-                    if (ver > Utilities.Version)
+                    Version latestRelease = Utilities.Version;
+                    int latestId = 0;
+                    string latestTag = null;
+                    foreach (Release release in releases)
                     {
-                        Logging.Write(LocalSettings.Translations["Current Revision"] + ": " + Utilities.Version +
-                                      " " + LocalSettings.Translations["Latest Revision"] + ": " + ver);
-
+                        var version = new Version(release.TagName.Substring(1) + ".0");
+                        if (version > latestRelease && !release.Prerelease)
+                        {
+                            latestTag = release.TagName;
+                            latestId = release.Id;
+                            latestRelease = version;
+                        }
+                    }
+                    if (latestTag != null)
+                    {
                         DialogResult result =
-                            MessageBox.Show(LocalSettings.Translations["New Version Available"],
-                                LocalSettings.Translations["New Version"], MessageBoxButtons.YesNo);
+                            MessageBox.Show("There is a new version of CoolFish available. Would you like to download it now?",
+                                "New Version", MessageBoxButtons.YesNo);
                         if (result == DialogResult.Yes)
                         {
-                            DownloadNewVersion();
+                            IReadOnlyList<ReleaseAsset> assets = client.Release.GetAssets("unknowndev", "CoolFish", latestId).Result;
+                            if (assets.Any())
+                            {
+                                DownloadNewVersion(latestTag, assets[0].Name);
+                            }
                         }
-                        return;
+                    }
+                    else
+                    {
+                        Logging.Write("No new versions available.");
                     }
                 }
-                Logging.Write(LocalSettings.Translations["No New Revisions Available"]);
-            }
-            catch (Exception ex)
+                catch (Exception ex)
+                {
+                    Logging.Log(ex);
+                }
+            });
+        }
+
+        private static void DownloadNewVersion(string tag, string name)
+        {
+            using (var client = new WebClient())
             {
-                Logging.Log(ex.Message);
-                Logging.Log(ex);
+                Logging.Write("Downloading File...");
+                client.DownloadFileCompleted += ClientOnDownloadFileCompleted;
+                client.DownloadFileAsync(new Uri(string.Format("https://github.com/unknowndev/CoolFish/releases/download/{0}/{1}", tag, name)), name);
             }
         }
 
-        private static void DownloadNewVersion()
+        private static void ClientOnDownloadFileCompleted(object sender, AsyncCompletedEventArgs asyncCompletedEventArgs)
         {
-            try
+            if (asyncCompletedEventArgs.Error != null)
             {
-                Process.Start("https://github.com/unknowndev/CoolFish/releases/latest");
+                Logging.Log(asyncCompletedEventArgs.Error);
+                MessageBox.Show("An error occurred while downloading the new version. Please try again or visit the website to download it manually.");
             }
-            catch (Exception ex)
+            else
             {
-                Logging.Write("https://github.com/unknowndev/CoolFish/releases/latest");
-                Logging.Log(ex);
+                MessageBox.Show("Download Complete. Close Coolfish and extract the downloaded zip file.");
             }
         }
     }

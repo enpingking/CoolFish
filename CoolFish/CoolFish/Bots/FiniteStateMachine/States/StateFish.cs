@@ -4,7 +4,6 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -30,7 +29,16 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </value>
         public override bool NeedToRun
         {
-            get { return ObjectManager.Me.Channeling == 0; }
+            get
+            {
+                string result = DxHook.Instance.ExecuteScript("loot = IsFishingLoot();", "loot");
+                return (ObjectManager.Me.Channeling == 0) && (result != "1");
+            }
+        }
+
+        public override string Name
+        {
+            get { return "Casting Fishing"; }
         }
 
         /// <summary>

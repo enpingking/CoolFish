@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using CoolFishNS.Management.CoolManager.HookingLua;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -10,8 +9,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateApplyLure : State
     {
-        public static uint Count = 1;
-
         public override int Priority
         {
             get { return (int) CoolFishEngine.StatePriority.StateApplyLure; }
@@ -27,12 +24,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (LocalSettings.Settings["NoLure"])
-                {
-                    return false;
-                }
-
-
                 string result = DxHook.Instance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
 
                 if (result == "1")
@@ -42,6 +33,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
                 return PlayerInventory.LureCount > 0;
             }
+        }
+
+        public override string Name
+        {
+            get { return "Applying lure"; }
         }
 
         /// <summary>

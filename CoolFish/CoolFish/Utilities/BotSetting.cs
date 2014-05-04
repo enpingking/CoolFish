@@ -20,20 +20,11 @@ namespace CoolFishNS.Utilities
         /// <returns>The BotSetting with the generic type passed</returns>
         public T As<T>()
         {
-            try
-            {
-                return (T)Value;
-            }
-            catch (Exception ex)
-            {
-               Logging.Log("Tried to cast: " + Value + " to type: " + typeof(T)); 
-               Logging.Log(ex);
-            }
-            return default(T);
+            return (T) Value;
         }
 
         /// <summary>
-        /// Creates a new instance of a setting with the passed value
+        ///     Creates a new instance of a setting with the passed value
         /// </summary>
         /// <param name="value">The value to assign</param>
         /// <returns>A new BotSetting with the passed value</returns>
@@ -60,6 +51,16 @@ namespace CoolFishNS.Utilities
         public static implicit operator double(BotSetting s)
         {
             return s.As<double>();
+        }
+
+        public static implicit operator BotSetting(bool? s)
+        {
+            return As(s);
+        }
+
+        public static implicit operator BotSetting(int s)
+        {
+            return As(s);
         }
 
         public override string ToString()

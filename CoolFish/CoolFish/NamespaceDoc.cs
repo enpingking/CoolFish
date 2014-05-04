@@ -20,9 +20,7 @@ namespace CoolFishNS.Bots
     internal class NamespaceDoc
     {
     }
-
 }
-
 
 namespace CoolFishNS.Bots.CoolFishBot
 {
@@ -33,27 +31,26 @@ namespace CoolFishNS.Bots.CoolFishBot
     internal class NamespaceDoc
     {
     }
-
 }
-
 
 namespace CoolFishNS.Management
 {
     /// <summary>
-    ///     The <see cref="CoolFishNS.Management" /> namespace contains static classes for managing various actions for the application
-    /// Currently, this is BotManagement and PluginManagement
+    ///     The <see cref="CoolFishNS.Management" /> namespace contains static classes for managing various actions for the
+    ///     application
+    ///     Currently, this is BotManagement and PluginManagement
     /// </summary>
     [CompilerGenerated]
     internal class NamespaceDoc
     {
     }
-
 }
 
 namespace CoolFishNS.Management.CoolManager
 {
     /// <summary>
-    ///     The <see cref="CoolFishNS.Management.CoolManager" /> namespace contains classes for managing Wow objects, Function hooks and
+    ///     The <see cref="CoolFishNS.Management.CoolManager" /> namespace contains classes for managing Wow objects, Function
+    ///     hooks and
     ///     DirectX Stuff
     /// </summary>
     [CompilerGenerated]
@@ -65,7 +62,8 @@ namespace CoolFishNS.Management.CoolManager
 namespace CoolFishNS.Management.CoolManager.D3D
 {
     /// <summary>
-    ///     The <see cref="CoolFishNS.Management.CoolManager.D3D" /> namespace contains classes DirectX Endscene and Present locating
+    ///     The <see cref="CoolFishNS.Management.CoolManager.D3D" /> namespace contains classes DirectX Endscene and Present
+    ///     locating
     /// </summary>
     [CompilerGenerated]
     internal class NamespaceDoc
@@ -76,7 +74,8 @@ namespace CoolFishNS.Management.CoolManager.D3D
 namespace CoolFishNS.Management.CoolManager.HookingLua
 {
     /// <summary>
-    ///     The <see cref="CoolFishNS.Management.CoolManager.HookingLua" /> namespace contains classes for managing the function hooks in
+    ///     The <see cref="CoolFishNS.Management.CoolManager.HookingLua" /> namespace contains classes for managing the
+    ///     function hooks in
     ///     Wow and Lua Scripting functions
     /// </summary>
     [CompilerGenerated]
@@ -88,7 +87,8 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 namespace CoolFishNS.Management.CoolManager.Objects
 {
     /// <summary>
-    ///     The <see cref="CoolFishNS.Management.CoolManager.Objects" /> namespace contains classes for managing the objects visible to
+    ///     The <see cref="CoolFishNS.Management.CoolManager.Objects" /> namespace contains classes for managing the objects
+    ///     visible to
     ///     the client. TODO: Some properties of objects aren't accurate because offsets are out of date (ie. Mana/Power/ETC)
     ///     Most work, but some do not
     /// </summary>

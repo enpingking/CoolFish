@@ -9,8 +9,6 @@ namespace CoolFishNS.Utilities
     /// </summary>
     internal static class LocalSettings
     {
-        internal static Dictionary<string, string> Translations = new Dictionary<string, string>();
-
         internal static Collection<SerializableItem> Items = new Collection<SerializableItem>();
 
         internal static Dictionary<string, SerializablePlugin> Plugins = new Dictionary<string, SerializablePlugin>();
@@ -49,12 +47,14 @@ namespace CoolFishNS.Utilities
                 {"LanguageIndex", new BotSetting {Value = 0}},
                 {"CloseWoWonStop", new BotSetting {Value = false}},
                 {"BlackBackground", new BotSetting {Value = false}},
-                {"StopOnTime", new BotSetting {Value = false }}
+                {"StopOnTime", new BotSetting {Value = false}},
+                {"DoFishing", new BotSetting {Value = true}},
+                {"DoBobbing", new BotSetting {Value = true}},
+                {"DoLoot", new BotSetting {Value = true}}
             };
             Items = new Collection<SerializableItem>();
             Plugins = new Dictionary<string, SerializablePlugin>();
         }
-
 
         /// <summary>
         ///     Prints all of the settings as they currently are to the log file.
@@ -88,7 +88,6 @@ namespace CoolFishNS.Utilities
             Serializer.Serialize("Settings.dat", Settings);
             Serializer.Serialize("Plugins.dat", Plugins);
             Serializer.Serialize("Items.dat", Items);
-            
         }
 
         /// <summary>
