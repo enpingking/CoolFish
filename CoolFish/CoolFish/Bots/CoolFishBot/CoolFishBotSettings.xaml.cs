@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
+using System.Windows.Input;
 using CoolFishNS.Management;
 using CoolFishNS.Utilities;
 using NLog;
@@ -69,10 +69,8 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         public void FillDataGrid()
         {
-
-                ItemsGrid.ItemsSource = null;
-                ItemsGrid.ItemsSource = _items;
-
+            ItemsGrid.ItemsSource = null;
+            ItemsGrid.ItemsSource = _items;
         }
 
         private void UpdateControlSettings()
@@ -93,14 +91,11 @@ namespace CoolFishNS.Bots.CoolFishBot
             UseCharmCB.IsChecked = LocalSettings.Settings["UseCharm"];
             UseRumseyCB.IsChecked = LocalSettings.Settings["UseRumsey"];
             UseSpearCB.IsChecked = LocalSettings.Settings["UseSpear"];
-            DoDebugCB.IsChecked = LocalSettings.Settings["DoDebugging"];
             CastFishingCB.IsChecked = LocalSettings.Settings["DoFishing"];
             ClickBobberCB.IsChecked = LocalSettings.Settings["DoBobbing"];
             DoLootingCB.IsChecked = LocalSettings.Settings["DoLoot"];
             _items = LocalSettings.Items;
             FillDataGrid();
-
-
         }
 
         private void SaveControlSettings()
@@ -120,7 +115,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             LocalSettings.Settings["UseCharm"] = UseCharmCB.IsChecked;
             LocalSettings.Settings["UseRumsey"] = UseRumseyCB.IsChecked;
             LocalSettings.Settings["UseSpear"] = UseSpearCB.IsChecked;
-            LocalSettings.Settings["DoDebugging"] = DoDebugCB.IsChecked;
             LocalSettings.Settings["DoFishing"] = CastFishingCB.IsChecked;
             LocalSettings.Settings["DoBobbing"] = ClickBobberCB.IsChecked;
             LocalSettings.Settings["DoLoot"] = DoLootingCB.IsChecked;
@@ -131,7 +125,12 @@ namespace CoolFishNS.Bots.CoolFishBot
                 Logger.Warn("Invalid Stop Time.");
             }
             LocalSettings.Settings["MinutesToStop"] = BotSetting.As(result);
+        }
 
+
+        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
         }
     }
 }

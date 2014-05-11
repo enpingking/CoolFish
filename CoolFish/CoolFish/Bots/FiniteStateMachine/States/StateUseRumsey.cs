@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
-using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States

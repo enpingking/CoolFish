@@ -11,7 +11,6 @@ using CoolFishNS.Utilities;
 using GreyMagic;
 using NLog;
 
-
 namespace CoolFishNS.Management
 {
     /// <summary>
@@ -63,7 +62,7 @@ namespace CoolFishNS.Management
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error reading ToonName",ex);
+                    Logger.ErrorException("Error reading ToonName", ex);
                     return string.Empty;
                 }
             }
@@ -85,7 +84,7 @@ namespace CoolFishNS.Management
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error checking whether we are logged in",ex);
+                    Logger.ErrorException("Error checking whether we are logged in", ex);
                     return false;
                 }
             }
@@ -178,8 +177,11 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StartActiveBot()
         {
-            Logger.Info("Starting bot...");
-            ActiveBot.StartBot();
+            if (ActiveBot != null && !ActiveBot.IsRunning)
+            {
+                Logger.Info("Starting bot...");
+                ActiveBot.StartBot();
+            }
         }
 
         /// <summary>
@@ -187,8 +189,11 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StopActiveBot()
         {
-            Logger.Info("Stopping bot...");
-            ActiveBot.StopBot();
+            if (ActiveBot != null && ActiveBot.IsRunning)
+            {
+                Logger.Info("Stopping bot...");
+                ActiveBot.StopBot();
+            }
         }
 
         /// <summary>

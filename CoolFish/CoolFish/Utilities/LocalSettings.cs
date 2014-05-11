@@ -46,7 +46,7 @@ namespace CoolFishNS.Utilities
                 {"SoundOnWhisper", new BotSetting {Value = false}},
                 {"UseRumsey", new BotSetting {Value = false}},
                 {"UseSpear", new BotSetting {Value = false}},
-                {"DoDebugging", new BotSetting {Value = false}},
+                {"LogLevel", new BotSetting {Value = 2}},
                 {"LanguageIndex", new BotSetting {Value = 0}},
                 {"CloseWoWonStop", new BotSetting {Value = false}},
                 {"StopOnTime", new BotSetting {Value = false}},
@@ -106,7 +106,7 @@ namespace CoolFishNS.Utilities
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error loading settings",ex);
+                Logger.ErrorException("Error loading settings", ex);
                 LoadDefaults();
             }
         }

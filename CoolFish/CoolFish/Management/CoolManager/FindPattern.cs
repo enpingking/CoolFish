@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
-using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Management.CoolManager

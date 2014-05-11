@@ -1,5 +1,4 @@
 ﻿using System;
-using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.PluginSystem
@@ -34,7 +33,7 @@ namespace CoolFishNS.PluginSystem
                         }
                         catch (Exception ex)
                         {
-                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name,ex);
+                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name, ex);
                         }
                     }
                     else
@@ -45,7 +44,7 @@ namespace CoolFishNS.PluginSystem
                         }
                         catch (Exception ex)
                         {
-                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name,ex);
+                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name, ex);
                         }
                     }
                 }

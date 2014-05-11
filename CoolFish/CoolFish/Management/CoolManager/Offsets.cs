@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using CoolFishNS.Properties;
-using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Management.CoolManager
@@ -72,7 +71,7 @@ namespace CoolFishNS.Management.CoolManager
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error while finding offsets",ex);
+                Logger.ErrorException("Error while finding offsets", ex);
             }
             _addresses = addresses;
             return fp.NotFoundCount == 0;

@@ -11,6 +11,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     public class StateApplyLure : State
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public override int Priority
         {
             get { return (int) CoolFishEngine.StatePriority.StateApplyLure; }

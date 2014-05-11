@@ -163,7 +163,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             builder.Append(Resources.WhisperNotes + " \n");
             builder.Append("LootLog = {} \n");
             builder.Append("NoLootLog = {} \n");
-            builder.Append("DODEBUG = " + LocalSettings.Settings["DoDebugging"].ToString().ToLower());
+            builder.Append("DODEBUG = " +
+                           ((LocalSettings.Settings["LogLevel"] == LogLevel.Debug.Ordinal ||
+                             LocalSettings.Settings["LogLevel"] == LogLevel.Trace.Ordinal)
+                               ? "true"
+                               : "false"));
 
             DxHook.Instance.ExecuteScript(builder.ToString());
         }
@@ -195,7 +199,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Unhandled error occurred",ex);
+                Logger.ErrorException("Unhandled error occurred", ex);
             }
 
             try
@@ -208,7 +212,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error occurred while unregistering events",ex);
+                Logger.ErrorException("Error occurred while unregistering events", ex);
             }
 
             Logger.Info("Engine Stopped");

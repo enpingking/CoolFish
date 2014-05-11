@@ -6,7 +6,6 @@ using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 using NLog;
 
-
 namespace CoolFishNS.Bots.CoolFishBot
 {
     /// <summary>

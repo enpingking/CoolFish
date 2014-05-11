@@ -225,6 +225,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\Logging.cs" />
     <Compile Include="Utilities\SerializableItem.cs" />
     <Compile Include="Utilities\SerializablePlugin.cs" />
     <Page Include="App.xaml">
@@ -407,7 +408,7 @@ Version.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>cd $(TargetDir)
-Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.exe.config GreyMagic.dll Octokit.dll</PostBuildEvent>
+Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.exe.config GreyMagic.dll Octokit.dll NLog.dll</PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>

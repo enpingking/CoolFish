@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using CoolFishNS.Bots;
 using CoolFishNS.Management;
+using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
+using CoolFishNS.Targets;
 using CoolFishNS.Utilities;
 using NLog;
 using NLog.Config;
-using NLog.Targets;
 using NLog.Targets.Wrappers;
 using MessageBox = System.Windows.Forms.MessageBox;
 
@@ -28,12 +30,11 @@ namespace CoolFishNS
 
         private readonly IList<IBot> _bots = new List<IBot>();
         private readonly ICollection<CheckBox> _pluginCheckBoxesList = new Collection<CheckBox>();
-        private Process[] _processes;
+        private Process[] _processes = new Process[0];
 
         public MainWindow()
         {
             InitializeComponent();
-
         }
 
         private void UpdateControlSettings()
@@ -48,7 +49,7 @@ namespace CoolFishNS
                 _pluginCheckBoxesList.Add(cb);
             }
 
-
+            LogLevelCMB.SelectedIndex = LocalSettings.Settings["LogLevel"];
             ScriptsLB.ItemsSource = _pluginCheckBoxesList;
         }
 
@@ -64,8 +65,120 @@ namespace CoolFishNS
             }
         }
 
+        private void RefreshProcesses()
+        {
+            ProcessCB.Items.Clear();
+
+            _processes = GetWowProcesses();
+
+            foreach (Process process in _processes)
+            {
+                try
+                {
+                    ProcessCB.Items.Add("Id: " + process.Id + " Name: " + process.MainWindowTitle);
+                }
+                catch (Exception ex)
+                {
+                    Logger.TraceException("Error adding process", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Gets a List of 32-bit Wow processes currently running on the system
+        /// </summary>
+        /// <returns>List of Process objects</returns>
+        public static Process[] GetWowProcesses()
+        {
+            Process[] proc = Process.GetProcessesByName("WoW");
+            Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
+
+            if (!proc.Any())
+            {
+                if (proc64Bit.Any())
+                {
+                    Logger.Info(
+                        "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
+                }
+                else
+                {
+                    Logger.Info("No WoW processes were found.");
+                }
+            }
+
+
+            return proc;
+        }
+
+        private void OnCloseWindow(object sender, MouseButtonEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void OnDragMoveWindow(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                DragMove();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Logger.Trace("Error moving window", ex);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error moving window", ex);
+            }
+        }
+
+        private void OnMinimizeWindow(object sender, MouseButtonEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void LogLevelCMB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int ordinal = LogLevelCMB.SelectedIndex == -1 ? 2 : LogLevelCMB.SelectedIndex;
+            LocalSettings.Settings["LogLevel"] = ordinal;
+            Utilities.Utilities.Reconfigure(ordinal);
+
+            if (DxHook.Instance.IsApplied)
+            {
+                string debug = "DODEBUG = " +
+                               ((LocalSettings.Settings["LogLevel"] == LogLevel.Debug.Ordinal ||
+                                 LocalSettings.Settings["LogLevel"] == LogLevel.Trace.Ordinal)
+                                   ? "true"
+                                   : "false");
+                DxHook.Instance.ExecuteScript(debug);
+            }
+        }
 
         #region EventHandlers
+
+        private void btn_Attach_Click(object sender, EventArgs e)
+        {
+            if (_processes.Length > ProcessCB.SelectedIndex && ProcessCB.SelectedIndex >= 0) // return if we have an invalid process
+            {
+                BotManager.AttachToProcess(_processes[ProcessCB.SelectedIndex]);
+            }
+            else
+            {
+                Logger.Warn("Please pick a process to attach to.");
+            }
+        }
+
+        private void ComboBox_DropDownOpened_1(object sender, EventArgs e)
+        {
+            try
+            {
+                RefreshProcesses();
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorException("Error refreshing processes", ex);
+            }
+        }
+
 
         private void MetroWindow_Closing_1(object sender, CancelEventArgs e)
         {
@@ -73,12 +186,13 @@ namespace CoolFishNS
             {
                 SaveControlSettings();
                 BotManager.ShutDown();
-                App.Handle.Set();
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error closing window",ex);
+                Logger.ErrorException("Error closing window", ex);
             }
+
+            App.Handle.Set();
         }
 
         private void StartBTN_Click(object sender, RoutedEventArgs e)
@@ -91,7 +205,7 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error Starting bot",ex);
+                Logger.ErrorException("Error Starting bot", ex);
             }
         }
 
@@ -150,6 +264,11 @@ namespace CoolFishNS
 
         private void MetroWindow_Loaded_1(object sender, RoutedEventArgs e)
         {
+            var textbox = new TextBoxTarget(OutputText) {Layout = @"[${date:format=h\:mm\:ss.ff tt}] [${level:uppercase=true}] ${message}"};
+            var asyncWrapper = new AsyncTargetWrapper(textbox);
+            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.Info, asyncWrapper));
+            LogManager.ReconfigExistingLoggers();
+
             OutputText.Text = Updater.GetNews() + Environment.NewLine;
             Logger.Info("CoolFish Version: " + Utilities.Utilities.Version);
             BotManager.StartUp();
@@ -167,41 +286,15 @@ namespace CoolFishNS
             BotBaseCB_DropDownOpened(null, null);
             BotBaseCB.SelectedIndex = 0;
 
-            //BotManager.AttachToProcess();
+            RefreshProcesses();
+            if (_processes.Length == 1)
+            {
+                BotManager.AttachToProcess(_processes.First());
+            }
 
             Updater.Update();
             Updater.StatCount();
-
-            RichTextBoxTarget target = new RichTextBoxTarget
-            {
-                Name = "RichTextBox",
-                Layout = "${time} ${level:uppercase=true} ${message}",
-                ControlName = "textbox1",
-                FormName = "Form1",
-                AutoScroll = true,
-                MaxLines = 10000,
-               //UseDefaultRowColoringRules = false
-            };
-              /*target.RowColoringRules.Add(
-                  new RichTextBoxRowColoringRule(
-                      "level == LogLevel.Trace", // condition
-                      "DarkGray", // font color
-                      "Control", // background color
-                      System.Windows.FontStyle.Regular
-                  )
-              );
-              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Debug", "Gray", "Control"));
-              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Info", "ControlText", "Control"));
-              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Warn", "DarkRed", "Control"));
-              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Error", "White", "DarkRed", FontStyle.Bold));
-              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Fatal", "Yellow", "DarkRed", FontStyle.Bold));*/
-
-            AsyncTargetWrapper asyncWrapper = new AsyncTargetWrapper(target);
-            SimpleConfigurator.ConfigureForTargetLogging(asyncWrapper,LogLevel.Info);
-
-
         }
-
 
         private void PluginsBTN_Click(object sender, RoutedEventArgs e)
         {
@@ -236,7 +329,7 @@ namespace CoolFishNS
                     }
                     catch (Exception ex)
                     {
-                        Logger.ErrorException("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name,ex);
+                        Logger.ErrorException("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name, ex);
                     }
                 }
             }
@@ -285,21 +378,5 @@ namespace CoolFishNS
         }
 
         #endregion
-
-        private void OnCloseWindow(object sender, MouseButtonEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
-
-        private void OnDragMoveWindow(object sender, MouseButtonEventArgs e)
-        {
-            DragMove();
-        }
-
-        private void OnMinimizeWindow(object sender, MouseButtonEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
     }
 }

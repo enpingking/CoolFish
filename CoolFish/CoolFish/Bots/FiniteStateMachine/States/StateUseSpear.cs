@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
-using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States

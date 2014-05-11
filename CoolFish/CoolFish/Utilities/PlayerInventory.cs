@@ -50,13 +50,12 @@ namespace CoolFishNS.Utilities
         {
             get
             {
+                Dictionary<string, string> count = DxHook.Instance.ExecuteScript(Resources.GetLureName, new[] {"Count", "LureName"});
 
-                    Dictionary<string, string> count = DxHook.Instance.ExecuteScript(Resources.GetLureName, new[] {"Count", "LureName"});
-
-                    if (count["Count"] == "1" && !string.IsNullOrEmpty(count["LureName"]))
-                    {
-                        return 1;
-                    }
+                if (count["Count"] == "1" && !string.IsNullOrEmpty(count["LureName"]))
+                {
+                    return 1;
+                }
                 return 0;
             }
         }

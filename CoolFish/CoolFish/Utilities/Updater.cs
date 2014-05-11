@@ -46,7 +46,7 @@ namespace CoolFishNS.Utilities
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Could not connect to news feed. Website is down?",ex);
+                Logger.ErrorException("Could not connect to news feed. Website is down?", ex);
             }
             return string.Empty;
         }
@@ -94,7 +94,7 @@ namespace CoolFishNS.Utilities
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error checking for updates",ex);
+                    Logger.ErrorException("Error checking for updates", ex);
                 }
             });
         }
@@ -113,7 +113,7 @@ namespace CoolFishNS.Utilities
         {
             if (asyncCompletedEventArgs.Error != null)
             {
-                Logger.ErrorException("Error downloading new version",asyncCompletedEventArgs.Error);
+                Logger.ErrorException("Error downloading new version", asyncCompletedEventArgs.Error);
                 MessageBox.Show("An error occurred while downloading the new version. Please try again or visit the website to download it manually.");
             }
             else

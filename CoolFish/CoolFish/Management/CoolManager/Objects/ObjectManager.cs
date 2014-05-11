@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Management.CoolManager.Objects
@@ -107,7 +106,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error finding LocalPlayer",ex);
+                Logger.ErrorException("Error finding LocalPlayer", ex);
             }
             return null;
         }
@@ -164,8 +163,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
                             currentObject.BaseAddress + (int) Offsets.ObjectManager.NextObject);
                 }
             }
-            catch (AccessViolationException)
+            catch (AccessViolationException ex)
             {
+                Logger.TraceException("AccessViolation In ObjectManager", ex);
             }
             catch (Exception ex)
             {

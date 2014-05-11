@@ -118,7 +118,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                     Thread.Sleep(3000);
                 }
             }).Start();
-            
+
 
             if (LocalSettings.Settings["CloseWoWonStop"])
             {
