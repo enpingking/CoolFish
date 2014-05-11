@@ -53,7 +53,6 @@ namespace CoolFishNS.Management.CoolManager.D3D
                     (void*) IntPtr.Zero, 0, (void*) IntPtr.Zero, 0,
                     D3D11_SDK_VERSION, &scd, &pSwapChain, &pDevice,
                     (void*) IntPtr.Zero, &pImmediateContext);
-                Logging.Log(string.Format("D3D11CreateDeviceAndSwapChain result: {0:X}", ret));
                 _swapChain = pSwapChain;
                 _device = pDevice;
                 d3DDevicePtr = pImmediateContext;

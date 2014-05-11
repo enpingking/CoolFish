@@ -7,6 +7,7 @@ namespace TestPlugin
 {
     public class TestPlugin : IPlugin
     {
+
         public static int Count = 0;
         public static int Pulses = 1000;
 
@@ -29,24 +30,24 @@ namespace TestPlugin
 
         public void OnEnabled()
         {
-            Logging.Write("Enabled Test Plugin");
+            //Logging.Write("Enabled Test Plugin");
         }
 
         public void OnDisabled()
         {
-            Logging.Write("Disabled Test Plugin");
+            //Logging.Write("Disabled Test Plugin");
         }
 
         public void OnLoad()
         {
-            Logging.Write("Loaded Test Plugin");
+            //Logging.Write("Loaded Test Plugin");
         }
 
         public void OnPulse()
         {
             if (Count == 0)
             {
-                Logging.Write("Writing this message every " + Pulses + " pulses");
+                //Logging.Write("Writing this message every " + Pulses + " pulses");
               
             }
 
@@ -61,7 +62,7 @@ namespace TestPlugin
 
         public void OnShutdown()
         {
-            Logging.Write("Shutdown Test Plugin");
+            //Logging.Write("Shutdown Test Plugin");
         }
 
         public string Name

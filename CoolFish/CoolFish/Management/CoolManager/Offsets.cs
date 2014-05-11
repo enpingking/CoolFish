@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Management.CoolManager
 {
@@ -13,6 +14,8 @@ namespace CoolFishNS.Management.CoolManager
     /// </summary>
     public static class Offsets
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private static Dictionary<string, IntPtr> _addresses = new Dictionary<string, IntPtr>();
 
         /// <summary>
@@ -34,19 +37,13 @@ namespace CoolFishNS.Management.CoolManager
         internal static bool FindOffsets()
         {
             var addresses = new Dictionary<string, IntPtr>(_addresses.Count);
-            if (BotManager.Memory == null || !BotManager.Memory.IsProcessOpen)
+            if (BotManager.Memory == null || !BotManager.Memory.IsProcessOpen || BotManager.Memory.Process == null)
             {
-                Logging.Write("Not attached to a process");
+                Logger.Info("Not attached to a process");
                 return false;
             }
 
             Process woWProc = BotManager.Memory.Process;
-
-            if (woWProc == null)
-            {
-                Logging.Write("Not attached to a process");
-                return false;
-            }
 
             var fp = new FindPattern(new MemoryStream(Encoding.UTF8.GetBytes(Resources.Patterns)), woWProc);
             var baseAddr = (int) woWProc.MainModule.BaseAddress;
@@ -67,15 +64,15 @@ namespace CoolFishNS.Management.CoolManager
                     }
                 }
 
-                Logging.Log("Base: 0x" + baseAddr.ToString("X"));
+                Logger.Debug("Base: 0x" + baseAddr.ToString("X"));
                 foreach (var address in addresses)
                 {
-                    Logging.Log(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
+                    Logger.Debug(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
                 }
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
+                Logger.ErrorException("Error while finding offsets",ex);
             }
             _addresses = addresses;
             return fp.NotFoundCount == 0;

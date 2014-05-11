@@ -6,6 +6,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using CoolFishNS.Management;
 using CoolFishNS.Utilities;
+using NLog;
 using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace CoolFishNS.Bots.CoolFishBot
@@ -15,6 +16,8 @@ namespace CoolFishNS.Bots.CoolFishBot
     /// </summary>
     internal partial class CoolFishBotSettings
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private Collection<SerializableItem> _items = new Collection<SerializableItem>();
 
         public CoolFishBotSettings()
@@ -49,7 +52,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 SaveControlSettings();
                 LocalSettings.SaveSettings();
-                Logging.Write("CoolFishBot settings saved.");
+                Logger.Info("CoolFishBot settings saved.");
                 Close();
             }
             else
@@ -66,15 +69,10 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         public void FillDataGrid()
         {
-            try
-            {
+
                 ItemsGrid.ItemsSource = null;
                 ItemsGrid.ItemsSource = _items;
-            }
-            catch (Exception ex)
-            {
-                Logging.Write(ex.ToString());
-            }
+
         }
 
         private void UpdateControlSettings()
@@ -103,10 +101,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             FillDataGrid();
 
 
-            if (LocalSettings.Settings["BlackBackground"])
-            {
-                BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x0, 0x0, 0x0);
-            }
         }
 
         private void SaveControlSettings()
@@ -134,9 +128,10 @@ namespace CoolFishNS.Bots.CoolFishBot
             double result;
             if (!double.TryParse(StopTimeMinutesTB.Text, out result))
             {
-                Logging.Write("Invalid Stop Time.");
+                Logger.Warn("Invalid Stop Time.");
             }
             LocalSettings.Settings["MinutesToStop"] = BotSetting.As(result);
+
         }
     }
 }

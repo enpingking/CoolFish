@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Management.CoolManager
 {
@@ -19,6 +20,8 @@ namespace CoolFishNS.Management.CoolManager
     /// </summary>
     public class FindPattern
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private int _numberToFind;
 
         /// <summary>
@@ -108,7 +111,7 @@ namespace CoolFishNS.Management.CoolManager
             {
                 return ret;
             }
-            Logging.Log("Error Code: " + Marshal.GetLastWin32Error());
+            Logger.Error("Error Code: " + Marshal.GetLastWin32Error());
             return null;
         }
 
@@ -175,7 +178,7 @@ namespace CoolFishNS.Management.CoolManager
                 }
                 catch (Exception ex)
                 {
-                    Logging.Log(ex);
+                    Logger.ErrorException("Error finding pattern: " + name, ex);
                 }
 
                 // Actually search for the pattern match...

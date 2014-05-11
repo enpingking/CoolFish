@@ -5,6 +5,7 @@ using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
 {
@@ -13,6 +14,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateFish : State
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly Random _random = new Random();
 
         public override int Priority
@@ -47,7 +49,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public override void Run()
         {
             Thread.Sleep(_random.Next(1000));
-            Logging.Write(Name);
+            Logger.Info(Name);
             DxHook.Instance.ExecuteScript("local name = GetSpellInfo(131490);  CastSpellByName(name);");
 
 
@@ -55,10 +57,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             // We write this value to LastHardwareAction so that our character isn't logged out due to inactivity
             var ticks = BotManager.Memory.Read<int>(Offsets.Addresses["Timestamp"]);
 
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
                 var currentTicks = BotManager.Memory.Read<int>(Offsets.Addresses["LastHardwareAction"]);
-                Logging.Log("Writing " + ticks + " ticks while previous was " + currentTicks);
+                Logger.Trace("Writing " + ticks + " ticks while previous was " + currentTicks);
             }
 
             BotManager.Memory.Write(Offsets.Addresses["LastHardwareAction"], ticks);

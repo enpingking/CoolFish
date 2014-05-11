@@ -147,13 +147,16 @@
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>CoolFishNS.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MahApps.Metro, Version=0.13.1.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MahApps.Metro.0.13.1.0\lib\net45\MahApps.Metro.dll</HintPath>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Octokit">
-      <HintPath>..\packages\Octokit.0.3.1\lib\net45\Octokit.dll</HintPath>
+    <Reference Include="Octokit, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Octokit.0.3.4\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
@@ -162,9 +165,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.0.13.1.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -186,9 +186,8 @@
     <Compile Include="Management\BotManager.cs" />
     <Compile Include="Bots\CoolFishBot\CoolFishBot.cs" />
     <Compile Include="Bots\IBot.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="Targets\TextBoxTarget.cs" />
     <Compile Include="Utilities\BotSetting.cs" />
-    <Compile Include="Utilities\MessageEventArgs.cs" />
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Management\CoolManager\D3D\D3D11Device.cs" />
     <Compile Include="Management\CoolManager\D3D\D3D9Device.cs" />
@@ -228,10 +227,10 @@
     </Compile>
     <Compile Include="Utilities\SerializableItem.cs" />
     <Compile Include="Utilities\SerializablePlugin.cs" />
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
     <Page Include="Bots\CoolFishBot\CoolFishBotSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -245,15 +244,9 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources\Icons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Utilities\LocalSettings.cs" />
-    <Compile Include="Utilities\Log.cs" />
-    <Compile Include="Utilities\Logging.cs" />
     <Compile Include="Utilities\PlayerInventory.cs" />
     <Compile Include="Utilities\Serializer.cs" />
     <Compile Include="Bots\FiniteStateMachine\States\State.cs" />
@@ -341,9 +334,6 @@
     <Resource Include="Resources\Patterns.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Entypo.ttf" />
-  </ItemGroup>
-  <ItemGroup>
     <PublishFile Include="CoolFish.pdb">
       <Visible>False</Visible>
       <Group>
@@ -396,12 +386,6 @@
     </PublishFile>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\WindowsIcons-license.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Entypo-license.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\GreyMagic\fasmdll_managed\fasmdll_managed.vcxproj">
       <Project>{4756cf18-2091-446f-a79d-9e521611deb5}</Project>
       <Name>fasmdll_managed</Name>
@@ -423,7 +407,7 @@ Version.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>cd $(TargetDir)
-Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.exe.config GreyMagic.dll MahApps.Metro.dll System.Windows.Interactivity.dll Octokit.dll</PostBuildEvent>
+Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.exe.config GreyMagic.dll Octokit.dll</PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>

@@ -1,10 +1,13 @@
 ﻿using System;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.PluginSystem
 {
     internal class PluginContainer
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         internal IPlugin Plugin;
         private bool _enabled;
 
@@ -31,8 +34,7 @@ namespace CoolFishNS.PluginSystem
                         }
                         catch (Exception ex)
                         {
-                            Logging.Write("Exception Enabling plugin: " + Plugin.Name);
-                            Logging.Log(ex);
+                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name,ex);
                         }
                     }
                     else
@@ -43,8 +45,7 @@ namespace CoolFishNS.PluginSystem
                         }
                         catch (Exception ex)
                         {
-                            Logging.Write("Exception Enabling plugin: " + Plugin.Name);
-                            Logging.Log(ex);
+                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name,ex);
                         }
                     }
                 }

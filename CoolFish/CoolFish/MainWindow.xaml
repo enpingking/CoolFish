@@ -1,131 +1,114 @@
-﻿<controls:MetroWindow x:Name="MainWindow1" x:Class="CoolFishNS.MainWindow" x:Uid="MainWindow"
+﻿<Window x:Name="MainWindow1" x:Class="CoolFishNS.MainWindow" x:Uid="MainWindow"
                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                      xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-                      Title="CoolFish" Height="245.2"
+                      Title="CoolFish" Height="268.2"
                       Width="649.8" ResizeMode="NoResize" Closing="MetroWindow_Closing_1" Visibility="Visible"
-                      SaveWindowPosition="True" ShowTitleBar="True" SizeToContent="WidthAndHeight"
+                      SizeToContent="WidthAndHeight"
                       Loaded="MetroWindow_Loaded_1"
-                      WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" x:ClassModifier="internal"
-                      ShowCloseButton="False"
-                      ShowMinButton="False" ShowMaxRestoreButton="False" ShowActivated="True"
+                      WindowStyle="None"
+                      ShowActivated="True"
                       WindowStartupLocation="CenterScreen">
+    <StackPanel>
+        <!-- Title Bar -->
+        <Grid Background="#CC1BA1E2" Height="27">
 
 
-    <controls:MetroWindow.WindowCommands>
-        <controls:WindowCommands x:Uid="Controls:WindowCommands_1" HorizontalAlignment="Left">
-            <Button x:Name="MainTabBTN" x:Uid="Button_1" Foreground="White" Content="Main" Click="MainTab_Click" />
-            <Button x:Name="PluginsTabBTN" x:Uid="Button_3" Foreground="White" Content="Plugins"
-                    Click="PluginsBTN_Click" />
-            <Button x:Name="DonateTabBTN" x:Uid="Button_4" Foreground="White" Content="Donate" Click="DonateTab_Click" />
-            <Button x:Name="UpdateTabBTN" x:Uid="Button_5" Foreground="White" Content="Update" Click="UpdateBTN_Click" />
-            <Button x:Name="HelpTabBTN" x:Uid="Button_6" Foreground="White" Content="Help/Bug/Feature"
-                    Click="HelpBTN_Click" />
-            <Button Foreground="White" Click="MinimizeBtnClick">
-                <Image Source="Resources\appbar.minus.png" />
-            </Button>
-            <Button Foreground="White" Click="CloseBtnClick">
-                <Image Source="Resources\appbar.app.remove.png" />
-            </Button>
+            <!-- Title Text -->
+            <TextBlock MouseLeftButtonDown="OnDragMoveWindow"  Foreground="White" Margin="10,-1,560,1" FontSize="20">CoolFish</TextBlock>
+            <TextBlock MouseLeftButtonDown="OnMinimizeWindow"  Foreground="White" Margin="622,-4,16,4" FontWeight="Bold" FontSize="20" TextAlignment="Center"> -</TextBlock>
+            <TextBlock MouseLeftButtonDown="OnCloseWindow"  Foreground="White" Margin="636,-4,2,4" FontWeight="Bold" FontSize="20" TextAlignment="Center">x</TextBlock>
+  
+        </Grid>
 
 
-        </controls:WindowCommands>
-    </controls:MetroWindow.WindowCommands>
 
-    <Border x:Uid="Border_1" Padding="6">
-        <Border.Background>
-            <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
-                <GradientStop x:Name="BackgroundColorObj" Color="#CC1BA1E2" />
-                <GradientStop x:Name="GradientStopObj" Color="White" Offset="1" />
-            </LinearGradientBrush>
-        </Border.Background>
-        <Grid x:Name="BackGrid" x:Uid="Grid_1" Opacity="0.98" Height="239" VerticalAlignment="Top" Margin="0,0,0,-6">
-
-            <TabControl x:Uid="TabControlTC" x:Name="TabControlTC" HorizontalAlignment="Left" Width="638"
-                        Opacity="0.98">
-                <TabItem x:Uid="MainTab" x:Name="MainTab" Header="" Foreground="White" Background="White"
-                         BorderBrush="White" Opacity="0.98" Margin="-106,-83,105,72"
+        <Border x:Uid="Border_1" Padding="6">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                    <GradientStop x:Name="BackgroundColorObj" Color="#CC1BA1E2" />
+                    <GradientStop x:Name="GradientStopObj" Color="White" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid x:Name="BackGrid" x:Uid="Grid_1"  Height="239" VerticalAlignment="Top" Margin="0,0,0,-6">
+                <TabControl x:Uid="TabControlTC" x:Name="TabControlTC" HorizontalAlignment="Left" Width="638"
+                         Background="{x:Null}" BorderBrush="{x:Null}" Height="239" VerticalAlignment="Bottom">
+                    <TabItem x:Uid="MainTab" x:Name="MainTab" Header="" Foreground="White" Background="White"
+                         BorderBrush="White"  Margin="-106,-83,105,72"
                          RenderTransformOrigin="-0.607,-1.044">
-                    <Grid x:Uid="Grid_2" Margin="-8,-49,-9,-7" Opacity="0.98" Height="236">
-                        <Button x:Uid="StartBTN" x:Name="StartBTN" Content="Start" Margin="480,64,0,0"
+                        <Grid x:Uid="Grid_2" Margin="-8,-49,-9,-7"  Height="236">
+                            <Button x:Uid="StartBTN" x:Name="StartBTN" Content="Start" Margin="480,64,0,0"
                                 VerticalAlignment="Top" Click="StartBTN_Click" HorizontalAlignment="Left" Width="77"
-                                Opacity="0.98" />
-                        <Button x:Uid="StopBTN" x:Name="StopBTN" Content="Stop" Margin="562,64,0,0"
+                                 />
+                            <Button x:Uid="StopBTN" x:Name="StopBTN" Content="Stop" Margin="562,64,0,0"
                                 VerticalAlignment="Top" Click="Button_Click_2" HorizontalAlignment="Left" Width="77"
-                                Opacity="0.98" />
-                        <Button x:Uid="AttachBTN" x:Name="AttachBTN" Content="Attach" Margin="399,33,0,0"
-                                VerticalAlignment="Top" Click="btn_Attach_Click" HorizontalAlignment="Left" Width="76"
-                                Opacity="0.98" />
-                        <ComboBox x:Uid="ProcessCB" x:Name="ProcessCB" Margin="10,33,0,0"
-                                  DropDownOpened="ComboBox_DropDownOpened_1" HorizontalAlignment="Left" Width="384"
-                                  Height="26" VerticalAlignment="Top"
-                                  Opacity="0.98" />
-                        <ComboBox x:Name="BotBaseCB" HorizontalAlignment="Left" Margin="10,64,0,0"
+                                 />
+                            <ComboBox x:Name="BotBaseCB" HorizontalAlignment="Left" Margin="10,64,0,0"
                                   VerticalAlignment="Top" Width="384" DropDownOpened="BotBaseCB_DropDownOpened"
                                   DropDownClosed="BotBaseCB_DropDownClosed" />
-                        <Button x:Uid="AttachBTN" x:Name="SettingsBTN" Content="Settings" Margin="399,64,0,0"
+                            <Button x:Uid="AttachBTN" x:Name="SettingsBTN" Content="Settings" Margin="399,64,0,0"
                                 VerticalAlignment="Top" Click="btn_Settings_Click" HorizontalAlignment="Left"
                                 Width="76"
-                                Opacity="0.98" />
-                        <TextBox x:Name="OutputText" TextWrapping="Wrap" Margin="10,95,10,10"
+                                 />
+                            <TextBox x:Name="OutputText" TextWrapping="Wrap" Margin="10,95,10,10"
                                  VerticalScrollBarVisibility="Visible" />
-                    </Grid>
-                </TabItem>
-                <TabItem x:Uid="PluginTab" x:Name="PluginTab" Margin="0,0,-4,40" RenderTransformOrigin="0.5,0.5">
-                    <TabItem.RenderTransform>
-                        <TransformGroup x:Uid="TransformGroup_2">
-                            <ScaleTransform x:Uid="ScaleTransform_2" ScaleY="-1" />
-                            <SkewTransform x:Uid="SkewTransform_2" />
-                            <RotateTransform x:Uid="RotateTransform_2" />
-                            <TranslateTransform x:Uid="TranslateTransform_2" />
-                        </TransformGroup>
-                    </TabItem.RenderTransform>
-                    <Grid x:Uid="Grid_3" HorizontalAlignment="Left" Height="234" VerticalAlignment="Top" Width="648"
+                        </Grid>
+                    </TabItem>
+                    <TabItem x:Uid="PluginTab" x:Name="PluginTab" Margin="0,0,-4,40" RenderTransformOrigin="0.5,0.5">
+                        <TabItem.RenderTransform>
+                            <TransformGroup x:Uid="TransformGroup_2">
+                                <ScaleTransform x:Uid="ScaleTransform_2" ScaleY="-1" />
+                                <SkewTransform x:Uid="SkewTransform_2" />
+                                <RotateTransform x:Uid="RotateTransform_2" />
+                                <TranslateTransform x:Uid="TranslateTransform_2" />
+                            </TransformGroup>
+                        </TabItem.RenderTransform>
+                        <Grid x:Uid="Grid_3" HorizontalAlignment="Left" Height="234" VerticalAlignment="Top" Width="648"
                           Margin="-9,-47,-7,-3">
-                        <ListBox x:Uid="ScriptsLB" x:Name="ScriptsLB" HorizontalAlignment="Left" Height="163"
+                            <ListBox x:Uid="ScriptsLB" x:Name="ScriptsLB" HorizontalAlignment="Left" Height="163"
                                  Margin="10,61,0,0" VerticalAlignment="Top" Width="257" BorderBrush="{x:Null}"
                                  SelectionChanged="ScriptsLB_SelectionChanged" Background="{x:Null}" />
 
-                        <TextBlock x:Uid="DescriptionBox" x:Name="DescriptionBox" TextWrapping="WrapWithOverflow"
+                            <TextBlock x:Uid="DescriptionBox" x:Name="DescriptionBox" TextWrapping="WrapWithOverflow"
                                    Text="Look in the Plugins folder to see an example of the type of plugins you can load here"
                                    Margin="272,133,10,10" Foreground="Black" />
 
-                        <Button x:Uid="ConfigBTN" x:Name="ConfigBTN" Content="Config" HorizontalAlignment="Left"
+                            <Button x:Uid="ConfigBTN" x:Name="ConfigBTN" Content="Config" HorizontalAlignment="Left"
                                 Margin="272,61,0,0" VerticalAlignment="Top" Width="100" Click="ConfigBTN_Click" />
-                        <TextBlock x:Uid="AuthorTB" x:Name="AuthorTB" HorizontalAlignment="Left" Margin="272,91,0,0"
+                            <TextBlock x:Uid="AuthorTB" x:Name="AuthorTB" HorizontalAlignment="Left" Margin="272,91,0,0"
                                    TextWrapping="Wrap" VerticalAlignment="Top" Width="326" Foreground="Black" />
-                        <TextBlock x:Uid="VersionTB" x:Name="VersionTB" HorizontalAlignment="Left" Margin="272,112,0,0"
+                            <TextBlock x:Uid="VersionTB" x:Name="VersionTB" HorizontalAlignment="Left" Margin="272,112,0,0"
                                    TextWrapping="Wrap" VerticalAlignment="Top" Width="326" Foreground="Black" />
-                    </Grid>
-                </TabItem>
-                <TabItem x:Uid="DonateTab" x:Name="DonateTab" Margin="-102,-16,108,57" RenderTransformOrigin="0.5,0.5">
-                    <TabItem.RenderTransform>
-                        <TransformGroup x:Uid="TransformGroup_3">
-                            <ScaleTransform x:Uid="ScaleTransform_3" ScaleY="-1" />
-                            <SkewTransform x:Uid="SkewTransform_3" />
-                            <RotateTransform x:Uid="RotateTransform_3" />
-                            <TranslateTransform x:Uid="TranslateTransform_3" />
-                        </TransformGroup>
-                    </TabItem.RenderTransform>
-                    <Grid x:Uid="Grid_4" HorizontalAlignment="Left" Height="233" VerticalAlignment="Top" Width="638"
+                        </Grid>
+                    </TabItem>
+                    <TabItem x:Uid="DonateTab" x:Name="DonateTab" Margin="-102,-16,108,57" RenderTransformOrigin="0.5,0.5">
+                        <TabItem.RenderTransform>
+                            <TransformGroup x:Uid="TransformGroup_3">
+                                <ScaleTransform x:Uid="ScaleTransform_3" ScaleY="-1" />
+                                <SkewTransform x:Uid="SkewTransform_3" />
+                                <RotateTransform x:Uid="RotateTransform_3" />
+                                <TranslateTransform x:Uid="TranslateTransform_3" />
+                            </TransformGroup>
+                        </TabItem.RenderTransform>
+                        <Grid x:Uid="Grid_4" HorizontalAlignment="Left" Height="233" VerticalAlignment="Top" Width="638"
                           Margin="0,-47,-6,-3">
-                        <TextBlock TextWrapping="Wrap" x:Uid="DonateLBL" x:Name="DonateLBL"
+                            <TextBlock TextWrapping="Wrap" x:Uid="DonateLBL" x:Name="DonateLBL"
                                    Text="If you really enjoy my programs and want to encourage me to continue working on them, consider donating"
                                    HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top" Width="618"
                                    Height="39" />
-                        <TextBlock x:Name="ThanksLBL" x:Uid="Label_2" Text="Thanks :)" HorizontalAlignment="Left"
+                            <TextBlock x:Name="ThanksLBL" x:Uid="Label_2" Text="Thanks :)" HorizontalAlignment="Left"
                                    Margin="10,114,0,0" VerticalAlignment="Top" Width="618" TextAlignment="Center" />
-                        <Image x:Uid="Image_1" Source="/Resources\btn_donate_SM.gif" Margin="250,145,254,0"
+                            <Image x:Uid="Image_1" Source="/Resources\btn_donate_SM.gif" Margin="250,145,254,0"
                                MouseDown="DonateBTN_Click" Height="27" VerticalAlignment="Top" />
-                        <Button x:Uid="RuthersBTN" x:Name="RuthersBTN" Content="Go RUTHERS!"
+                            <Button x:Uid="RuthersBTN" x:Name="RuthersBTN" Content="Go RUTHERS!"
                                 HorizontalAlignment="Right" Margin="0,208,583,0" VerticalAlignment="Top" Width="55"
                                 Opacity="0" Click="SecretBTN_Click"
                                 Height="25" />
-                    </Grid>
-                </TabItem>
+                        </Grid>
+                    </TabItem>
 
 
-            </TabControl>
-        </Grid>
-    </Border>
-</controls:MetroWindow>
+                </TabControl>
+            </Grid>
+        </Border>
+    </StackPanel>
+</Window>

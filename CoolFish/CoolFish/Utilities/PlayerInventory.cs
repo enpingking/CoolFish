@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
+using NLog;
 
 namespace CoolFishNS.Utilities
 {
@@ -10,6 +11,8 @@ namespace CoolFishNS.Utilities
     /// </summary>
     public static class PlayerInventory
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         ///     Gets the number of free inventory slots. (Note: only cares about absolute number. Doesn't matter what bag type it
         ///     is)
@@ -28,7 +31,7 @@ namespace CoolFishNS.Utilities
 
                 if (String.IsNullOrEmpty(slots))
                 {
-                    Logging.Write("Unable to determine free bag space.");
+                    Logger.Warn("Unable to determine free bag space.");
                     return 0;
                 }
 
@@ -47,20 +50,13 @@ namespace CoolFishNS.Utilities
         {
             get
             {
-                try
-                {
+
                     Dictionary<string, string> count = DxHook.Instance.ExecuteScript(Resources.GetLureName, new[] {"Count", "LureName"});
 
                     if (count["Count"] == "1" && !string.IsNullOrEmpty(count["LureName"]))
                     {
                         return 1;
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logging.Write("Exception while getting lure count " + ex.Message);
-                    Logging.Log(ex);
-                }
                 return 0;
             }
         }

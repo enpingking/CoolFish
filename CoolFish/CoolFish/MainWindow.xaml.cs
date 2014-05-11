@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using CoolFishNS.Bots;
 using CoolFishNS.Management;
 using CoolFishNS.PluginSystem;
 using CoolFishNS.Utilities;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
+using NLog.Targets.Wrappers;
 using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace CoolFishNS
@@ -20,8 +22,10 @@ namespace CoolFishNS
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    internal partial class MainWindow
+    public partial class MainWindow
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IList<IBot> _bots = new List<IBot>();
         private readonly ICollection<CheckBox> _pluginCheckBoxesList = new Collection<CheckBox>();
         private Process[] _processes;
@@ -29,16 +33,11 @@ namespace CoolFishNS
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
         private void UpdateControlSettings()
         {
-            if (LocalSettings.Settings["BlackBackground"])
-            {
-                BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x0, 0x0, 0x0);
-            }
-
-
             foreach (var plugin in PluginManager.Plugins)
             {
                 var cb = new CheckBox {Content = plugin.Key};
@@ -65,96 +64,8 @@ namespace CoolFishNS
             }
         }
 
-        private void RefreshProcesses()
-        {
-            ProcessCB.Items.Clear();
-
-            _processes = GetWowProcesses();
-
-            foreach (Process process in _processes)
-            {
-                try
-                {
-                    ProcessCB.Items.Add("Id: " + process.Id + " Name: " + process.MainWindowTitle);
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Gets a List of 32-bit Wow processes currently running on the system
-        /// </summary>
-        /// <returns>List of Process objects</returns>
-        public static Process[] GetWowProcesses()
-        {
-            Process[] proc = Process.GetProcessesByName("WoW");
-            Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
-
-            if (!proc.Any())
-            {
-                if (proc64Bit.Any())
-                {
-                    Logging.Write(
-                        "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
-                }
-                else
-                {
-                    Logging.Write("No WoW processes were found.");
-                }
-            }
-
-
-            return proc;
-        }
-
-        private void AppendMessage(object sender, MessageEventArgs args)
-        {
-            Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                try
-                {
-                    if (OutputText.Text.Length > 5000)
-                    {
-                        OutputText.Text = string.Empty;
-                    }
-                    OutputText.Text += Log.TimeStamp + " " + args.Message + Environment.NewLine;
-                    OutputText.ScrollToEnd();
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log("Exception while writing: \n" + ex);
-                }
-            }, DispatcherPriority.Background);
-        }
 
         #region EventHandlers
-
-        private void btn_Attach_Click(object sender, EventArgs e)
-        {
-            if (_processes.Length > ProcessCB.SelectedIndex && ProcessCB.SelectedIndex >= 0) // return if we have an invalid process
-            {
-                BotManager.AttachToProcess(_processes[ProcessCB.SelectedIndex]);
-            }
-            else
-            {
-                Logging.Write("Please pick a process to attach to.");
-            }
-        }
-
-        private void ComboBox_DropDownOpened_1(object sender, EventArgs e)
-        {
-            try
-            {
-                RefreshProcesses();
-            }
-            catch (Exception ex)
-            {
-                Logging.Log(ex);
-            }
-        }
 
         private void MetroWindow_Closing_1(object sender, CancelEventArgs e)
         {
@@ -162,10 +73,11 @@ namespace CoolFishNS
             {
                 SaveControlSettings();
                 BotManager.ShutDown();
+                App.Handle.Set();
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
+                Logger.ErrorException("Error closing window",ex);
             }
         }
 
@@ -179,7 +91,7 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logging.Write(ex.ToString());
+                Logger.ErrorException("Error Starting bot",ex);
             }
         }
 
@@ -197,8 +109,7 @@ namespace CoolFishNS
             catch (Exception ex)
             {
                 TabControlTC.SelectedItem = MainTab;
-                Logging.Log(ex);
-                Logging.Write("http://unknowndev.github.io/CoolFish/");
+                Logger.Info("http://unknowndev.github.io/CoolFish/");
             }
         }
 
@@ -222,8 +133,7 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
-                Logging.Write(Properties.Resources.PaypalLink);
+                Logger.Info(Properties.Resources.PaypalLink);
             }
         }
 
@@ -235,29 +145,13 @@ namespace CoolFishNS
         private void SecretBTN_Click(object sender, RoutedEventArgs e)
         {
             TabControlTC.SelectedItem = MainTab;
-
-
-            if (BackgroundColorObj.Color == Color.FromArgb(0xFF, 0x34, 0xBF, 0xF3))
-            {
-                BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x0, 0x0, 0x0);
-                LocalSettings.Settings["BlackBackground"] = BotSetting.As(true);
-            }
-            else
-            {
-                BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x34, 0xBF, 0xF3);
-                LocalSettings.Settings["BlackBackground"] = BotSetting.As(false);
-            }
-
-
-            Logging.Write(Properties.Resources.SecretBTNMessage);
+            Logger.Info(Properties.Resources.SecretBTNMessage);
         }
 
         private void MetroWindow_Loaded_1(object sender, RoutedEventArgs e)
         {
-            Logging.OnWrite += AppendMessage;
             OutputText.Text = Updater.GetNews() + Environment.NewLine;
-            Logging.Log("CoolFish Version: " + Utilities.Utilities.Version);
-
+            Logger.Info("CoolFish Version: " + Utilities.Utilities.Version);
             BotManager.StartUp();
 
             UpdateControlSettings();
@@ -273,14 +167,39 @@ namespace CoolFishNS
             BotBaseCB_DropDownOpened(null, null);
             BotBaseCB.SelectedIndex = 0;
 
-            _processes = GetWowProcesses();
-            if (_processes.Length == 1)
-            {
-                BotManager.AttachToProcess(_processes[0]);
-            }
+            //BotManager.AttachToProcess();
 
             Updater.Update();
             Updater.StatCount();
+
+            RichTextBoxTarget target = new RichTextBoxTarget
+            {
+                Name = "RichTextBox",
+                Layout = "${time} ${level:uppercase=true} ${message}",
+                ControlName = "textbox1",
+                FormName = "Form1",
+                AutoScroll = true,
+                MaxLines = 10000,
+               //UseDefaultRowColoringRules = false
+            };
+              /*target.RowColoringRules.Add(
+                  new RichTextBoxRowColoringRule(
+                      "level == LogLevel.Trace", // condition
+                      "DarkGray", // font color
+                      "Control", // background color
+                      System.Windows.FontStyle.Regular
+                  )
+              );
+              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Debug", "Gray", "Control"));
+              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Info", "ControlText", "Control"));
+              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Warn", "DarkRed", "Control"));
+              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Error", "White", "DarkRed", FontStyle.Bold));
+              target.RowColoringRules.Add(new RichTextBoxRowColoringRule("level == LogLevel.Fatal", "Yellow", "DarkRed", FontStyle.Bold));*/
+
+            AsyncTargetWrapper asyncWrapper = new AsyncTargetWrapper(target);
+            SimpleConfigurator.ConfigureForTargetLogging(asyncWrapper,LogLevel.Info);
+
+
         }
 
 
@@ -317,8 +236,7 @@ namespace CoolFishNS
                     }
                     catch (Exception ex)
                     {
-                        Logging.Log(ex);
-                        Logging.Write("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name);
+                        Logger.ErrorException("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name,ex);
                     }
                 }
             }
@@ -337,16 +255,6 @@ namespace CoolFishNS
                 AuthorTB.Text = "Author: " + p.Author;
                 VersionTB.Text = "Version: " + p.Version;
             }
-        }
-
-        private void MinimizeBtnClick(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void CloseBtnClick(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
         }
 
         private void btn_Settings_Click(object sender, RoutedEventArgs e)
@@ -377,5 +285,21 @@ namespace CoolFishNS
         }
 
         #endregion
+
+        private void OnCloseWindow(object sender, MouseButtonEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void OnDragMoveWindow(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
+
+        private void OnMinimizeWindow(object sender, MouseButtonEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
     }
 }

@@ -6,6 +6,7 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
 {
@@ -14,6 +15,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateStopOrLogout : State
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         ///     Gets a value indicating whether our bags are full or not and we want to stop on this condition.
         /// </summary>
@@ -84,24 +87,24 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             if (BagsCondition)
             {
-                Logging.Write("Bags are full.");
+                Logger.Info("Bags are full.");
             }
             if (LureCondition)
             {
-                Logging.Write("We ran out of lures.");
+                Logger.Info("We ran out of lures.");
             }
 
             if (ObjectManager.Me != null)
             {
                 if (ObjectManager.Me.Dead)
                 {
-                    Logging.Write("We died :(");
+                    Logger.Info("We died :(");
                 }
             }
 
             if (StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3)
             {
-                Logging.Write("We haven't gotten a bobber in 3 minutes. Somethings wrong.");
+                Logger.Info("We haven't gotten a bobber in 3 minutes. Somethings wrong.");
                 StateBobbing.BuggedTimer.Stop();
             }
 
@@ -117,7 +120,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             }).Start();
             
 
-            if (LocalSettings.Settings["CloseWoWonStop"].As<bool>())
+            if (LocalSettings.Settings["CloseWoWonStop"])
             {
                 DxHook.Instance.Restore();
                 BotManager.Memory.Process.CloseMainWindow();
@@ -126,12 +129,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 Environment.Exit(0);
             }
 
-            if (LocalSettings.Settings["LogoutOnStop"].As<bool>())
+            if (LocalSettings.Settings["LogoutOnStop"])
             {
                 DxHook.Instance.ExecuteScript("Logout();");
             }
 
-            if (LocalSettings.Settings["ShutdownPConStop"].As<bool>())
+            if (LocalSettings.Settings["ShutdownPConStop"])
             {
                 Process.Start("shutdown", "/s /t 0");
             }

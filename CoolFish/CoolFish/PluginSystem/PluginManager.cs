@@ -6,11 +6,14 @@ using System.Reflection;
 using System.Threading;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.PluginSystem
 {
     internal static class PluginManager
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public static Dictionary<string, PluginContainer> Plugins = new Dictionary<string, PluginContainer>();
 
         internal static bool ShouldPulse = true;
@@ -31,7 +34,7 @@ namespace CoolFishNS.PluginSystem
             ShouldPulse = false; // stop pulsing plugins
             if (!PluginThread.Join(5000)) // wait for the plugin thread to end
             {
-                Logging.Log(Resources.FailedToStopPlugins);
+                Logger.Warn(Resources.FailedToStopPlugins);
             }
             PluginThread = null;
         }
@@ -46,8 +49,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logging.Write("Exception shutting down plugin: " + value.Plugin.Name);
-                    Logging.Log(ex);
+                    Logger.ErrorException("Exception shutting down plugin: " + value.Plugin.Name,ex);
                 }
             }
         }
@@ -72,8 +74,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logging.Write(Resources.PluginPulseException, enabledPlugin.Name);
-                    Logging.Log(ex);
+                    Logger.ErrorException(string.Format(Resources.PluginPulseException, enabledPlugin.Name),ex);
                     Plugins[enabledPlugin.Name].Enabled = false;
                 }
             }
@@ -119,8 +120,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logging.Write("Failed to load Plugin: " + plugin);
-                    Logging.Log(ex);
+                    Logger.ErrorException("Failed to load Plugin: " + plugin,ex);
                 }
             }
         }

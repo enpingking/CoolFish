@@ -1,26 +1,17 @@
-﻿<Controls:MetroWindow x:Name="SettingsWindow" x:Class="CoolFishNS.Bots.CoolFishBot.CoolFishBotSettings"
+﻿<Window x:Name="SettingsWindow" x:Class="CoolFishNS.Bots.CoolFishBot.CoolFishBotSettings"
                       x:Uid="CoolFishWindow"
-                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
                       Title="CoolFishBot Settings" Height="269"
                       Width="832.8" ResizeMode="NoResize" Visibility="Visible"
-                      SaveWindowPosition="False" ShowTitleBar="True" SizeToContent="WidthAndHeight"
+                      SizeToContent="WidthAndHeight"
                       WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" x:ClassModifier="internal"
-                      ShowCloseButton="False"
-                      ShowMinButton="False" ShowMaxRestoreButton="False">
+                      >
 
 
-    <Controls:MetroWindow.WindowCommands>
-        <Controls:WindowCommands x:Uid="Controls:WindowCommands_1" HorizontalAlignment="Left">
-            <Button x:Name="SaveButton" x:Uid="Button_1" Foreground="White" Content="Save and Close"
-                    Click="SaveButton_OnClick" />
-            <Button x:Name="CloseButton" x:Uid="Button_2" Foreground="White" Content="Close"
-                    Click="CloseButton_OnClick" />
-        </Controls:WindowCommands>
-    </Controls:MetroWindow.WindowCommands>
+   
 
     <Border x:Uid="Border_1" Padding="6">
         <Border.Background>
@@ -41,7 +32,7 @@
                    Margin="607,31,0,0" VerticalAlignment="Top" Foreground="Black" Opacity="0.98"
                    FontSize="13" Width="216" />
             <TextBox x:Uid="StopTimeMinutesTB" x:Name="StopTimeMinutesTB" Margin="670,204,0,0"
-                     Controls:TextboxHelper.Watermark="Time to Stop"
+                     
                      TextChanged="StopTimeMinutesTB_TextChanged" Height="26"
                      VerticalAlignment="Top" HorizontalAlignment="Left" Width="115" />
             <ListBox x:Uid="StopOnListBox" x:Name="StopOnListBox" HorizontalAlignment="Left" Height="78"
@@ -108,4 +99,4 @@
             </ListBox>
         </Grid>
     </Border>
-</Controls:MetroWindow>
+</Window>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine
 {
@@ -16,6 +18,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine
     /// </summary>
     public class CoolFishEngine
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         #region StatePriority enum
 
         /// <summary>
@@ -55,12 +59,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine
         {
             if (!BotManager.LoggedIn)
             {
-                Logging.Write("Please log into the game first");
+                Logger.Info("Please log into the game first");
             }
 
             if (_workerTask != null && _workerTask.Status == TaskStatus.Running)
             {
-                Logging.Write("The bot is already running.");
+                Logger.Info("The bot is already running.");
             }
 
             Running = true;
@@ -75,14 +79,14 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             if (_workerTask == null || _workerTask.Status != TaskStatus.Running)
             {
                 // Nothing to do.
-                Logging.Write("The bot is not running");
+                Logger.Info("The bot is not running");
                 return;
             }
 
             Running = false;
             if (!_workerTask.Wait(5000))
             {
-                Logging.Write("Bot thread failed to stop on its own. Status: " + _workerTask.Status);
+                Logger.Warn("Bot thread failed to stop on its own. Status: " + _workerTask.Status);
             }
         }
 
@@ -170,23 +174,20 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             try
             {
                 InitOptions();
-                Logging.Write("Started Engine");
+                Logger.Info("Started Engine");
                 while (Running && BotManager.LoggedIn)
                 {
                     // This starts at the highest priority state,
                     // and iterates its way to the lowest priority.
-                    foreach (State state in States)
+                    foreach (State state in States.TakeWhile(state => Running && BotManager.LoggedIn).Where(state => state.NeedToRun))
                     {
-                        if (Running && BotManager.LoggedIn && state.NeedToRun)
-                        {
-                            state.Run();
+                        state.Run();
 
-                            // Break out of the iteration,
-                            // as we found a state that has run.
-                            // We don't want to run any more states
-                            // this time around.
-                            break;
-                        }
+                        // Break out of the iteration,
+                        // as we found a state that has run.
+                        // We don't want to run any more states
+                        // this time around.
+                        break;
                     }
 
                     Thread.Sleep(1000/60);
@@ -194,8 +195,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logging.Write("An unhandled error has occurred.");
-                Logging.Log(ex);
+                Logger.ErrorException("Unhandled error occurred",ex);
             }
 
             try
@@ -208,10 +208,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
+                Logger.ErrorException("Error occurred while unregistering events",ex);
             }
 
-            Logging.Write("Engine Stopped");
+            Logger.Info("Engine Stopped");
         }
     }
 }
