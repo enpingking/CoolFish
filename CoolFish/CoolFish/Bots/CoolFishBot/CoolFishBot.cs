@@ -4,6 +4,7 @@ using CoolFishNS.Bots.FiniteStateMachine;
 using CoolFishNS.Management;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.CoolFishBot
 {
@@ -12,6 +13,8 @@ namespace CoolFishNS.Bots.CoolFishBot
     /// </summary>
     public sealed class CoolFishBot : IBot, IDisposable
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly CoolFishEngine _theEngine;
 
         private Timer _stopTimer;
@@ -59,25 +62,25 @@ namespace CoolFishNS.Bots.CoolFishBot
         {
             if (!BotManager.IsAttached)
             {
-                Logging.Write("Please attach to a WoW process.");
+                Logger.Warn("Please attach to a WoW process.");
                 return;
             }
             if (!BotManager.LoggedIn)
             {
-                Logging.Write("Please log into the game first.");
+                Logger.Warn("Please log into the game first.");
                 return;
             }
 
             if (LocalSettings.Settings["LootOnlyItems"] &&
                 LocalSettings.Settings["DontLootLeft"])
             {
-                Logging.Write("You can't \"Loot only items on the left\" and \"Don't loot items on left\" at the same time");
+                Logger.Warn("You can't \"Loot only items on the left\" and \"Don't loot items on left\" at the same time");
                 return;
             }
 
             if (LocalSettings.Settings["LootQuality"] < 0)
             {
-                Logging.Write("Please select a minimum loot quality from the drop down.");
+                Logger.Warn("Please select a minimum loot quality from the drop down.");
                 return;
             }
 
@@ -124,7 +127,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         {
             if (IsRunning)
             {
-                Logging.Write(Resources.HitTimeLimit);
+                Logger.Info(Resources.HitTimeLimit);
                 StopBot();
             }
         }

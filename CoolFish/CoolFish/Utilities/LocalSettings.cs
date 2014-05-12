@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using NLog;
 
 namespace CoolFishNS.Utilities
 {
@@ -15,12 +16,14 @@ namespace CoolFishNS.Utilities
 
         internal static Dictionary<string, BotSetting> Settings = new Dictionary<string, BotSetting>();
 
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         ///     Loads default CoolFish settings
         /// </summary>
         internal static void LoadDefaults()
         {
-            Logging.Write("Loading Default Settings.");
+            Logger.Info("Loading Default Settings.");
             LoadDefaultSettings();
             SaveSettings();
         }
@@ -43,10 +46,9 @@ namespace CoolFishNS.Utilities
                 {"SoundOnWhisper", new BotSetting {Value = false}},
                 {"UseRumsey", new BotSetting {Value = false}},
                 {"UseSpear", new BotSetting {Value = false}},
-                {"DoDebugging", new BotSetting {Value = false}},
+                {"LogLevel", new BotSetting {Value = 2}},
                 {"LanguageIndex", new BotSetting {Value = 0}},
                 {"CloseWoWonStop", new BotSetting {Value = false}},
-                {"BlackBackground", new BotSetting {Value = false}},
                 {"StopOnTime", new BotSetting {Value = false}},
                 {"DoFishing", new BotSetting {Value = true}},
                 {"DoBobbing", new BotSetting {Value = true}},
@@ -61,21 +63,21 @@ namespace CoolFishNS.Utilities
         /// </summary>
         internal static void DumpSettingsToLog()
         {
-            Logging.Log("----Settings----");
+            Logger.Debug("----Settings----");
             foreach (var botSetting in Settings)
             {
-                Logging.Log(botSetting.Key + ": " + botSetting.Value);
+                Logger.Debug(botSetting.Key + ": " + botSetting.Value);
             }
-            Logging.Log("----Plugins----");
+            Logger.Debug("----Plugins----");
 
             foreach (var serializablePlugin in Plugins)
             {
-                Logging.Log(serializablePlugin.Key + " - Enabled: " + serializablePlugin.Value.isEnabled);
+                Logger.Debug(serializablePlugin.Key + " - Enabled: " + serializablePlugin.Value.isEnabled);
             }
-            Logging.Log("----Items----");
+            Logger.Debug("----Items----");
             foreach (SerializableItem serializableItem in Items)
             {
-                Logging.Log(serializableItem.Value);
+                Logger.Debug(serializableItem.Value);
             }
         }
 
@@ -104,7 +106,7 @@ namespace CoolFishNS.Utilities
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
+                Logger.ErrorException("Error loading settings", ex);
                 LoadDefaults();
             }
         }

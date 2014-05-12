@@ -1,6 +1,5 @@
-﻿using System;
-using CoolFishNS.Management.CoolManager.Objects;
-using CoolFishNS.Utilities;
+﻿using CoolFishNS.Management.CoolManager.Objects;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
 {
@@ -10,6 +9,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateDoNothing : State
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public override int Priority
         {
             get { return (int) CoolFishEngine.StatePriority.StateDoNothing; }
@@ -23,18 +24,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </value>
         public override bool NeedToRun
         {
-            get
-            {
-                try
-                {
-                    return ObjectManager.Me.Combat || ObjectManager.Me.Speed > 0;
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex);
-                    return false;
-                }
-            }
+            get { return ObjectManager.Me.Combat || ObjectManager.Me.Speed > 0; }
         }
 
         /// <summary>
@@ -42,12 +32,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override void Run()
         {
-            //doNothing
-
-            if (LocalSettings.Settings["DoDebugging"])
-            {
-                Logging.Log("[DEBUG] DoNothingState");
-            }
+            Logger.Debug("[DoNothingState]");
         }
     }
 }

@@ -3,9 +3,10 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
+using System.Windows.Input;
 using CoolFishNS.Management;
 using CoolFishNS.Utilities;
+using NLog;
 using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace CoolFishNS.Bots.CoolFishBot
@@ -15,6 +16,8 @@ namespace CoolFishNS.Bots.CoolFishBot
     /// </summary>
     internal partial class CoolFishBotSettings
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private Collection<SerializableItem> _items = new Collection<SerializableItem>();
 
         public CoolFishBotSettings()
@@ -49,7 +52,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 SaveControlSettings();
                 LocalSettings.SaveSettings();
-                Logging.Write("CoolFishBot settings saved.");
+                Logger.Info("CoolFishBot settings saved.");
                 Close();
             }
             else
@@ -66,15 +69,8 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         public void FillDataGrid()
         {
-            try
-            {
-                ItemsGrid.ItemsSource = null;
-                ItemsGrid.ItemsSource = _items;
-            }
-            catch (Exception ex)
-            {
-                Logging.Write(ex.ToString());
-            }
+            ItemsGrid.ItemsSource = null;
+            ItemsGrid.ItemsSource = _items;
         }
 
         private void UpdateControlSettings()
@@ -95,18 +91,11 @@ namespace CoolFishNS.Bots.CoolFishBot
             UseCharmCB.IsChecked = LocalSettings.Settings["UseCharm"];
             UseRumseyCB.IsChecked = LocalSettings.Settings["UseRumsey"];
             UseSpearCB.IsChecked = LocalSettings.Settings["UseSpear"];
-            DoDebugCB.IsChecked = LocalSettings.Settings["DoDebugging"];
             CastFishingCB.IsChecked = LocalSettings.Settings["DoFishing"];
             ClickBobberCB.IsChecked = LocalSettings.Settings["DoBobbing"];
             DoLootingCB.IsChecked = LocalSettings.Settings["DoLoot"];
             _items = LocalSettings.Items;
             FillDataGrid();
-
-
-            if (LocalSettings.Settings["BlackBackground"])
-            {
-                BackgroundColorObj.Color = Color.FromArgb(0xFF, 0x0, 0x0, 0x0);
-            }
         }
 
         private void SaveControlSettings()
@@ -126,7 +115,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             LocalSettings.Settings["UseCharm"] = UseCharmCB.IsChecked;
             LocalSettings.Settings["UseRumsey"] = UseRumseyCB.IsChecked;
             LocalSettings.Settings["UseSpear"] = UseSpearCB.IsChecked;
-            LocalSettings.Settings["DoDebugging"] = DoDebugCB.IsChecked;
             LocalSettings.Settings["DoFishing"] = CastFishingCB.IsChecked;
             LocalSettings.Settings["DoBobbing"] = ClickBobberCB.IsChecked;
             LocalSettings.Settings["DoLoot"] = DoLootingCB.IsChecked;
@@ -134,9 +122,15 @@ namespace CoolFishNS.Bots.CoolFishBot
             double result;
             if (!double.TryParse(StopTimeMinutesTB.Text, out result))
             {
-                Logging.Write("Invalid Stop Time.");
+                Logger.Warn("Invalid Stop Time.");
             }
             LocalSettings.Settings["MinutesToStop"] = BotSetting.As(result);
+        }
+
+
+        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
         }
     }
 }

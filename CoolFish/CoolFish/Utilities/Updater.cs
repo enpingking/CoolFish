@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NLog;
 using Octokit;
 
 namespace CoolFishNS.Utilities
@@ -16,6 +17,8 @@ namespace CoolFishNS.Utilities
     /// </summary>
     internal static class Updater
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         internal static void StatCount()
         {
             using (var wc = new WebClient())
@@ -43,8 +46,7 @@ namespace CoolFishNS.Utilities
             }
             catch (Exception ex)
             {
-                Logging.Write("Could not connect to news feed. Website is down?");
-                Logging.Log(ex);
+                Logger.ErrorException("Could not connect to news feed. Website is down?", ex);
             }
             return string.Empty;
         }
@@ -87,12 +89,12 @@ namespace CoolFishNS.Utilities
                     }
                     else
                     {
-                        Logging.Write("No new versions available.");
+                        Logger.Info("No new versions available.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logging.Log(ex);
+                    Logger.ErrorException("Error checking for updates", ex);
                 }
             });
         }
@@ -101,7 +103,7 @@ namespace CoolFishNS.Utilities
         {
             using (var client = new WebClient())
             {
-                Logging.Write("Downloading File...");
+                Logger.Info("Downloading File...");
                 client.DownloadFileCompleted += ClientOnDownloadFileCompleted;
                 client.DownloadFileAsync(new Uri(string.Format("https://github.com/unknowndev/CoolFish/releases/download/{0}/{1}", tag, name)), name);
             }
@@ -111,7 +113,7 @@ namespace CoolFishNS.Utilities
         {
             if (asyncCompletedEventArgs.Error != null)
             {
-                Logging.Log(asyncCompletedEventArgs.Error);
+                Logger.ErrorException("Error downloading new version", asyncCompletedEventArgs.Error);
                 MessageBox.Show("An error occurred while downloading the new version. Please try again or visit the website to download it manually.");
             }
             else
