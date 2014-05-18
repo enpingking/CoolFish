@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
@@ -9,6 +10,7 @@ using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
 using CoolFishNS.Utilities;
 using GreyMagic;
+using NLog;
 
 namespace CoolFishNS.Management
 {
@@ -17,6 +19,8 @@ namespace CoolFishNS.Management
     /// </summary>
     public static class BotManager
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         internal static readonly Dictionary<string, IBot> LoadedBots = new Dictionary<string, IBot>();
 
         static BotManager()
@@ -59,7 +63,7 @@ namespace CoolFishNS.Management
                 }
                 catch (Exception ex)
                 {
-                    Logging.Log(ex);
+                    Logger.ErrorException("Error reading ToonName", ex);
                     return string.Empty;
                 }
             }
@@ -81,7 +85,7 @@ namespace CoolFishNS.Management
                 }
                 catch (Exception ex)
                 {
-                    Logging.Log(ex); // if we can't read it, we're probably logged out
+                    Logger.ErrorException("Error checking whether we are logged in", ex);
                     return false;
                 }
             }
@@ -96,12 +100,12 @@ namespace CoolFishNS.Management
             string id = GetBotId(botToLoad);
             if (!IsBotLoaded(botToLoad))
             {
-                Logging.Write("Loaded " + id);
+                Logger.Info("Loaded " + id);
                 LoadedBots[id] = botToLoad;
             }
             else
             {
-                Logging.Write("Bot " + id + " has already been loaded. Skipping load...");
+                Logger.Info("Bot " + id + " has already been loaded. Skipping load...");
             }
         }
 
@@ -154,19 +158,34 @@ namespace CoolFishNS.Management
         /// <param name="process"></param>
         public static void AttachToProcess(Process process)
         {
-            Memory = new ExternalProcessReader(process);
-            if (Offsets.FindOffsets())
+            try
             {
-                if (DxHook.Instance.Apply())
+                Memory = new ExternalProcessReader(process);
+                if (Offsets.FindOffsets())
                 {
-                    Memory.ProcessExited += (sender, args) => DxHook.Instance.Restore();
-                    Logging.Write("Attached to: " + process.Id);
-                    return;
+                    if (DxHook.Instance.Apply())
+                    {
+                        Memory.ProcessExited += (sender, args) => DxHook.Instance.Restore();
+                        Logger.Info("Attached to: " + process.Id);
+                        return;
+                    }
+                    Memory.Dispose();
+                    Memory = null;
                 }
-                Memory.Dispose();
-                Memory = null;
             }
-            Logging.Write("Failed to attach to: " + process.Id);
+            catch (FileNotFoundException ex)
+            {
+                if (ex.FileName.Equals("fasmdll_managed.dll"))
+                {
+                    Logger.Error("You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            
+            Logger.Warn("Failed to attach to: " + process.Id);
         }
 
         /// <summary>
@@ -174,8 +193,11 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StartActiveBot()
         {
-            Logging.Write("Starting bot...");
-            ActiveBot.StartBot();
+            if (ActiveBot != null && !ActiveBot.IsRunning)
+            {
+                Logger.Info("Starting bot...");
+                ActiveBot.StartBot();
+            }
         }
 
         /// <summary>
@@ -183,8 +205,11 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StopActiveBot()
         {
-            Logging.Write("Stopping bot...");
-            ActiveBot.StopBot();
+            if (ActiveBot != null && ActiveBot.IsRunning)
+            {
+                Logger.Info("Stopping bot...");
+                ActiveBot.StopBot();
+            }
         }
 
         /// <summary>
@@ -203,7 +228,7 @@ namespace CoolFishNS.Management
 
             PluginManager.StartPlugins();
 
-            Logging.Log("Start Up.");
+            Logger.Debug("Start Up.");
         }
 
         internal static void ShutDown()
@@ -224,7 +249,7 @@ namespace CoolFishNS.Management
             }
 
 
-            Logging.Log("Shut Down.");
+            Logger.Debug("Shut Down.");
         }
     }
 }

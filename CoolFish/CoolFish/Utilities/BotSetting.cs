@@ -13,11 +13,6 @@ namespace CoolFishNS.Utilities
         /// </summary>
         public object Value { get; set; }
 
-        /// <summary>
-        ///     Cast the setting to a specified type
-        /// </summary>
-        /// <typeparam name="T">The type to cast to</typeparam>
-        /// <returns>The BotSetting with the generic type passed</returns>
         public T As<T>()
         {
             return (T) Value;

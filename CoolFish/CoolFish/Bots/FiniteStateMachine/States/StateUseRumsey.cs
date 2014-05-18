@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
-using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
 {
@@ -10,6 +10,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateUseRumsey : State
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public override int Priority
         {
             get { return (int) CoolFishEngine.StatePriority.StateUseRumsey; }
@@ -41,7 +43,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override void Run()
         {
-            Logging.Write(Name);
+            Logger.Info(Name);
 
             DxHook.Instance.ExecuteScript(
                 "local name = GetItemInfo(34832); if name then RunMacroText(\"/use  \" .. name); end");

@@ -2,7 +2,7 @@
 using System.Media;
 using System.Threading;
 using CoolFishNS.Management.CoolManager.HookingLua;
-using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
 {
@@ -11,6 +11,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateDoWhisper : State
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public override int Priority
         {
             get { return (int) CoolFishEngine.StatePriority.StateDoWhisper; }
@@ -38,7 +40,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Dictionary<string, string> result = DxHook.Instance.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
 
-            Logging.Write("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
+            Logger.Info("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
 
             SystemSounds.Asterisk.Play();
 

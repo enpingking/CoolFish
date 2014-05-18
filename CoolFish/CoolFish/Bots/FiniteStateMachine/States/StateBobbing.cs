@@ -7,7 +7,7 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
-using CoolFishNS.Utilities;
+using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
 {
@@ -16,6 +16,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     /// </summary>
     public class StateBobbing : State
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         ///     Create a timer to timeout after 5 minutes of no caught fish. This is to prevent the bot from running endlessly if
         ///     something unexpected breaks it.
@@ -41,34 +43,26 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                try
+                List<WoWGameObject> list =
+                    ObjectManager.GetObjectsOfType<WoWGameObject>().Where(
+                        o => o.CreatedBy == ObjectManager.Me.Guid && o.AnimationState == 0x440001)
+                        .ToList();
+
+                _bobber = list.Any() ? list[0] : null;
+
+
+                if (_bobber == null)
                 {
-                    List<WoWGameObject> list =
-                        ObjectManager.GetObjectsOfType<WoWGameObject>().Where(
-                            o => o.CreatedBy == ObjectManager.Me.Guid && o.AnimationState == 0x440001)
-                            .ToList();
-
-                    _bobber = list.Any() ? list[0] : null;
-
-
-                    if (_bobber == null)
-                    {
-                        return false;
-                    }
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Logging.Log(ex);
                     return false;
                 }
+
+                return true;
             }
         }
 
         public override string Name
         {
-            get { return "Caught a fish. Clicking bobber"; }
+            get { return "Caught a fish."; }
         }
 
         /// <summary>
@@ -76,12 +70,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override void Run()
         {
-            Logging.Write(Name);
+            Logger.Info(Name);
             BuggedTimer.Restart();
 
             Thread.Sleep(Random.Next(500, 1750));
 
             BotManager.Memory.Write(Offsets.Addresses["MouseOverGUID"], _bobber.Guid);
+            Logger.Info("Clicking bobber");
             DxHook.Instance.ExecuteScript("InteractUnit(\"mouseover\");");
             Thread.Sleep(1000);
         }

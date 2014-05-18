@@ -9,8 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.Management.CoolManager.D3D;
-using CoolFishNS.Utilities;
 using GreyMagic;
+using NLog;
 
 namespace CoolFishNS.Management.CoolManager.HookingLua
 {
@@ -20,6 +20,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
     public class DxHook
     {
         private const int CODECAVESIZE = 0x1000;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly DxHook SingletonInstance = new DxHook();
         private readonly byte[] _eraser = new byte[CODECAVESIZE];
         private readonly object _lockObject = new object();
@@ -71,7 +72,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
             if (!returnVal)
             {
-                Logging.Log("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
+                throw new Exception("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
             }
             return size;
         }
@@ -156,12 +157,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                         return false;
                     }
 
-                    Logging.Log("Detected Another hook. Trying to hook anyway.");
+                    Logger.Info("Detected Another hook. Trying to hook anyway.");
 
                     var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
                     jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
                 }
-                
+
 
                 try
                 {
@@ -202,14 +203,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     {
                         asm.Clear();
 
-                        asm.Add("jmp " + (uint)jumpLoc);
+                        asm.Add("jmp " + (uint) jumpLoc);
                         Inject(asm, IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm));
                         sizeJumpBack = 5;
                     }
                     else
                     {
                         BotManager.Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
-                            new[] { _endSceneOriginalBytes[5], _endSceneOriginalBytes[6] });
+                            new[] {_endSceneOriginalBytes[5], _endSceneOriginalBytes[6]});
                         sizeJumpBack = 2;
                     }
 
@@ -231,7 +232,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 }
                 catch (Exception ex)
                 {
-                    Logging.Log(ex);
+                    Logger.ErrorException("Error applying hook", ex);
                     IsApplied = false;
                     return false;
                 }
@@ -310,14 +311,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
         public void ExecuteScript(string command)
         {
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
                 var stackTrace = new StackTrace();
 
 
-                Logging.Log("[DEBUG] ExecuteScript Lua from " +
-                            stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                            stackTrace.GetFrame(1).GetMethod().Name);
+                Logger.Trace("ExecuteScript Lua from " +
+                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
+                             stackTrace.GetFrame(1).GetMethod().Name);
             }
             if (command == null)
             {
@@ -336,14 +337,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
         public string ExecuteScript(string command, string returnVariableName)
         {
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
                 var stackTrace = new StackTrace();
 
 
-                Logging.Log("[DEBUG] ExecuteScript Lua from " +
-                            stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                            stackTrace.GetFrame(1).GetMethod().Name);
+                Logger.Trace("ExecuteScript Lua from " +
+                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
+                             stackTrace.GetFrame(1).GetMethod().Name);
             }
 
             if (command == null || returnVariableName == null)
@@ -364,12 +365,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
         public Dictionary<string, string> ExecuteScript(string executeCommand, IEnumerable<string> commands)
         {
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
                 var stackTrace = new StackTrace();
-                Logging.Log("[DEBUG] ExecuteScript (enumerable) Lua from " +
-                            stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                            stackTrace.GetFrame(1).GetMethod().Name);
+                Logger.Trace("ExecuteScript (enumerable) Lua from " +
+                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
+                             stackTrace.GetFrame(1).GetMethod().Name);
             }
             var returnDict = new Dictionary<string, string>();
 
@@ -461,7 +462,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
+                Logger.ErrorException("Error executing script", ex);
             }
             finally
             {
@@ -479,14 +480,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
         public string GetLocalizedText(string command)
         {
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
                 var stackTrace = new StackTrace();
 
 
-                Logging.Log("[DEBUG] GetLocalizedText Lua from " +
-                            stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                            stackTrace.GetFrame(1).GetMethod().Name);
+                Logger.Trace("GetLocalizedText Lua from " +
+                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
+                             stackTrace.GetFrame(1).GetMethod().Name);
             }
 
             if (command == null)
@@ -495,9 +496,9 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             }
             string result = GetLocalizedText(new[] {command})[command];
 
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
-                Logging.Write("[DEBUG] result: " + result);
+                Logger.Trace("result: " + result);
             }
             return result;
         }
@@ -510,14 +511,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
         public Dictionary<string, string> GetLocalizedText(IEnumerable<string> commands)
         {
-            if (LocalSettings.Settings["DoDebugging"].As<bool>())
+            if (Logger.IsTraceEnabled)
             {
                 var stackTrace = new StackTrace();
 
 
-                Logging.Log("[DEBUG] GetLocalizedText (enumerable) Lua from " +
-                            stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                            stackTrace.GetFrame(1).GetMethod().Name);
+                Logger.Trace("GetLocalizedText (enumerable) Lua from " +
+                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
+                             stackTrace.GetFrame(1).GetMethod().Name);
             }
 
 
@@ -590,7 +591,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             }
             catch (Exception ex)
             {
-                Logging.Log(ex);
+                Logger.ErrorException("Error getting localized text", ex);
             }
             finally
             {
