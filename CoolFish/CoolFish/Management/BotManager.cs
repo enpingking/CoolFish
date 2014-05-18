@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
@@ -157,18 +158,33 @@ namespace CoolFishNS.Management
         /// <param name="process"></param>
         public static void AttachToProcess(Process process)
         {
-            Memory = new ExternalProcessReader(process);
-            if (Offsets.FindOffsets())
+            try
             {
-                if (DxHook.Instance.Apply())
+                Memory = new ExternalProcessReader(process);
+                if (Offsets.FindOffsets())
                 {
-                    Memory.ProcessExited += (sender, args) => DxHook.Instance.Restore();
-                    Logger.Info("Attached to: " + process.Id);
-                    return;
+                    if (DxHook.Instance.Apply())
+                    {
+                        Memory.ProcessExited += (sender, args) => DxHook.Instance.Restore();
+                        Logger.Info("Attached to: " + process.Id);
+                        return;
+                    }
+                    Memory.Dispose();
+                    Memory = null;
                 }
-                Memory.Dispose();
-                Memory = null;
             }
+            catch (FileNotFoundException ex)
+            {
+                if (ex.FileName.Equals("fasmdll_managed.dll"))
+                {
+                    Logger.Error("You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            
             Logger.Warn("Failed to attach to: " + process.Id);
         }
 

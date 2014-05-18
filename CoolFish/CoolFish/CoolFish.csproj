@@ -225,7 +225,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Utilities\Logging.cs" />
     <Compile Include="Utilities\SerializableItem.cs" />
     <Compile Include="Utilities\SerializablePlugin.cs" />
     <Page Include="App.xaml">
@@ -387,19 +386,19 @@
     </PublishFile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\GreyMagic\fasmdll_managed\fasmdll_managed.vcxproj">
-      <Project>{4756cf18-2091-446f-a79d-9e521611deb5}</Project>
-      <Name>fasmdll_managed</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\GreyMagic\GreyMagic\GreyMagic.csproj">
-      <Project>{29bee34e-8d6a-47bf-96fa-aba46f6e9b66}</Project>
-      <Name>GreyMagic</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="README.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\fasmdll_managed\fasmdll_managed.vcxproj">
+      <Project>{4756cf18-2091-446f-a79d-9e521611deb5}</Project>
+      <Name>fasmdll_managed</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GreyMagic\GreyMagic.csproj">
+      <Project>{29bee34e-8d6a-47bf-96fa-aba46f6e9b66}</Project>
+      <Name>GreyMagic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -412,7 +411,7 @@ Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.e
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_DetectChanges="True" />
+      <UserProperties BuildVersion_DetectChanges="True" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

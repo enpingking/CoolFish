@@ -1,16 +1,16 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Coolfish")]
+[assembly: AssemblyTitle("GreyMagic")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("~Unknown~ Inc.")]
-[assembly: AssemblyProduct("Coolfish")]
-[assembly: AssemblyCopyright("Copyright © ~Unknown~ 2012")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("GreyMagic")]
+[assembly: AssemblyCopyright("Copyright © Apoc 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,17 +22,18 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("b5ac1d8d-82e3-4931-ac27-678ddb246eb3")]
+[assembly: Guid("7b3e8601-c7c0-424b-a7f9-8abb66581eaa")]
 
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
-//      Minor Version
+//      Minor Version 
 //      Build Number
 //      Revision
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("2.1.3.10")]
-[assembly: AssemblyFileVersion("2.1.3.10")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
