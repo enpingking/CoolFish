@@ -22,12 +22,17 @@ namespace CoolFishNS
 
         public App()
         {
+            SetCurrentThreadCulture();
+            AppDomain.CurrentDomain.UnhandledException += UnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+        }
+
+        public static void SetCurrentThreadCulture()
+        {
             // Change culture under which this application runs
             var ci = new CultureInfo("en-US");
             Thread.CurrentThread.CurrentCulture = ci;
             Thread.CurrentThread.CurrentUICulture = ci;
-            AppDomain.CurrentDomain.UnhandledException += UnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
         }
 
         private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
@@ -40,6 +45,7 @@ namespace CoolFishNS
         {
             try
             {
+                SetCurrentThreadCulture();
                 var e = (Exception) ex.ExceptionObject;
                 Logger.FatalException("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.", e);
                 MessageBox.Show("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.");

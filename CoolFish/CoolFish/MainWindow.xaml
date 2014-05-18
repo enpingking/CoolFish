@@ -6,7 +6,6 @@
     x:Class="CoolFishNS.MainWindow" x:Uid="MainWindow"
     Title="CoolFish" Height="268.2"
     Width="649.8" ResizeMode="NoResize" Closing="MetroWindow_Closing_1" Visibility="Visible"
-    SizeToContent="WidthAndHeight"
     Loaded="MetroWindow_Loaded_1"
     ShowActivated="True" WindowStyle="None"
     WindowStartupLocation="CenterScreen">
@@ -26,33 +25,33 @@
                        FontWeight="Bold">
                 CoolFish
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="MainTab_Click" Foreground="White" Margin="185,-1,413,241" FontSize="16"
-                       FontWeight="Bold">
+            <TextBlock MouseLeftButtonDown="MainTab_Click" Foreground="White" Margin="185,-1,0,241" FontSize="16"
+                       FontWeight="Bold" HorizontalAlignment="Left" Width="52">
                 Main |
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="PluginsBTN_Click" Foreground="White" Margin="237,-1,344,241" FontSize="16"
-                       FontWeight="Bold">
+            <TextBlock MouseLeftButtonDown="PluginsBTN_Click" Foreground="White" Margin="237,-1,0,241" FontSize="16"
+                       FontWeight="Bold" HorizontalAlignment="Left" Width="69">
                 Plugins |
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="DonateTab_Click" Foreground="White" Margin="306,-1,275,241" FontSize="16"
-                       FontWeight="Bold">
+            <TextBlock MouseLeftButtonDown="DonateTab_Click" Foreground="White" Margin="306,-1,0,241" FontSize="16"
+                       FontWeight="Bold" HorizontalAlignment="Left" Width="69">
                 Donate |
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="UpdateBTN_Click" Foreground="White" Margin="375,-1,207,241" FontSize="16"
-                       FontWeight="Bold">
+            <TextBlock MouseLeftButtonDown="UpdateBTN_Click" Foreground="White" Margin="375,-1,0,241" FontSize="16"
+                       FontWeight="Bold" HorizontalAlignment="Left" Width="68">
                 Update |
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="HelpBTN_Click" Foreground="White" Margin="443,-1,67,241" FontSize="16"
-                       FontWeight="Bold">
+            <TextBlock MouseLeftButtonDown="HelpBTN_Click" Foreground="White" Margin="443,-1,0,241" FontSize="16"
+                       FontWeight="Bold" HorizontalAlignment="Left" Width="140">
                 Help/Bug/Feature
             </TextBlock>
 
-            <TextBlock MouseLeftButtonDown="OnMinimizeWindow" Foreground="White" Margin="583,-4,27,188"
-                       FontWeight="Bold" FontSize="20" TextAlignment="Center">
+            <TextBlock MouseLeftButtonDown="OnMinimizeWindow" Foreground="White" Margin="583,-4,0,188"
+                       FontWeight="Bold" FontSize="20" TextAlignment="Center" HorizontalAlignment="Left" Width="40">
                 -
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="OnCloseWindow" Foreground="White" Margin="611,-4,2,188" FontWeight="Bold"
-                       FontSize="20" TextAlignment="Center">
+            <TextBlock MouseLeftButtonDown="OnCloseWindow" Foreground="White" Margin="611,-4,0,188" FontWeight="Bold"
+                       FontSize="20" TextAlignment="Center" HorizontalAlignment="Left" Width="37">
                 x
             </TextBlock>
 
@@ -65,9 +64,9 @@
                          RenderTransformOrigin="-0.607,-1.044">
                     <Grid MouseLeftButtonDown="OnDragMoveWindow" x:Name="MainTabGrid" x:Uid="Grid_2"
                           Margin="0,-49,-5,0">
-                        <ComboBox x:Name="LogLevelCMB" Margin="482,88,10,0"
+                        <ComboBox x:Name="LogLevelCMB" Margin="482,88,0,0"
                                   SelectionChanged="LogLevelCMB_SelectionChanged" SelectedIndex="2" Height="26"
-                                  VerticalAlignment="Top">
+                                  VerticalAlignment="Top" HorizontalAlignment="Left" Width="155">
                             <TextBlock Text="Trace" />
                             <TextBlock Text="Debug" />
                             <TextBlock Text="Info" />
