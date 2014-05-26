@@ -29,14 +29,6 @@ namespace CoolFishNS
             TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
         }
 
-        public static void SetCurrentThreadCulture()
-        {
-            // Change culture under which this application runs
-            var ci = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentCulture = ci;
-            Thread.CurrentThread.CurrentUICulture = ci;
-        }
-
         private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
         {
             Logger.ErrorException("Unhandled error has occurred on another thread. This may cause an unstable state of the application.",
@@ -47,7 +39,6 @@ namespace CoolFishNS
         {
             try
             {
-                SetCurrentThreadCulture();
                 var e = (Exception) ex.ExceptionObject;
                 Logger.FatalException("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.", e);
                 MessageBox.Show("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.");

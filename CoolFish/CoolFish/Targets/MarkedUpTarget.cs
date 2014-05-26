@@ -19,14 +19,6 @@ namespace CoolFishNS.Targets
             }
         }
 
-        private void SetThreadCulture()
-        {
-            // Change culture under which this application runs
-            var ci = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentCulture = ci;
-            Thread.CurrentThread.CurrentUICulture = ci;
-        }
-
         protected override void Write(AsyncLogEventInfo[] logEvents)
         {
             foreach (AsyncLogEventInfo logEvent in logEvents)
@@ -42,14 +34,12 @@ namespace CoolFishNS.Targets
 
         protected override void Write(LogEventInfo logEvent)
         {
-            if (logEvent.Level == LogLevel.Error)
+            if (logEvent.Level == LogLevel.Error && logEvent.Exception != null)
             {
-                SetThreadCulture();
                 AnalyticClient.Error(logEvent.FormattedMessage, logEvent.Exception);
             }
-            else if (logEvent.Level == LogLevel.Fatal)
+            else if (logEvent.Level == LogLevel.Fatal && logEvent.Exception != null)
             {
-                SetThreadCulture();
                 AnalyticClient.Fatal(logEvent.FormattedMessage, logEvent.Exception);
             }
         }
