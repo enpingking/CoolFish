@@ -32,14 +32,22 @@ namespace CoolFishNS.Targets
 
         protected override void Write(LogEventInfo logEvent)
         {
-            if (_box == null)
+            if (_box == null || logEvent.Level == LogLevel.Trace)
             {
                 return;
             }
-            Application.Current.Dispatcher.InvokeAsync(() =>
+
+            App.CurrentApp.Dispatcher.InvokeAsync(() =>
             {
-                _box.AppendText(Layout.Render(logEvent) + Environment.NewLine);
-                _box.ScrollToEnd();
+                try
+                {
+                    _box.AppendText(Layout.Render(logEvent) + Environment.NewLine);
+                    _box.ScrollToEnd();
+                }
+                catch
+                {
+                }
+                
             }, DispatcherPriority.Background);
         }
     }

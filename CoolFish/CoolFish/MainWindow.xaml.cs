@@ -192,7 +192,6 @@ namespace CoolFishNS
                 Logger.ErrorException("Error closing window", ex);
             }
 
-            App.Handle.Set();
         }
 
         private void StartBTN_Click(object sender, RoutedEventArgs e)
