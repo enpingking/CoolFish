@@ -127,7 +127,7 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logger.Error("Error moving window", ex);
+                Logger.ErrorException("Error moving window", ex);
             }
         }
 
@@ -192,7 +192,6 @@ namespace CoolFishNS
                 Logger.ErrorException("Error closing window", ex);
             }
 
-            App.Handle.Set();
         }
 
         private void StartBTN_Click(object sender, RoutedEventArgs e)
