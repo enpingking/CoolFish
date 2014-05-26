@@ -127,7 +127,7 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logger.Error("Error moving window", ex);
+                Logger.ErrorException("Error moving window", ex);
             }
         }
 

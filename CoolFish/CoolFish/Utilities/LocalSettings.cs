@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using NLog;
 
 namespace CoolFishNS.Utilities
@@ -103,6 +104,11 @@ namespace CoolFishNS.Utilities
                 Settings.Upsert(Serializer.DeSerialize<Dictionary<string, BotSetting>>("Settings.dat"));
                 Plugins.Upsert(Serializer.DeSerialize<Dictionary<string, SerializablePlugin>>("Plugins.dat"));
                 Items = Serializer.DeSerialize<Collection<SerializableItem>>("Items.dat");
+            }
+            catch (FileNotFoundException ex)
+            {
+                Logger.WarnException("No settings files found", ex);
+                LoadDefaults();
             }
             catch (Exception ex)
             {
