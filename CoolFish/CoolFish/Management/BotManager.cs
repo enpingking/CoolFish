@@ -10,6 +10,7 @@ using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
 using CoolFishNS.Utilities;
 using GreyMagic;
+using MarkedUp;
 using NLog;
 
 namespace CoolFishNS.Management
@@ -175,16 +176,22 @@ namespace CoolFishNS.Management
             }
             catch (FileNotFoundException ex)
             {
+                if (Memory != null)
+                {
+                    Memory.Dispose();
+                    Memory = null;
+                }
                 if (ex.FileName.Equals("fasmdll_managed.dll"))
                 {
-                    Logger.Error("You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                    AnalyticClient.SessionEvent("Missing Redistributable");
+                    Logger.Fatal("You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
                 }
                 else
                 {
                     throw;
                 }
             }
-            
+
             Logger.Warn("Failed to attach to: " + process.Id);
         }
 

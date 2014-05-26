@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using MarkedUp;
+using NLog;
 
 namespace CoolFishNS.Analytics
 {
     internal static class MarkedUp
     {
+        private static Logger Logger = LogManager.GetCurrentClassLogger();
+
         private static readonly DateTime StartTime = DateTime.Now;
+        
 
         internal static bool IsInitialized
         {
@@ -40,8 +44,10 @@ namespace CoolFishNS.Analytics
             return;
 #endif
             var dict = new Dictionary<string, string>();
-            TimeSpan span = (DateTime.Now - StartTime);
-
+            var span = (DateTime.Now - StartTime);
+            
+            Logger.Info("Duration: " + span.ToString("g"));
+            
             if (span.TotalHours >= 99)
             {
                 dict["days"] = Math.Round(span.TotalHours).ToString();
