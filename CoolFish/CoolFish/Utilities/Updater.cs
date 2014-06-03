@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -19,34 +20,21 @@ namespace CoolFishNS.Utilities
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        internal static void StatCount()
-        {
-            using (var wc = new WebClient())
-            {
-                wc.Headers[HttpRequestHeader.UserAgent] = "CoolFish";
-                wc.DownloadDataAsync(new Uri("http://c.statcounter.com/9756717/0/323389f4/1/"));
-            }
-        }
-
         internal static string GetNews()
         {
             try
             {
-                WebRequest request = WebRequest.Create("http://unknowndev.github.io/CoolFish/Message.txt");
 
-                request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.Reload);
-                WebResponse response = request.GetResponse();
-                Stream stream = response.GetResponseStream();
-                if (stream != null)
+                using (var client = new WebClient {Proxy = WebRequest.DefaultWebProxy})
                 {
-                    var reader = new StreamReader(stream);
-
-                    return reader.ReadToEnd();
+                    return client.DownloadString("http://unknowndev.github.io/CoolFish/Message.txt"))
                 }
+                
+                
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Could not connect to news feed. Website is down?", ex);
+                Logger.WarnException("Could not connect to news feed. Website is down?", ex);
             }
             return string.Empty;
         }
@@ -94,7 +82,7 @@ namespace CoolFishNS.Utilities
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error checking for updates", ex);
+                    MarkedUp.AnalyticClient.SessionEvent(ex.GetType() + " : " + ex.Message);
                 }
             });
         }

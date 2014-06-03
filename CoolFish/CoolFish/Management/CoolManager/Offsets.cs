@@ -29,26 +29,26 @@ namespace CoolFishNS.Management.CoolManager
         /// <summary>
         ///     Find the offsets for the <see cref="Process" /> opened by <see cref="BotManager.Memory" />
         /// </summary>
+        /// <param name="proc">A process to find offsets</param>
         /// <returns>
         ///     true if we find all offsets successfully; otherwise false. <see cref="Offsets.Addresses" /> will still
         ///     contain the offsets that were found despite error.
         /// </returns>
-        internal static bool FindOffsets()
+        internal static bool FindOffsets(Process proc)
         {
-            var addresses = new Dictionary<string, IntPtr>(_addresses.Count);
-            if (BotManager.Memory == null || !BotManager.Memory.IsProcessOpen || BotManager.Memory.Process == null)
+            
+            if (proc == null || proc.HasExited)
             {
-                Logger.Info("Not attached to a process");
+                Logger.Info("Invalid process");
                 return false;
             }
+            var addresses = new Dictionary<string, IntPtr>(_addresses.Count);
 
-            Process woWProc = BotManager.Memory.Process;
-
-            var fp = new FindPattern(new MemoryStream(Encoding.UTF8.GetBytes(Resources.Patterns)), woWProc);
-            var baseAddr = (int) woWProc.MainModule.BaseAddress;
+            var fp = new FindPattern(new MemoryStream(Encoding.UTF8.GetBytes(Resources.Patterns)), proc);
+            var baseAddr = (int) proc.MainModule.BaseAddress;
             try
             {
-                foreach (var pattern in fp._patterns)
+                foreach (var pattern in fp.Patterns)
                 {
                     switch (pattern.Key)
                     {
@@ -309,7 +309,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWItemFields
+        public enum WoWItemFields
         {
             Owner = 0x20,
             ContainedIn = 0x28,
@@ -329,14 +329,14 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWContainerFields
+        public enum WoWContainerFields
         {
             Slots = 0x114,
             NumSlots = 0x234,
         };
 
 
-        internal enum WoWUnitFields
+        public enum WoWUnitFields
         {
             Charm = 0x20,
             Summon = 0x28,
@@ -421,7 +421,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWPlayerFields
+        public enum WoWPlayerFields
         {
             DuelArbiter = 0x280,
             PlayerFlags = 0x288,
@@ -516,7 +516,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWGameObjectFields
+        public enum WoWGameObjectFields
         {
             CreatedBy = 0x20,
             DisplayID = 0x28,
@@ -529,7 +529,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWDynamicObjectFields
+        public enum WoWDynamicObjectFields
         {
             Caster = 0x20,
             TypeAndVisualID = 0x28,
@@ -539,7 +539,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWCorpseFields
+        public enum WoWCorpseFields
         {
             Owner = 0x20,
             PartyGUID = 0x28,
@@ -552,7 +552,7 @@ namespace CoolFishNS.Management.CoolManager
         };
 
 
-        internal enum WoWAreaTriggerFields
+        public enum WoWAreaTriggerFields
         {
             Caster = 0x20,
             Duration = 0x28,

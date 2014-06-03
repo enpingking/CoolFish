@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using CoolFishNS.Properties;
 using NLog;
 
@@ -17,25 +18,24 @@ namespace CoolFishNS.PluginSystem
 
         internal static bool ShouldPulse = true;
 
-        internal static Thread PluginThread;
+        internal static Task PluginThread;
 
         internal static void StartPlugins()
         {
             ShouldPulse = true;
 
-            PluginThread = new Thread(PluginPulse) {IsBackground = true};
-
-            PluginThread.Start();
+            PluginThread = Task.Factory.StartNew(PluginPulse, TaskCreationOptions.LongRunning);
         }
 
         internal static void StopPlugins()
         {
             ShouldPulse = false; // stop pulsing plugins
-            if (!PluginThread.Join(5000)) // wait for the plugin thread to end
+            if (PluginThread != null)
             {
-                Logger.Warn(Resources.FailedToStopPlugins);
+                PluginThread.Wait(5000);
+                PluginThread.Dispose();
+                PluginThread = null;
             }
-            PluginThread = null;
         }
 
         internal static void ShutDownPlugins()
@@ -69,6 +69,10 @@ namespace CoolFishNS.PluginSystem
                     if (ShouldPulse)
                     {
                         enabledPlugin.OnPulse();
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
                 catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using NLog;
@@ -27,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string res = DxHook.Instance.ExecuteScript(Resources.NeedToRunUseRaft, "expires");
+                string res = BotManager.DxHookInstance.ExecuteScript(Resources.NeedToRunUseRaft, "expires");
 
                 return res == "1";
             }
@@ -44,7 +45,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public override void Run()
         {
             Logger.Info(Name);
-            DxHook.Instance.ExecuteScript(Resources.UseRaft);
+            BotManager.DxHookInstance.ExecuteScript(Resources.UseRaft);
             Thread.Sleep(1000);
         }
     }

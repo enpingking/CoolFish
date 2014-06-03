@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CoolFishNS.Exceptions;
 using CoolFishNS.Management.CoolManager.D3D;
 using GreyMagic;
 using NLog;
@@ -21,7 +22,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
     {
         private const int CODECAVESIZE = 0x1000;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private static readonly DxHook SingletonInstance = new DxHook();
+        internal readonly ExternalProcessReader Memory;
         private readonly byte[] _eraser = new byte[CODECAVESIZE];
         private readonly object _lockObject = new object();
         private readonly Random _random = new Random();
@@ -37,17 +38,15 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         private Dirext3D _dxAddress;
         private byte[] _endSceneOriginalBytes;
 
-        private DxHook()
+        /// <summary>
+        ///     Creates a new DXHook object for the specified process
+        /// </summary>
+        /// <param name="process"> process to open</param>
+        public DxHook(Process process)
         {
+            Memory = new ExternalProcessReader(process);
         }
 
-        /// <summary>
-        ///     Singleton instance of this class
-        /// </summary>
-        public static DxHook Instance
-        {
-            get { return SingletonInstance; }
-        }
 
         /// <summary>
         ///     Determine if the hook is currently applied or not
@@ -55,24 +54,24 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <value>
         ///     <c>true</c> if the hook is applied; otherwise, <c>false</c>.
         /// </value>
-        public bool IsApplied { get; private set; }
+        private bool IsApplied { get; set; }
 
-        private static int Inject(IEnumerable<string> asm, IntPtr address)
+        private int Inject(IEnumerable<string> asm, IntPtr address)
         {
-            BotManager.Memory.Asm.Clear();
-            BotManager.Memory.Asm.SetMemorySize(0x4096);
+            Memory.Asm.Clear();
+            Memory.Asm.SetMemorySize(0x4096);
 
             foreach (string s in asm)
             {
-                BotManager.Memory.Asm.AddLine(s);
+                Memory.Asm.AddLine(s);
             }
 
-            int size = BotManager.Memory.Asm.Assemble().Length;
-            bool returnVal = BotManager.Memory.Asm.Inject((uint) address);
+            int size = Memory.Asm.Assemble().Length;
+            bool returnVal = Memory.Asm.Inject((uint) address);
 
             if (!returnVal)
             {
-                throw new Exception("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
+                throw new Exception("Failed to inject code: \n " + Memory.Asm.AssemblyString);
             }
             return size;
         }
@@ -127,14 +126,18 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 {
                     return true;
                 }
+                if (Memory.Process.HasExited)
+                {
+                    return false;
+                }
 
-                _allocatedMemory = BotManager.Memory.CreateAllocatedMemory(CODECAVESIZE + 0x1000 + 0x4 + 0x4);
+                _allocatedMemory = Memory.CreateAllocatedMemory(CODECAVESIZE + 0x1000 + 0x4 + 0x4);
 
-                _dxAddress = new Dirext3D(BotManager.Memory.Process);
+                _dxAddress = new Dirext3D(Memory.Process);
 
 
                 // store original bytes
-                _endSceneOriginalBytes = BotManager.Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
+                _endSceneOriginalBytes = Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
                 if (_endSceneOriginalBytes[0] == 0xE9)
                 {
                     MessageBox.Show(
@@ -159,7 +162,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                     Logger.Info("Detected Another hook. Trying to hook anyway.");
 
-                    var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
+                    var offset = Memory.Read<int>(_dxAddress.HookPtr + 1);
                     jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
                 }
 
@@ -209,7 +212,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     }
                     else
                     {
-                        BotManager.Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
+                        Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
                             new[] {_endSceneOriginalBytes[5], _endSceneOriginalBytes[6]});
                         sizeJumpBack = 2;
                     }
@@ -252,14 +255,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 {
                     return;
                 }
-                if (BotManager.Memory.Process.HasExited)
+                if (Memory.Process.HasExited)
                 {
                     IsApplied = false;
                     return;
                 }
 
                 // Restore original endscene:
-                BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
+                Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
 
                 _allocatedMemory.Dispose();
                 _dxAddress.Device.Dispose();
@@ -273,14 +276,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </summary>
         /// <param name="asm">Assembly code to inject</param>
         /// <returns>true if the code was injected. Otherwise false.</returns>
+        /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         private void InjectAndExecute(IEnumerable<string> asm)
         {
             lock (_lockObject)
             {
                 if (!IsApplied)
                 {
-                    throw new Exception(
-                        "Tried to inject code when the Hook was not applied");
+                    throw new HookNotAppliedException("Tried to inject code when the Hook was not applied");
                 }
                 //Lets Inject the passed ASM
                 Inject(asm, _allocatedMemory["codeCavePtr"]);
@@ -288,17 +291,15 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                 _allocatedMemory.Write("addressInjection", _allocatedMemory["codeCavePtr"]);
 
-                int count = 0;
+                var timer = Stopwatch.StartNew();
                 while (_allocatedMemory.Read<int>("addressInjection") > 0)
                 {
                     Thread.Sleep(1);
-                    count++;
-                    if (count >= 5000)
+                    if (timer.ElapsedMilliseconds >= 5000)
                     {
                         throw new Exception("Failed to inject code after 5 seconds");
                     }
                 } // Wait to launch code
-
 
                 _allocatedMemory.WriteBytes("codeCavePtr", _eraser);
             }
@@ -308,7 +309,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         ///     Execute custom Lua script into the Wow process
         /// </summary>
         /// <param name="command">Lua code to execute</param>
-        /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
+        /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public void ExecuteScript(string command)
         {
             if (Logger.IsTraceEnabled)
@@ -334,7 +335,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </summary>
         /// <param name="command">Lua code to execute</param>
         /// <param name="returnVariableName">Name of the global LUA variable to return</param>
-        /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
+        /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public string ExecuteScript(string command, string returnVariableName)
         {
             if (Logger.IsTraceEnabled)
@@ -362,7 +363,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <param name="executeCommand">Lua code to execute</param>
         /// <param name="commands">Collection of string name of global lua variables to retrieve</param>
         /// <returns>values of the variables to retrieve</returns>
-        /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
+        /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public Dictionary<string, string> ExecuteScript(string executeCommand, IEnumerable<string> commands)
         {
             if (Logger.IsTraceEnabled)
@@ -406,34 +407,25 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             int returnAddressSpace = enumerable.Count == 0 ? 0x4 : enumerable.Count*0x4;
 
             AllocatedMemory mem =
-                BotManager.Memory.CreateAllocatedMemory(commandSpace + commandExecuteSpace + returnAddressSpace +
-                                                        0x4 + 0x4);
-
-
-            mem.WriteBytes("command", Encoding.UTF8.GetBytes(builder.ToString()));
-            mem.WriteBytes("commandExecute", Encoding.UTF8.GetBytes(executeCommand));
-            if (enumerable.Count != 0)
-            {
-                mem.WriteBytes("returnVarsPtr", new byte[enumerable.Count*0x4]);
-            }
-            else
-            {
-                mem.WriteBytes("returnVarsPtr", new byte[0x4]);
-            }
-
-            mem.Write("numberOfReturnVarsAddress", 0);
-            mem.Write("returnVarsNamesPtr", mem["command"]);
-
+                Memory.CreateAllocatedMemory(commandSpace + commandExecuteSpace + returnAddressSpace +
+                                             0x4 + 0x4);
 
             try
             {
+                mem.WriteBytes("command", Encoding.UTF8.GetBytes(builder.ToString()));
+                mem.WriteBytes("commandExecute", Encoding.UTF8.GetBytes(executeCommand));
+                mem.WriteBytes("returnVarsPtr", enumerable.Count != 0 ? new byte[enumerable.Count*0x4] : new byte[0x4]);
+                mem.Write("numberOfReturnVarsAddress", 0);
+                mem.Write("returnVarsNamesPtr", mem["command"]);
+
+
                 InternalExecute(mem["commandExecute"], mem["returnVarsNamesPtr"], enumerable.Count, mem["returnVarsPtr"],
                     mem["numberOfReturnVarsAddress"]);
 
 
-                if (enumerable.Count > 0)
+                if (enumerable.Any())
                 {
-                    byte[] address = BotManager.Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
+                    byte[] address = Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
 
                     Parallel.ForEach(enumerable, // source collection
                         () => 0, // method to initialize the local variable
@@ -444,12 +436,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                             if (dwAddress != IntPtr.Zero)
                             {
-                                var buf = BotManager.Memory.Read<byte>(dwAddress);
+                                var buf = Memory.Read<byte>(dwAddress);
                                 while (buf != 0)
                                 {
                                     retnByte.Add(buf);
                                     dwAddress = dwAddress + 1;
-                                    buf = BotManager.Memory.Read<byte>(dwAddress);
+                                    buf = Memory.Read<byte>(dwAddress);
                                 }
                             }
                             returnDict[value] = Encoding.UTF8.GetString(retnByte.ToArray());
@@ -459,10 +451,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                         finalResult => { }
                         );
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.ErrorException("Error executing script", ex);
             }
             finally
             {
@@ -477,7 +465,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </summary>
         /// <param name="command">String name of variable to retrieve</param>
         /// <returns>value of the variable to retrieve</returns>
-        /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
+        /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public string GetLocalizedText(string command)
         {
             if (Logger.IsTraceEnabled)
@@ -508,7 +496,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </summary>
         /// <param name="commands">String names of variables to retrieve</param>
         /// <returns>values of the variables to retrieve</returns>
-        /// <exception cref="Exception">Throws generic exception if the function hook we need is not applied</exception>
+        /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public Dictionary<string, string> GetLocalizedText(IEnumerable<string> commands)
         {
             if (Logger.IsTraceEnabled)
@@ -550,48 +538,46 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             int returnAddressSpace = enumerable.Count == 0 ? 0x4 : enumerable.Count*0x4;
 
             AllocatedMemory mem =
-                BotManager.Memory.CreateAllocatedMemory(commandSpace + returnAddressSpace + 0x4 + 0x4);
-
-
-            mem.WriteBytes("command", Encoding.UTF8.GetBytes(builder.ToString()));
-            mem.WriteBytes("returnVarsPtr", new byte[enumerable.Count*0x4]);
-            mem.Write("numberOfReturnVarsAddress", 0);
-            mem.Write("returnVarsNamesPtr", mem["command"]);
+                Memory.CreateAllocatedMemory(commandSpace + returnAddressSpace + 0x4 + 0x4);
 
             try
             {
+                mem.WriteBytes("command", Encoding.UTF8.GetBytes(builder.ToString()));
+                mem.WriteBytes("returnVarsPtr", new byte[enumerable.Count*0x4]);
+                mem.Write("numberOfReturnVarsAddress", 0);
+                mem.Write("returnVarsNamesPtr", mem["command"]);
+
+
                 InternalExecute(IntPtr.Zero, mem["returnVarsNamesPtr"], enumerable.Count, mem["returnVarsPtr"], mem["numberOfReturnVarsAddress"]);
 
+                if (enumerable.Any())
+                {
+                    byte[] address = Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
 
-                byte[] address = BotManager.Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
-
-                Parallel.ForEach(enumerable, // source collection
-                    () => 0, // method to initialize the local variable
-                    (value, loop, offset) => // method invoked by the loop on each iteration
-                    {
-                        var retnByte = new List<byte>();
-                        var dwAddress = new IntPtr(BitConverter.ToInt32(address, offset));
-
-                        if (dwAddress != IntPtr.Zero)
+                    Parallel.ForEach(enumerable, // source collection
+                        () => 0, // method to initialize the local variable
+                        (value, loop, offset) => // method invoked by the loop on each iteration
                         {
-                            var buf = BotManager.Memory.Read<byte>(dwAddress);
-                            while (buf != 0)
+                            var retnByte = new List<byte>();
+                            var dwAddress = new IntPtr(BitConverter.ToInt32(address, offset));
+
+                            if (dwAddress != IntPtr.Zero)
                             {
-                                retnByte.Add(buf);
-                                dwAddress = dwAddress + 1;
-                                buf = BotManager.Memory.Read<byte>(dwAddress);
+                                var buf = Memory.Read<byte>(dwAddress);
+                                while (buf != 0)
+                                {
+                                    retnByte.Add(buf);
+                                    dwAddress = dwAddress + 1;
+                                    buf = Memory.Read<byte>(dwAddress);
+                                }
                             }
-                        }
-                        returnDict[value] = Encoding.UTF8.GetString(retnByte.ToArray());
-                        offset += 0x4; //modify local variable 
-                        return offset; // value to be passed to next iteration
-                    },
-                    finalResult => { }
-                    );
-            }
-            catch (Exception ex)
-            {
-                Logger.ErrorException("Error getting localized text", ex);
+                            returnDict[value] = Encoding.UTF8.GetString(retnByte.ToArray());
+                            offset += 0x4; //modify local variable 
+                            return offset; // value to be passed to next iteration
+                        },
+                        finalResult => { }
+                        );
+                }
             }
             finally
             {

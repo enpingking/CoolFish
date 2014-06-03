@@ -37,7 +37,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         private BitVector32 UnitFlags
         {
-            get { return GetStorageField<BitVector32>((uint) Offsets.WoWUnitFields.Flags); }
+            get { return GetStorageField<BitVector32>( Offsets.WoWUnitFields.Flags); }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool Critter
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.Critter) == 1; }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.Critter) == 1; }
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsUnit
         {
-            get { return Type == (uint) ObjectManager.ObjectType.Unit; }
+            get { return Type ==  (int)ObjectManager.ObjectType.Unit; }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsPlayer
         {
-            get { return Type == (uint) ObjectManager.ObjectType.Player; }
+            get { return Type ==  (int)ObjectManager.ObjectType.Player; }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong CharmedBy
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWUnitFields.CharmedBy); }
+            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.CharmedBy); }
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong SummonedBy
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWUnitFields.SummonedBy); }
+            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.SummonedBy); }
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong CreatedBy
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWUnitFields.CreatedBy); }
+            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.CreatedBy); }
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Health
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.Health); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.Health); }
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int MaximumHealth
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.MaxHealth); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.MaxHealth); }
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int BaseHealth
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.BaseHealth); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.BaseHealth); }
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int BaseMana
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.BaseMana); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.BaseMana); }
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Level
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.Level); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.Level); }
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int DisplayID
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.DisplayID); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.DisplayID); }
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int MountDisplayID
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWUnitFields.MountDisplayID); }
+            get { return GetStorageField<int>( Offsets.WoWUnitFields.MountDisplayID); }
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong Target
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWUnitFields.Target); }
+            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.Target); }
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
         private byte[] DisplayPower
         {
-            get { return BitConverter.GetBytes(GetStorageField<uint>((uint) Offsets.WoWUnitFields.DisplayPower)); }
+            get { return BitConverter.GetBytes(GetStorageField<uint>( Offsets.WoWUnitFields.DisplayPower)); }
         }
 
         /// <summary>Gets the type of the power.</summary>
@@ -203,7 +203,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         {
             get
             {
-                var overridePowerId = GetStorageField<uint>((uint) Offsets.WoWUnitFields.OverrideDisplayPowerID);
+                var overridePowerId = GetStorageField<uint>( Offsets.WoWUnitFields.OverrideDisplayPowerID);
                 if (overridePowerId == 0)
                     return (ObjectManager.PowerType) DisplayPower[3];
                 return (ObjectManager.PowerType) overridePowerId;
@@ -237,9 +237,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
             uint index =
                 BotManager.Memory.Read<byte>(
                     BotManager.Memory.Read<IntPtr>(BaseAddress + 0xDC) + 0x49) +
-                (uint) powerType +
+                 powerType +
                 16*
-                (uint)
+                
                 BotManager.Memory.Read<byte>(
                     BotManager.Memory.Read<IntPtr>(BaseAddress + 0xDC) + 0x49);
 
@@ -297,6 +297,18 @@ namespace CoolFishNS.Management.CoolManager.Objects
         internal bool HasUnitFlag(Offsets.UnitFlags flag)
         {
             return UnitFlags[(int) flag];
+        }
+
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWUnitFields field) where T : struct
+        {
+            return GetStorageField<T>((int)field);
         }
     }
 }

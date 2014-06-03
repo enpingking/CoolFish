@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.Management;
@@ -17,13 +15,15 @@ namespace CoolFishNS
     /// <summary>
     ///     Interaction logic for App.xaml
     /// </summary>
-    public partial class App
+    internal partial class App
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         internal static App CurrentApp = new App();
 
         public App()
         {
+            CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
+            CultureInfo.DefaultThreadCurrentCulture = culture;
             InitializeLoggers();
             AppDomain.CurrentDomain.UnhandledException += UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
@@ -42,16 +42,29 @@ namespace CoolFishNS
                 var e = (Exception) ex.ExceptionObject;
                 Logger.FatalException("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.", e);
                 MessageBox.Show("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.");
+                ShutDown();
+                
+            }
+            catch (Exception)
+            {
+            }
+            
+            Environment.Exit(-1);
+        }
+
+        internal static void ShutDown()
+        {
+            try
+            {
                 BotManager.ShutDown();
                 Analytics.MarkedUp.ShutDown();
                 LogManager.Flush(5000);
+                LogManager.Shutdown();
+            }
+            catch (Exception)
+            {
                 
             }
-            catch
-            {
-            }
-            LogManager.Shutdown();
-            CurrentApp.Shutdown(-1);
         }
 
         private static void InitializeLoggers()
@@ -88,9 +101,7 @@ namespace CoolFishNS
         public static void Main()
         {
             CurrentApp.Run(new MainWindow());
-            Analytics.MarkedUp.ShutDown();
-            LogManager.Flush(5000);
-            LogManager.Shutdown();
+            ShutDown();
         }
     }
 }

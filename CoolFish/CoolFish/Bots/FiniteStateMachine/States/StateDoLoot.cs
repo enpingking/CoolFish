@@ -1,4 +1,5 @@
-﻿using CoolFishNS.Management.CoolManager.HookingLua;
+﻿using CoolFishNS.Management;
+using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using NLog;
 
@@ -26,7 +27,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = DxHook.Instance.ExecuteScript("loot = IsFishingLoot();", "loot");
+                string result = BotManager.DxHookInstance.ExecuteScript("loot = IsFishingLoot();", "loot");
                 return result == "1";
             }
         }
@@ -42,7 +43,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public override void Run()
         {
             Logger.Info(Name);
-            DxHook.Instance.ExecuteScript(Resources.DoLoot);
+            BotManager.DxHookInstance.ExecuteScript(Resources.DoLoot);
         }
     }
 }

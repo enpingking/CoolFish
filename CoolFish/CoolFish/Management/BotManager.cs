@@ -37,18 +37,23 @@ namespace CoolFishNS.Management
         public static ExternalProcessReader Memory { get; private set; }
 
         /// <summary>
+        /// The main DxHook object that performs operations on the currently attached process
+        /// </summary>
+        public static DxHook DxHookInstance { get; private set; }
+
+        /// <summary>
         ///     Returns true if we are attached to a Wow process and can perform memory operations and DXHook methods
         /// </summary>
         public static bool IsAttached
         {
-            get { return Memory != null && Memory.IsProcessOpen && DxHook.Instance.IsApplied; }
+            get { return Memory != null && Memory.IsProcessOpen && DxHookInstance != null; }
         }
 
         /// <summary>
         ///     Currently active IBot object that the user interface will interact with.
         ///     This field should be set to whatever Bot object you want to respond to UI functions (Start, Stop, etc.)
         /// </summary>
-        public static IBot ActiveBot { get; private set; }
+        internal static IBot ActiveBot { get; private set; }
 
         /// <summary>
         ///     Get the currently logged in toon's name
@@ -161,17 +166,25 @@ namespace CoolFishNS.Management
         {
             try
             {
-                Memory = new ExternalProcessReader(process);
-                if (Offsets.FindOffsets())
+                if (process.HasExited)
                 {
-                    if (DxHook.Instance.Apply())
+                    Logger.Warn("The process you have selected has exited. Please select another.");
+                    return;
+                }
+                StopActiveBot();
+                if (Offsets.FindOffsets(process))
+                {
+                    Memory = new ExternalProcessReader(process);
+                    DxHookInstance = new DxHook(process);
+                    if (DxHookInstance.Apply())
                     {
-                        Memory.ProcessExited += (sender, args) => DxHook.Instance.Restore();
+                        Memory.ProcessExited += (sender, args) => BotManager.DxHookInstance.Restore();
                         Logger.Info("Attached to: " + process.Id);
                         return;
                     }
                     Memory.Dispose();
                     Memory = null;
+                    DxHookInstance = null;
                 }
             }
             catch (FileNotFoundException ex)
@@ -181,18 +194,28 @@ namespace CoolFishNS.Management
                     Memory.Dispose();
                     Memory = null;
                 }
-                if (ex.FileName.Equals("fasmdll_managed.dll"))
+                if (ex.FileName.Contains("fasmdll_managed"))
                 {
                     AnalyticClient.SessionEvent("Missing Redistributable");
-                    Logger.Fatal("You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                    Logger.Fatal(
+                        "You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
                 }
                 else
                 {
                     throw;
                 }
             }
+            catch(Exception ex)
+            {
+                Logger.ErrorException("Failed to attach do to an exception.", ex);
+            }
 
             Logger.Warn("Failed to attach to: " + process.Id);
+        }
+
+        public static void DetatchFromProcess()
+        {
+            
         }
 
         /// <summary>
@@ -200,11 +223,20 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StartActiveBot()
         {
-            if (ActiveBot != null && !ActiveBot.IsRunning)
+            try
             {
-                Logger.Info("Starting bot...");
-                ActiveBot.StartBot();
+                if (ActiveBot != null && !ActiveBot.IsRunning)
+                {
+                    Logger.Info("Starting bot...");
+                    ActiveBot.StartBot();
+                }
             }
+            catch (Exception ex)
+            {
+                
+                Logger.ErrorException("Exception thrown while trying to start the bot", ex);
+            }
+           
         }
 
         /// <summary>
@@ -212,11 +244,20 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void StopActiveBot()
         {
-            if (ActiveBot != null && ActiveBot.IsRunning)
+            try
             {
-                Logger.Info("Stopping bot...");
-                ActiveBot.StopBot();
+                if (ActiveBot != null && ActiveBot.IsRunning)
+                {
+                    Logger.Info("Stopping bot...");
+                    ActiveBot.StopBot();
+                }
             }
+            catch (Exception ex)
+            {
+                
+               Logger.ErrorException("Exception thrown while trying to stop the bot", ex);
+            }
+            
         }
 
         /// <summary>
@@ -224,7 +265,16 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void Settings()
         {
-            ActiveBot.Settings();
+            try
+            {
+                ActiveBot.Settings();
+            }
+            catch (Exception ex)
+            {
+
+                Logger.ErrorException("Exception thrown while trying to modify bot settings", ex);
+            }
+           
         }
 
         internal static void StartUp()
@@ -248,8 +298,11 @@ namespace CoolFishNS.Management
 
             LocalSettings.SaveSettings();
 
-            DxHook.Instance.Restore();
-
+            if (DxHookInstance != null)
+            {
+                DxHookInstance.Restore();
+            }
+            
             if (Memory != null)
             {
                 Memory.Dispose();

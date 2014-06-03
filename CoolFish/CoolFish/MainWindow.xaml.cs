@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using CoolFishNS.Bots;
+using CoolFishNS.Exceptions;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
@@ -138,19 +139,31 @@ namespace CoolFishNS
 
         private void LogLevelCMB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int ordinal = LogLevelCMB.SelectedIndex == -1 ? 2 : LogLevelCMB.SelectedIndex;
-            LocalSettings.Settings["LogLevel"] = ordinal;
-            Utilities.Utilities.Reconfigure(ordinal);
+          
 
-            if (DxHook.Instance.IsApplied)
+            try
             {
-                string debug = "DODEBUG = " +
-                               ((LocalSettings.Settings["LogLevel"] == LogLevel.Debug.Ordinal ||
-                                 LocalSettings.Settings["LogLevel"] == LogLevel.Trace.Ordinal)
-                                   ? "true"
-                                   : "false");
-                DxHook.Instance.ExecuteScript(debug);
+                int ordinal = LogLevelCMB.SelectedIndex == -1 ? 2 : LogLevelCMB.SelectedIndex;
+                LocalSettings.Settings["LogLevel"] = ordinal;
+                Utilities.Utilities.Reconfigure(ordinal);
+
+                if (BotManager.DxHookInstance != null)
+                {
+                    string debug = "DODEBUG = " +
+                                   ((LocalSettings.Settings["LogLevel"] == LogLevel.Debug.Ordinal ||
+                                     LocalSettings.Settings["LogLevel"] == LogLevel.Trace.Ordinal)
+                                       ? "true"
+                                       : "false");
+                    BotManager.DxHookInstance.ExecuteScript(debug);
+                }
             }
+            catch(HookNotAppliedException)
+            { }
+            catch (Exception ex)
+            {
+               Logger.ErrorException("Exception throw while changing log level", ex);
+            }
+
         }
 
         #region EventHandlers
@@ -292,7 +305,6 @@ namespace CoolFishNS
             }
 
             Updater.Update();
-            Updater.StatCount();
         }
 
         private void PluginsBTN_Click(object sender, RoutedEventArgs e)

@@ -31,7 +31,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Copper
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWPlayerFields.Coinage); }
+            get { return GetStorageField<int>(Offsets.WoWPlayerFields.Coinage); }
         }
 
         public override ulong Guid

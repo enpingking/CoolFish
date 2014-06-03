@@ -88,9 +88,17 @@ namespace CoolFishNS.Utilities
         /// </summary>
         internal static void SaveSettings()
         {
-            Serializer.Serialize("Settings.dat", Settings);
-            Serializer.Serialize("Plugins.dat", Plugins);
-            Serializer.Serialize("Items.dat", Items);
+            try
+            {
+                Serializer.Serialize("Settings.dat", Settings);
+                Serializer.Serialize("Plugins.dat", Plugins);
+                Serializer.Serialize("Items.dat", Items);
+            }
+            catch (Exception ex)
+            {
+                Logger.WarnException("Failed to save settings to disk. Settings may be lost upon reopening CoolFish", ex);
+            }
+            
         }
 
         /// <summary>
