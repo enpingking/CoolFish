@@ -108,7 +108,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error finding LocalPlayer", ex);
+                Logger.Error("Error finding LocalPlayer", ex);
             }
             return null;
         }
@@ -169,11 +169,11 @@ namespace CoolFishNS.Management.CoolManager.Objects
             }
             catch (AccessViolationException ex)
             {
-                Logger.TraceException("AccessViolation In ObjectManager", ex);
+                Logger.Trace("AccessViolation In ObjectManager", (Exception)ex);
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error accessing Objects", ex);
+                Logger.Error("Error accessing Objects", ex);
             }
 
             return objects;

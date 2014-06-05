@@ -48,7 +48,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Exception shutting down plugin: " + value.Plugin.Name, ex);
+                    Logger.Error("Exception shutting down plugin: " + value.Plugin.Name, ex);
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException(string.Format(Resources.PluginPulseException, enabledPlugin.Name), ex);
+                    Logger.Error(string.Format(Resources.PluginPulseException, enabledPlugin.Name), ex);
                     Plugins[enabledPlugin.Name].Enabled = false;
                 }
             }
@@ -123,7 +123,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Failed to load Plugin: " + plugin, ex);
+                    Logger.Error("Failed to load Plugin: " + plugin, ex);
                 }
             }
         }

@@ -142,7 +142,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             catch (Exception ex)
             {
                 
-                Logger.ErrorException("Error thrown while updating controls", ex);
+                Logger.Error("Error thrown while updating controls", ex);
             }
             
         }

@@ -80,7 +80,7 @@ namespace CoolFishNS
                 }
                 catch (Exception ex)
                 {
-                    Logger.TraceException("Error adding process", ex);
+                    Logger.Trace("Error adding process", ex);
                 }
             }
         }
@@ -124,11 +124,15 @@ namespace CoolFishNS
             }
             catch (InvalidOperationException ex)
             {
-                Logger.Trace("Error moving window", ex);
+                if (Logger.IsTraceEnabled)
+                {
+                    Logger.Trace("Error moving window", (Exception)ex);
+                }
+                
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error moving window", ex);
+                Logger.Error("Error moving window", ex);
             }
         }
 
@@ -144,24 +148,13 @@ namespace CoolFishNS
             try
             {
                 int ordinal = LogLevelCMB.SelectedIndex == -1 ? 2 : LogLevelCMB.SelectedIndex;
-                LocalSettings.Settings["LogLevel"] = ordinal;
+                LocalSettings.Settings["LogLevel"] = BotSetting.As(ordinal);
                 Utilities.Utilities.Reconfigure(ordinal);
 
-                if (BotManager.DxHookInstance != null)
-                {
-                    string debug = "DODEBUG = " +
-                                   ((LocalSettings.Settings["LogLevel"] == LogLevel.Debug.Ordinal ||
-                                     LocalSettings.Settings["LogLevel"] == LogLevel.Trace.Ordinal)
-                                       ? "true"
-                                       : "false");
-                    BotManager.DxHookInstance.ExecuteScript(debug);
-                }
             }
-            catch(HookNotAppliedException)
-            { }
             catch (Exception ex)
             {
-               Logger.ErrorException("Exception throw while changing log level", ex);
+               Logger.Error("Exception throw while changing log level", ex);
             }
 
         }
@@ -188,7 +181,7 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error refreshing processes", ex);
+                Logger.Error("Error refreshing processes", ex);
             }
         }
 
@@ -198,11 +191,10 @@ namespace CoolFishNS
             try
             {
                 SaveControlSettings();
-                BotManager.ShutDown();
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error closing window", ex);
+                Logger.Error("Error closing window", ex);
             }
 
         }
@@ -212,12 +204,11 @@ namespace CoolFishNS
             try
             {
                 SaveControlSettings();
-                LocalSettings.SaveSettings();
                 BotManager.StartActiveBot();
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error Starting bot", ex);
+                Logger.Error("Error Starting bot", ex);
             }
         }
 
@@ -278,7 +269,7 @@ namespace CoolFishNS
         {
             var textbox = new TextBoxTarget(OutputText) {Layout = @"[${date:format=h\:mm\:ss.ff tt}] [${level:uppercase=true}] ${message}"};
             var asyncWrapper = new AsyncTargetWrapper(textbox);
-            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.Info, asyncWrapper));
+            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, asyncWrapper));
             LogManager.ReconfigExistingLoggers();
 
             OutputText.Text = Updater.GetNews() + Environment.NewLine;
@@ -340,7 +331,7 @@ namespace CoolFishNS
                     }
                     catch (Exception ex)
                     {
-                        Logger.ErrorException("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name, ex);
+                        Logger.Error("An Error occurred trying to configure the plugin: " + plugin.Plugin.Name, ex);
                     }
                 }
             }

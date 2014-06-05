@@ -7,7 +7,7 @@ namespace CoolFishNS.Analytics
 {
     internal static class MarkedUp
     {
-        private static Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private static readonly DateTime StartTime = DateTime.Now;
         
@@ -32,7 +32,7 @@ namespace CoolFishNS.Analytics
             {
                 return;
             }
-            AnalyticClient.Initialize("e838c760-c238-41c3-b4bd-51640a8572dc", "");
+            AnalyticClient.Initialize("e838c760-c238-41c3-b4bd-51640a8572dc");
             AnalyticClient.AppStart();
             AnalyticClient.SessionStart();
             AnalyticClient.EnterPage("CoolFish");

@@ -69,7 +69,7 @@ namespace CoolFishNS.Management
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error reading ToonName", ex);
+                    Logger.Error("Error reading ToonName", ex);
                     return string.Empty;
                 }
             }
@@ -91,7 +91,7 @@ namespace CoolFishNS.Management
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error checking whether we are logged in", ex);
+                    Logger.Error("Error checking whether we are logged in", ex);
                     return false;
                 }
             }
@@ -171,6 +171,10 @@ namespace CoolFishNS.Management
                     Logger.Warn("The process you have selected has exited. Please select another.");
                     return;
                 }
+                if (IsAttached)
+                {
+                    DetachFromProcess();
+                }
                 StopActiveBot();
                 if (Offsets.FindOffsets(process))
                 {
@@ -182,18 +186,11 @@ namespace CoolFishNS.Management
                         Logger.Info("Attached to: " + process.Id);
                         return;
                     }
-                    Memory.Dispose();
-                    Memory = null;
-                    DxHookInstance = null;
+                    DetachFromProcess();
                 }
             }
             catch (FileNotFoundException ex)
             {
-                if (Memory != null)
-                {
-                    Memory.Dispose();
-                    Memory = null;
-                }
                 if (ex.FileName.Contains("fasmdll_managed"))
                 {
                     AnalyticClient.SessionEvent("Missing Redistributable");
@@ -207,14 +204,28 @@ namespace CoolFishNS.Management
             }
             catch(Exception ex)
             {
-                Logger.ErrorException("Failed to attach do to an exception.", ex);
+                DetachFromProcess();
+                Logger.Error("Failed to attach do to an exception.", ex);
             }
 
             Logger.Warn("Failed to attach to: " + process.Id);
         }
 
-        public static void DetatchFromProcess()
+        /// <summary>
+        /// 
+        /// </summary>
+        public static void DetachFromProcess()
         {
+            if (Memory != null)
+            {
+                Memory.Dispose();
+                Memory = null;
+            }
+            if (DxHookInstance != null)
+            {
+                DxHookInstance.Restore();
+                DxHookInstance = null;
+            }
             
         }
 
@@ -234,7 +245,7 @@ namespace CoolFishNS.Management
             catch (Exception ex)
             {
                 
-                Logger.ErrorException("Exception thrown while trying to start the bot", ex);
+                Logger.Error("Exception thrown while trying to start the bot", ex);
             }
            
         }
@@ -255,7 +266,7 @@ namespace CoolFishNS.Management
             catch (Exception ex)
             {
                 
-               Logger.ErrorException("Exception thrown while trying to stop the bot", ex);
+               Logger.Error("Exception thrown while trying to stop the bot", ex);
             }
             
         }
@@ -272,15 +283,13 @@ namespace CoolFishNS.Management
             catch (Exception ex)
             {
 
-                Logger.ErrorException("Exception thrown while trying to modify bot settings", ex);
+                Logger.Error("Exception thrown while trying to modify bot settings", ex);
             }
            
         }
 
         internal static void StartUp()
         {
-            LocalSettings.LoadSettings();
-
             PluginManager.LoadPlugins();
 
             PluginManager.StartPlugins();
@@ -296,18 +305,7 @@ namespace CoolFishNS.Management
 
             PluginManager.ShutDownPlugins();
 
-            LocalSettings.SaveSettings();
-
-            if (DxHookInstance != null)
-            {
-                DxHookInstance.Restore();
-            }
-            
-            if (Memory != null)
-            {
-                Memory.Dispose();
-            }
-
+            DetachFromProcess();
 
             Logger.Debug("Shut Down.");
         }

@@ -235,7 +235,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error applying hook", ex);
+                    Logger.Error("Error applying hook", ex);
                     IsApplied = false;
                     return false;
                 }

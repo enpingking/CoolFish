@@ -71,7 +71,7 @@ namespace CoolFishNS.Management.CoolManager
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error while finding offsets", ex);
+                Logger.Error("Error while finding offsets", ex);
             }
             _addresses = addresses;
             return fp.NotFoundCount == 0;

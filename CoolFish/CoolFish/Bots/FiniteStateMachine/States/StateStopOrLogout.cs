@@ -133,7 +133,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             if (LocalSettings.Settings["CloseWoWonStop"])
             {
                 var proc = BotManager.Memory.Process;
-                BotManager.DetatchFromProcess();
+                BotManager.DetachFromProcess();
                 proc.CloseMainWindow();
                 proc.Close();
                 App.ShutDown();

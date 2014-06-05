@@ -174,7 +174,7 @@ namespace CoolFishNS.Management.CoolManager
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error finding pattern: " + name, ex);
+                    Logger.Error("Error finding pattern: " + name, ex);
                 }
 
                 // Actually search for the pattern match...

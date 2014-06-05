@@ -199,7 +199,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Unhandled error occurred", ex);
+                Logger.Error("Unhandled error occurred", ex);
             }
 
             try
@@ -212,7 +212,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error occurred while unregistering events", ex);
+                Logger.Error("Error occurred while unregistering events", ex);
             }
 
             Logger.Info("Engine Stopped");
