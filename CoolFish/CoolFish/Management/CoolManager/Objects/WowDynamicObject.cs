@@ -21,7 +21,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong Caster
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWDynamicObjectFields.Caster); }
+            get { return GetStorageField<ulong>(Offsets.WoWDynamicObjectFields.Caster); }
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int SpellID
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWDynamicObjectFields.SpellID); }
+            get { return GetStorageField<int>(Offsets.WoWDynamicObjectFields.SpellID); }
         }
 
         /// <summary>
@@ -37,7 +37,19 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Radius
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWDynamicObjectFields.Radius); }
+            get { return GetStorageField<int>(Offsets.WoWDynamicObjectFields.Radius); }
+        }
+
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWDynamicObjectFields field) where T : struct
+        {
+            return GetStorageField<T>((int)field);
         }
     }
 }

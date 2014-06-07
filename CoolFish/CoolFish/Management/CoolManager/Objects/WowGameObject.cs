@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Text;
 
 namespace CoolFishNS.Management.CoolManager.Objects
@@ -23,12 +24,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int DisplayID
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWGameObjectFields.DisplayID); }
-        }
-
-        public int Dynamic
-        {
-            get { return GetStorageField<int>((uint) 0x20 + 0x20); }
+            get { return GetStorageField<int>( Offsets.WoWGameObjectFields.DisplayID); }
         }
 
         public int AnimationState
@@ -41,32 +37,32 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Faction
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWGameObjectFields.FactionTemplate); }
+            get { return GetStorageField<int>( Offsets.WoWGameObjectFields.FactionTemplate); }
         }
 
-        public uint Flags
+        public BitVector32 Flags
         {
-            get { return GetStorageField<uint>((uint) Offsets.WoWGameObjectFields.Flags); }
+            get { return GetStorageField<BitVector32>( Offsets.WoWGameObjectFields.Flags); }
         }
 
         public bool Locked
         {
-            get { return (Flags & 0x00000002) > 0; }
+            get { return Flags[1]; }
         }
 
         public bool InUse
         {
-            get { return (Flags & 0x00000001) > 0; }
+            get { return Flags[0]; }
         }
 
         public bool IsTransport
         {
-            get { return (Flags & 0x00000008) > 0; }
+            get { return Flags[3]; }
         }
 
         public bool InteractCondition
         {
-            get { return (Flags & 0x00000004) > 0; }
+            get { return Flags[2]; }
         }
 
         /// <summary>
@@ -74,7 +70,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Level
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWGameObjectFields.Level); }
+            get { return GetStorageField<int>( Offsets.WoWGameObjectFields.Level); }
         }
 
         /// <summary>
@@ -83,7 +79,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong CreatedBy
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWGameObjectFields.CreatedBy); }
+            get { return GetStorageField<ulong>( Offsets.WoWGameObjectFields.CreatedBy); }
         }
 
         /// <summary>
@@ -95,11 +91,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
             {
                 return
                     BotManager.Memory.ReadString(
-                        (IntPtr)
-                            BotManager.Memory.Read<uint>(
-                                (IntPtr)
-                                    (BotManager.Memory.Read<uint>(BaseAddress + (int) Offsets.WowGameObject.Name1) +
-                                     (uint) Offsets.WowGameObject.Name2)), Encoding.UTF8);
+                            BotManager.Memory.Read<IntPtr>(
+                                    BotManager.Memory.Read<IntPtr>(BaseAddress + (int) Offsets.WowGameObject.Name1) +
+                                      (int)Offsets.WowGameObject.Name2), Encoding.UTF8);
             }
         }
 
@@ -141,6 +135,18 @@ namespace CoolFishNS.Management.CoolManager.Objects
         public new float Distance
         {
             get { return (float) Point.Distance(ObjectManager.Me.Location, Location); }
+        }
+
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWGameObjectFields field) where T : struct
+        {
+            return GetStorageField<T>((int)field);
         }
     }
 }

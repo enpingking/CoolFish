@@ -13,7 +13,8 @@ namespace CoolFishNS.Management.CoolManager.Objects
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        ///     A list of all Objects.
+        ///    Expensive call to get a list of all Objects. This will be a currently up to date list.
+        ///    Cache this result if you don't need an updated list each call
         /// </summary>
         public static List<WoWObject> Objects
         {
@@ -21,7 +22,8 @@ namespace CoolFishNS.Management.CoolManager.Objects
         }
 
         /// <summary>
-        ///     The local player.
+        ///     Expensive call to get the local player. This will be currently updated.
+        ///     Cache this result if the local player is not changing a lot.
         /// </summary>
         public static WoWPlayerMe Me
         {
@@ -106,7 +108,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error finding LocalPlayer", ex);
+                Logger.Error("Error finding LocalPlayer", ex);
             }
             return null;
         }
@@ -114,6 +116,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         private static List<WoWObject> GetObjects()
         {
             var objects = new List<WoWObject>();
+            var playerguid = PlayerGuid;
             try
             {
                 var currentObject =
@@ -148,9 +151,10 @@ namespace CoolFishNS.Management.CoolManager.Objects
                             objects.Add(new WoWDynamicObject(currentObject.BaseAddress));
                             break;
                         case (int) ObjectType.Player:
-                            objects.Add(currentObject.Guid == PlayerGuid
-                                ? new WoWPlayerMe(currentObject.BaseAddress)
-                                : new WoWPlayer(currentObject.BaseAddress));
+                            if (currentObject.Guid != playerguid)
+                            {
+                                objects.Add(new WoWPlayer(currentObject.BaseAddress));
+                            }
                             break;
                         default:
                             objects.Add(currentObject);
@@ -165,24 +169,25 @@ namespace CoolFishNS.Management.CoolManager.Objects
             }
             catch (AccessViolationException ex)
             {
-                Logger.TraceException("AccessViolation In ObjectManager", ex);
+                Logger.Trace("AccessViolation In ObjectManager", (Exception)ex);
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error accessing Objects", ex);
+                Logger.Error("Error accessing Objects", ex);
             }
 
             return objects;
         }
 
         /// <summary>
-        ///     Gets object of the specified type.
+        ///    Expensive call to get objects of the specified type.
+        ///    Cache this result if you don't need an updated list each call
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<T> GetObjectsOfType<T>() where T : WoWObject
+        public static IEnumerable<T> GetObjectsOfType<T>() where T : WoWObject
         {
-            return (from t1 in Objects let t = t1.GetType() where t == typeof (T) select t1).OfType<T>().ToList();
+            return (from t1 in Objects.AsParallel() let t = t1.GetType() where t == typeof (T) select t1).OfType<T>();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Media;
 using System.Threading;
+using System.Threading.Tasks;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
@@ -48,7 +49,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 if (LocalSettings.Settings["StopOnNoLures"] &&
                     !LocalSettings.Settings["NoLure"])
                 {
-                    string result = DxHook.Instance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
+                    string result = BotManager.DxHookInstance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
 
                     if (result == "1")
                     {
@@ -110,34 +111,37 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
             BotManager.StopActiveBot();
 
-            new Thread(() =>
+            Task.Run(() =>
             {
                 for (int i = 0; i < 3; i++)
                 {
                     SystemSounds.Hand.Play();
                     Thread.Sleep(3000);
                 }
-            }).Start();
-
-
-            if (LocalSettings.Settings["CloseWoWonStop"])
-            {
-                DxHook.Instance.Restore();
-                BotManager.Memory.Process.CloseMainWindow();
-                BotManager.Memory.Process.Close();
-                BotManager.ShutDown();
-                Environment.Exit(0);
-            }
+            });
 
             if (LocalSettings.Settings["LogoutOnStop"])
             {
-                DxHook.Instance.ExecuteScript("Logout();");
+                BotManager.DxHookInstance.ExecuteScript("Logout();");
             }
 
             if (LocalSettings.Settings["ShutdownPConStop"])
             {
                 Process.Start("shutdown", "/s /t 0");
             }
+
+            if (LocalSettings.Settings["CloseWoWonStop"])
+            {
+                var proc = BotManager.Memory.Process;
+                BotManager.DetachFromProcess();
+                proc.CloseMainWindow();
+                proc.Close();
+                App.ShutDown();
+                Environment.Exit(0);
+
+            }
+
+
         }
     }
 }

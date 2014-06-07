@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Media;
 using System.Threading;
+using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using NLog;
 
@@ -28,7 +29,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = DxHook.Instance.GetLocalizedText("NewMessage");
+                string result = BotManager.DxHookInstance.GetLocalizedText("NewMessage");
                 return result == "1";
             }
         }
@@ -38,7 +39,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override void Run()
         {
-            Dictionary<string, string> result = DxHook.Instance.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
+            Dictionary<string, string> result = BotManager.DxHookInstance.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
 
             Logger.Info("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
 

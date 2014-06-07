@@ -68,7 +68,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
 
             Running = true;
-            _workerTask = Task.Run(() => Run());
+            _workerTask = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                                ? "true"
                                : "false"));
 
-            DxHook.Instance.ExecuteScript(builder.ToString());
+            BotManager.DxHookInstance.ExecuteScript(builder.ToString());
         }
 
 
@@ -199,20 +199,20 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Unhandled error occurred", ex);
+                Logger.Error("Unhandled error occurred", ex);
             }
 
             try
             {
-                if (BotManager.LoggedIn && DxHook.Instance.IsApplied)
+                if (BotManager.LoggedIn)
                 {
-                    DxHook.Instance.ExecuteScript(
+                    BotManager.DxHookInstance.ExecuteScript(
                         "if CoolFrame then CoolFrame:UnregisterAllEvents(); end print(\"|cff00ff00---Loot Log---\"); for key,value in pairs(LootLog) do local _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end print(\"|cffff0000---DID NOT Loot Log---\"); for key,value in pairs(NoLootLog) do _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end");
                 }
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error occurred while unregistering events", ex);
+                Logger.Error("Error occurred while unregistering events", ex);
             }
 
             Logger.Info("Engine Stopped");

@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Utilities;
 using NLog;
@@ -27,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = DxHook.Instance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
+                string result = BotManager.DxHookInstance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
 
                 if (result == "1")
                 {
@@ -50,7 +51,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Logger.Info(Name);
 
-            DxHook.Instance.ExecuteScript("RunMacroText(\"/use \" .. LureName);");
+            BotManager.DxHookInstance.ExecuteScript("RunMacroText(\"/use \" .. LureName);");
 
             Thread.Sleep(3000);
         }

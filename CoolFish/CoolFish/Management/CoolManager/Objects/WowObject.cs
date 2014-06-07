@@ -53,7 +53,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public uint Entry
         {
-            get { return GetStorageField<uint>((uint) Offsets.WoWObjectFields.EntryID); }
+            get { return GetStorageField<uint>(Offsets.WoWObjectFields.EntryID); }
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public virtual BitVector32 DynamicFlags
         {
-            get { return GetStorageField<BitVector32>((uint) Offsets.WoWObjectFields.DynamicFlags); }
+            get { return GetStorageField<BitVector32>( Offsets.WoWObjectFields.DynamicFlags); }
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Scale_X
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWObjectFields.Scale); }
+            get { return GetStorageField<int>(Offsets.WoWObjectFields.Scale); }
         }
 
         #region <Storage Field Methods>
@@ -135,12 +135,10 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <typeparam name="T">struct</typeparam>
         /// <param name="field">Descriptor field</param>
         /// <returns>Descriptor field</returns>
-        protected T GetStorageField<T>(uint field) where T : struct
+        protected T GetStorageField<T>(int field) where T : struct
         {
-            var m_pStorage = BotManager.Memory.Read<uint>(BaseAddress + 0x4);
-
-
-            return BotManager.Memory.Read<T>((IntPtr) (m_pStorage + field));
+            var m_pStorage = BotManager.Memory.Read<IntPtr>(BaseAddress + 0x4);
+            return BotManager.Memory.Read<T>((m_pStorage + field));
         }
 
         /// <summary>
@@ -152,7 +150,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWObjectFields field) where T : struct
         {
-            return GetStorageField<T>((uint) field);
+            return GetStorageField<T>((int) field);
         }
 
         #endregion <Storage Field Methods>

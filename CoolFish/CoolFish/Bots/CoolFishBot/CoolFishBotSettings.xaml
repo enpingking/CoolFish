@@ -7,7 +7,7 @@
         Title="CoolFishBot Settings" Height="297"
         Width="832.8" ResizeMode="NoResize" Visibility="Visible"
         SizeToContent="WidthAndHeight"
-        WindowStyle="None" x:ClassModifier="internal">
+        WindowStyle="None" x:ClassModifier="internal" Loaded="SettingsWindow_Loaded">
 
     <StackPanel>
         <!-- Title Bar -->

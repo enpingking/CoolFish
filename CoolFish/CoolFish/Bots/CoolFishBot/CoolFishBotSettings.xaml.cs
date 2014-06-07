@@ -23,11 +23,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         public CoolFishBotSettings()
         {
             InitializeComponent();
-            var col1 = new DataGridTextColumn {Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150};
-            col1.SetValue(NameProperty, "ItemColumn");
 
-            ItemsGrid.Columns.Add(col1);
-            UpdateControlSettings();
         }
 
 
@@ -131,6 +127,24 @@ namespace CoolFishNS.Bots.CoolFishBot
         private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
+        }
+
+        private void SettingsWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var col1 = new DataGridTextColumn { Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150 };
+                col1.SetValue(NameProperty, "ItemColumn");
+
+                ItemsGrid.Columns.Add(col1);
+                UpdateControlSettings();
+            }
+            catch (Exception ex)
+            {
+                
+                Logger.Error("Error thrown while updating controls", ex);
+            }
+            
         }
     }
 }

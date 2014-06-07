@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using CoolFishNS.Properties;
 using NLog;
 
@@ -17,25 +18,24 @@ namespace CoolFishNS.PluginSystem
 
         internal static bool ShouldPulse = true;
 
-        internal static Thread PluginThread;
+        internal static Task PluginThread;
 
         internal static void StartPlugins()
         {
             ShouldPulse = true;
 
-            PluginThread = new Thread(PluginPulse) {IsBackground = true};
-
-            PluginThread.Start();
+            PluginThread = Task.Factory.StartNew(PluginPulse, TaskCreationOptions.LongRunning);
         }
 
         internal static void StopPlugins()
         {
             ShouldPulse = false; // stop pulsing plugins
-            if (!PluginThread.Join(5000)) // wait for the plugin thread to end
+            if (PluginThread != null)
             {
-                Logger.Warn(Resources.FailedToStopPlugins);
+                PluginThread.Wait(5000);
+                PluginThread.Dispose();
+                PluginThread = null;
             }
-            PluginThread = null;
         }
 
         internal static void ShutDownPlugins()
@@ -48,7 +48,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Exception shutting down plugin: " + value.Plugin.Name, ex);
+                    Logger.Error("Exception shutting down plugin: " + value.Plugin.Name, ex);
                 }
             }
         }
@@ -70,10 +70,14 @@ namespace CoolFishNS.PluginSystem
                     {
                         enabledPlugin.OnPulse();
                     }
+                    else
+                    {
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException(string.Format(Resources.PluginPulseException, enabledPlugin.Name), ex);
+                    Logger.Error(string.Format(Resources.PluginPulseException, enabledPlugin.Name), ex);
                     Plugins[enabledPlugin.Name].Enabled = false;
                 }
             }
@@ -119,7 +123,7 @@ namespace CoolFishNS.PluginSystem
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Failed to load Plugin: " + plugin, ex);
+                    Logger.Error("Failed to load Plugin: " + plugin, ex);
                 }
             }
         }
