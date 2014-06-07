@@ -16,15 +16,10 @@ namespace CoolFishNS.Utilities
         /// <returns>object of type T retrieved from the file; null if the object couldn't be read</returns>
         public static T DeSerialize<T>(string filename)
         {
-            var fs = new FileStream(filename, FileMode.Open);
-            var formatter = new BinaryFormatter();
-            try
+            using (var fs = new FileStream(filename, FileMode.Open))
             {
-                return (T) formatter.Deserialize(fs);
-            }
-            finally
-            {
-                fs.Close();
+                var formatter = new BinaryFormatter();
+                return (T)formatter.Deserialize(fs);
             }
         }
 
@@ -36,17 +31,10 @@ namespace CoolFishNS.Utilities
         /// <typeparam name="T">The generic type to serialize</typeparam>
         public static void Serialize<T>(string path, T objectToSerialize)
         {
-            var fs = new FileStream(path, FileMode.Create);
-
-            // Construct a BinaryFormatter and use it to serialize the data to the stream.
-            var formatter = new BinaryFormatter();
-            try
+            using (var fs = new FileStream(path, FileMode.Create))
             {
+                var formatter = new BinaryFormatter();
                 formatter.Serialize(fs, objectToSerialize);
-            }
-            finally
-            {
-                fs.Close();
             }
         }
     }

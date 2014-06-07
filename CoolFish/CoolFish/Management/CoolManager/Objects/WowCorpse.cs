@@ -21,7 +21,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong Owner
         {
-            get { return GetStorageField<ulong>((uint) Offsets.WoWCorpseFields.Owner); }
+            get { return GetStorageField<ulong>(Offsets.WoWCorpseFields.Owner); }
         }
 
         /// <summary>
@@ -29,7 +29,19 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int DisplayId
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWCorpseFields.DisplayID); }
+            get { return GetStorageField<int>( Offsets.WoWCorpseFields.DisplayID); }
+        }
+
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWCorpseFields field) where T : struct
+        {
+            return GetStorageField<T>((int)field);
         }
     }
 }

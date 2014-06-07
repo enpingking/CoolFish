@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
+using GreyMagic;
 using NLog;
 
 namespace CoolFishNS.Management.CoolManager
@@ -28,13 +29,13 @@ namespace CoolFishNS.Management.CoolManager
         /// </summary>
         public int NotFoundCount
         {
-            get { return _numberToFind - _patterns.Count; }
+            get { return _numberToFind - Patterns.Count; }
         }
 
 #if !X64
-        public readonly Dictionary<string, uint> _patterns = new Dictionary<string, uint>();
+        internal readonly Dictionary<string, uint> Patterns = new Dictionary<string, uint>();
 #else
-        public readonly Dictionary<string, ulong> _patterns = new Dictionary<string, ulong>();
+        internal readonly Dictionary<string, ulong> Patterns = new Dictionary<string, ulong>();
 #endif
 
         /// <summary>
@@ -43,17 +44,17 @@ namespace CoolFishNS.Management.CoolManager
         ///     and search out those patterns in the specified process's memory.
         /// </summary>
         /// <param name="patternFile">The full path to the pattern XML file.</param>
-        /// <param name="processHandle">An open process handle to the process to read memory from.</param>
+        /// <param name="process">A process to read memory from.</param>
         /// <param name="startAddress">The 'base' address of the process (or module)</param>
         /// <param name="endAddress">The 'end' of the process (or module). Eg; where to stop reading memory from.</param>
 #if !X64
-        public FindPattern(string patternFile, IntPtr processHandle, uint startAddress, uint endAddress)
+        public FindPattern(string patternFile, Process process, uint startAddress, uint endAddress)
 #else
         public FindPattern(string patternFile, IntPtr processHandle, ulong startAddress, ulong endAddress)
 #endif
         {
             // Get a temporary set of data to work with. :)
-            byte[] data = ReadBytes(processHandle, (IntPtr) startAddress, (int) (endAddress - startAddress));
+            byte[] data = ReadBytes(process, (IntPtr) startAddress, (int) (endAddress - startAddress));
             LoadFile(XElement.Load(patternFile), data, startAddress);
         }
 
@@ -63,17 +64,17 @@ namespace CoolFishNS.Management.CoolManager
         ///     and search out those patterns in the specified process's memory.
         /// </summary>
         /// <param name="stream">The input stream to read from instead of a filename</param>
-        /// <param name="processHandle">An open process handle to the process to read memory from.</param>
+        /// <param name="process">A process to read memory from.</param>
         /// <param name="startAddress">The 'base' address of the process (or module)</param>
         /// <param name="endAddress">The 'end' of the process (or module). Eg; where to stop reading memory from.</param>
 #if !X64
-        public FindPattern(Stream stream, IntPtr processHandle, uint startAddress, uint endAddress)
+        public FindPattern(Stream stream, Process process, uint startAddress, uint endAddress)
 #else
         public FindPattern(Stream stream, IntPtr processHandle, ulong startAddress, ulong endAddress)
 #endif
         {
             // Get a temporary set of data to work with. :)
-            byte[] data = ReadBytes(processHandle, (IntPtr) startAddress, (int) (endAddress - startAddress));
+            byte[] data = ReadBytes(process, (IntPtr) startAddress, (int) (endAddress - startAddress));
             LoadFile(XElement.Load(stream), data, startAddress);
         }
 
@@ -87,7 +88,7 @@ namespace CoolFishNS.Management.CoolManager
             ProcessModule basObject = process.MainModule;
             IntPtr baseAddress = basObject.BaseAddress;
             // Get a temporary set of data to work with. :)
-            byte[] data = ReadBytes(process.Handle, baseAddress, basObject.ModuleMemorySize);
+            byte[] data = ReadBytes(process, baseAddress, basObject.ModuleMemorySize);
             LoadFile(XElement.Load(stream), data, (uint) baseAddress);
         }
 
@@ -102,16 +103,12 @@ namespace CoolFishNS.Management.CoolManager
         }
 
 
-        private static byte[] ReadBytes(IntPtr processHandle, IntPtr address, int count)
+        private static byte[] ReadBytes(Process process, IntPtr address, int count)
         {
-            var ret = new byte[count];
-            int numRead;
-            if (NativeMethods.ReadProcessMemory(processHandle, address, ret, count, out numRead) && numRead == count)
+            using (var reader = new ExternalProcessReader(process))
             {
-                return ret;
+                return reader.ReadBytes(address, count);
             }
-            Logger.Error("Error Code: " + Marshal.GetLastWin32Error());
-            return null;
         }
 
         /// <summary>
@@ -121,7 +118,7 @@ namespace CoolFishNS.Management.CoolManager
         /// <returns></returns>
         public IntPtr Get(string name)
         {
-            return _patterns.ContainsKey(name) ? new IntPtr(_patterns[name]) : IntPtr.Zero;
+            return Patterns.ContainsKey(name) ? new IntPtr(Patterns[name]) : IntPtr.Zero;
         }
 
 #if !X64
@@ -177,7 +174,7 @@ namespace CoolFishNS.Management.CoolManager
                 }
                 catch (Exception ex)
                 {
-                    Logger.ErrorException("Error finding pattern: " + name, ex);
+                    Logger.Error("Error finding pattern: " + name, ex);
                 }
 
                 // Actually search for the pattern match...
@@ -221,7 +218,7 @@ namespace CoolFishNS.Management.CoolManager
                     }
                 }
 
-                _patterns.Add(name, found + start);
+                Patterns.Add(name, found + start);
             }
         }
 

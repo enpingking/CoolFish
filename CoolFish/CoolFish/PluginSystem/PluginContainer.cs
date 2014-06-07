@@ -33,7 +33,7 @@ namespace CoolFishNS.PluginSystem
                         }
                         catch (Exception ex)
                         {
-                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name, ex);
+                            Logger.Error("Exception Enabling plugin: " + Plugin.Name, ex);
                         }
                     }
                     else
@@ -44,7 +44,7 @@ namespace CoolFishNS.PluginSystem
                         }
                         catch (Exception ex)
                         {
-                            Logger.ErrorException("Exception Enabling plugin: " + Plugin.Name, ex);
+                            Logger.Error("Exception Enabling plugin: " + Plugin.Name, ex);
                         }
                     }
                 }

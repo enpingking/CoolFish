@@ -21,7 +21,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Experience
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWPlayerFields.XP); }
+            get { return GetStorageField<int>(Offsets.WoWPlayerFields.XP); }
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int NextLevel
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWPlayerFields.NextLevelXP); }
+            get { return GetStorageField<int>( Offsets.WoWPlayerFields.NextLevelXP); }
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int RestExperience
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWPlayerFields.RestState); }
+            get { return GetStorageField<int>( Offsets.WoWPlayerFields.RestState); }
         }
 
 
@@ -68,12 +68,13 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
         /// <summary>
         ///     The name of the player.
+        ///     TODO: Fix this
         /// </summary>
         public override string Name
         {
             get
             {
-                return "UnknownName";
+                return "Unknown Player";
                 /*   var nMask =
                     BotManager.Memory.Read<uint>(
                         BaseAddress + (int) Offsets.WoWPlayer.NameStore + 0x8 + (int) Offsets.WoWPlayer.NameMask);
@@ -102,7 +103,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
                     nTestAgainstGUID = BotManager.Memory.Read<uint>((IntPtr) (nCurrentObject));
                 }
 
-                return BotManager.Memory.ReadString((IntPtr) (nCurrentObject + (uint) Offsets.WoWPlayer.NameString),
+                return BotManager.Memory.ReadString((IntPtr) (nCurrentObject +  Offsets.WoWPlayer.NameString),
                     Encoding.UTF8);*/
             }
         }
@@ -113,6 +114,18 @@ namespace CoolFishNS.Management.CoolManager.Objects
         public bool Mounted
         {
             get { return MountDisplayID > 0; }
+        }
+
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWPlayerFields field) where T : struct
+        {
+            return GetStorageField<T>((int)field);
         }
     }
 }

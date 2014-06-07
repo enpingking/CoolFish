@@ -21,7 +21,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Durability
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWItemFields.Durability); }
+            get { return GetStorageField<int>( Offsets.WoWItemFields.Durability); }
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int MaximumDurability
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWItemFields.MaxDurability); }
+            get { return GetStorageField<int>( Offsets.WoWItemFields.MaxDurability); }
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int StackCount
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWItemFields.StackCount); }
+            get { return GetStorageField<int>( Offsets.WoWItemFields.StackCount); }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Charges
         {
-            get { return GetStorageField<int>((uint) Offsets.WoWItemFields.SpellCharges); }
+            get { return GetStorageField<int>( Offsets.WoWItemFields.SpellCharges); }
         }
 
         /// <summary>
@@ -56,53 +56,17 @@ namespace CoolFishNS.Management.CoolManager.Objects
             get { return Charges > 0; }
         }
 
-        /*
-         * Legacy code that is no longer used. Left here in case we need to use items for some reason.
-         * 
-         * 
-        /*private readonly int _bagId; 
-        private readonly int _slotId;
-
-        public WoWItem(int bag, int slot)
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWItemFields field) where T : struct
         {
-            _bagId = bag;
-            _slotId = slot;
+            return GetStorageField<T>((int)field);
         }
 
-        public string ItemId
-        {
-            get
-            {
-                Hook.ExecuteScript("itemId = GetContainerItemID(" + _bagId + "," + _slotId + ");");
-                return Hook.GetLocalizedText("itemId");
-            }
-        }
-
-        public string ItemLink
-        {
-            get
-            {
-                Hook.ExecuteScript("ItemLink = GetContainerItemLink(" + _bagId + ", " + _slotId + ");");
-                string result = Hook.GetLocalizedText("ItemLink");
-                return result;
-            }
-        }
-
-        public uint StackCount
-        {
-            get
-            {
-                uint count;
-                Hook.ExecuteScript("_,count = GetContainerItemInfo(" + _bagId + "," + _slotId + ");");
-                uint.TryParse(Hook.GetLocalizedText("count"), out count);
-                return count;
-            }
-        }
-
-        public void UseItem()
-        {
-            string use = "UseContainerItem(" + _bagId + "," + _slotId + ");";
-            Hook.ExecuteScript(use);
-        }*/
     }
 }

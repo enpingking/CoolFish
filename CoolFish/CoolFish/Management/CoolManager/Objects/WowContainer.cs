@@ -21,7 +21,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public uint Slots
         {
-            get { return GetStorageField<uint>((uint) Offsets.WoWContainerFields.Slots); }
+            get { return GetStorageField<uint>(Offsets.WoWContainerFields.Slots); }
         }
 
         /// <summary>
@@ -29,7 +29,19 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public uint NumSlots
         {
-            get { return GetStorageField<uint>((uint) Offsets.WoWContainerFields.NumSlots); }
+            get { return GetStorageField<uint>(Offsets.WoWContainerFields.NumSlots); }
+        }
+
+        /// <summary>
+        ///     Gets the descriptor struct.
+        ///     Overload for when not casting uint.
+        /// </summary>
+        /// <typeparam name="T">struct</typeparam>
+        /// <param name="field">Descriptor field</param>
+        /// <returns>Descriptor field</returns>
+        protected T GetStorageField<T>(Offsets.WoWContainerFields field) where T : struct
+        {
+            return GetStorageField<T>((int)field);
         }
     }
 }

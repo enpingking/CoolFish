@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using NLog;
@@ -27,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string res = DxHook.Instance.ExecuteScript(Resources.NeedToRunCharm, "expires");
+                string res = BotManager.DxHookInstance.ExecuteScript(Resources.NeedToRunCharm, "expires");
 
                 return res == "1";
             }
@@ -45,7 +46,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Logger.Info(Name);
 
-            DxHook.Instance.ExecuteScript(
+            BotManager.DxHookInstance.ExecuteScript(
                 "local name = GetItemInfo(85973); if name then RunMacroText(\"/use  \" .. name); end");
 
             Thread.Sleep(3000);

@@ -35,6 +35,13 @@ namespace CoolFishNS.Utilities
             }
         }
 
+        /// <summary>
+        /// Update values for a list of key-value pairs if the keys exist. Otherwise insert them into the dictionary
+        /// </summary>
+        /// <param name="dictionary">this IDictionary to upsert into</param>
+        /// <param name="dictionaryToUpsert">the IDictionary of key-values to upsert</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
         public static void Upsert<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue> dictionaryToUpsert)
         {
             foreach (var value in dictionaryToUpsert)
@@ -49,28 +56,7 @@ namespace CoolFishNS.Utilities
         /// <param name="level">LogLevel to log at</param>
         public static void Reconfigure(LogLevel level)
         {
-            foreach (LoggingRule rule in LogManager.Configuration.LoggingRules)
-            {
-                foreach (LogLevel logLevel in rule.Levels)
-                {
-                    rule.DisableLoggingForLevel(logLevel);
-                }
-
-                if (level == LogLevel.Off)
-                {
-                    // Do Nothing
-                }
-                else
-                {
-                    for (int i = level.Ordinal; i < LogLevel.Off.Ordinal; i++)
-                    {
-                        rule.EnableLoggingForLevel(LogLevel.FromOrdinal(i));
-                    }
-                }
-            }
-
-            LogManager.ReconfigExistingLoggers();
-
+            LogManager.GlobalThreshold = level;
             Logger.Log(level, "Logging at the [" + level.Name.ToUpper() + "] level and above only");
         }
 

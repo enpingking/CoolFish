@@ -47,7 +47,7 @@ namespace CoolFishNS.Utilities
                 {"SoundOnWhisper", new BotSetting {Value = false}},
                 {"UseRumsey", new BotSetting {Value = false}},
                 {"UseSpear", new BotSetting {Value = false}},
-                {"LogLevel", new BotSetting {Value = 2}},
+                {"LogLevel", new BotSetting {Value = LogLevel.Info.Ordinal}},
                 {"LanguageIndex", new BotSetting {Value = 0}},
                 {"CloseWoWonStop", new BotSetting {Value = false}},
                 {"StopOnTime", new BotSetting {Value = false}},
@@ -64,6 +64,11 @@ namespace CoolFishNS.Utilities
         /// </summary>
         internal static void DumpSettingsToLog()
         {
+            if (!Logger.IsDebugEnabled)
+            {
+                return;
+            }
+
             Logger.Debug("----Settings----");
             foreach (var botSetting in Settings)
             {
@@ -88,9 +93,17 @@ namespace CoolFishNS.Utilities
         /// </summary>
         internal static void SaveSettings()
         {
-            Serializer.Serialize("Settings.dat", Settings);
-            Serializer.Serialize("Plugins.dat", Plugins);
-            Serializer.Serialize("Items.dat", Items);
+            try
+            {
+                Serializer.Serialize("Settings.dat", Settings);
+                Serializer.Serialize("Plugins.dat", Plugins);
+                Serializer.Serialize("Items.dat", Items);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Failed to save settings to disk. Settings may be lost upon reopening CoolFish", ex);
+            }
+            
         }
 
         /// <summary>
@@ -105,14 +118,14 @@ namespace CoolFishNS.Utilities
                 Plugins.Upsert(Serializer.DeSerialize<Dictionary<string, SerializablePlugin>>("Plugins.dat"));
                 Items = Serializer.DeSerialize<Collection<SerializableItem>>("Items.dat");
             }
-            catch (FileNotFoundException ex)
+            catch (FileNotFoundException)
             {
-                Logger.WarnException("No settings files found", ex);
+                Logger.Warn("No settings files found");
                 LoadDefaults();
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error loading settings", ex);
+                Logger.Error("Error loading settings", ex);
                 LoadDefaults();
             }
         }

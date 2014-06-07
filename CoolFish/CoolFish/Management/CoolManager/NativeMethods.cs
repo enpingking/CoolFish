@@ -29,9 +29,5 @@ namespace CoolFishNS.Management.CoolManager
         [DllImport("d3d9.dll")]
         internal static extern IntPtr Direct3DCreate9(uint sdkVersion);
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer,
-            int dwSize,
-            out int lpNumberOfBytesRead);
     }
 }
