@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Windows.Forms;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
+using CoolFishNS.GitHub;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
@@ -34,26 +37,21 @@ namespace CoolFishNS.Management
         /// <summary>
         ///     The main ExternalProcessReader object that reads/writes memory to the attached process
         /// </summary>
-        public static ExternalProcessReader Memory { get; private set; }
-
-        /// <summary>
-        /// The main DxHook object that performs operations on the currently attached process
-        /// </summary>
-        public static DxHook DxHookInstance { get; private set; }
+        internal static ExternalProcessReader Memory { get; private set; }
 
         /// <summary>
         ///     Returns true if we are attached to a Wow process and can perform memory operations and DXHook methods
         /// </summary>
         public static bool IsAttached
         {
-            get { return Memory != null && Memory.IsProcessOpen && DxHookInstance != null; }
+            get { return Memory != null && Memory.IsProcessOpen && Memory.IsThreadOpen && !Memory.Process.HasExited; }
         }
 
         /// <summary>
         ///     Currently active IBot object that the user interface will interact with.
         ///     This field should be set to whatever Bot object you want to respond to UI functions (Start, Stop, etc.)
         /// </summary>
-        internal static IBot ActiveBot { get; private set; }
+        public static IBot ActiveBot { get; private set; }
 
         /// <summary>
         ///     Get the currently logged in toon's name
@@ -87,11 +85,11 @@ namespace CoolFishNS.Management
             {
                 try
                 {
-                    return Memory.Read<uint>(Offsets.Addresses["LoadingScreen"]) == 1;
+                    return IsAttached && Memory.Read<bool>(Offsets.Addresses["LoadingScreen"]);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Error checking whether we are logged in", ex);
+                    Logger.Warn("Error checking whether we are logged in", ex);
                     return false;
                 }
             }
@@ -175,18 +173,15 @@ namespace CoolFishNS.Management
                 {
                     DetachFromProcess();
                 }
-                StopActiveBot();
                 if (Offsets.FindOffsets(process))
                 {
                     Memory = new ExternalProcessReader(process);
-                    DxHookInstance = new DxHook(process);
-                    if (DxHookInstance.Apply())
+                    if (DxHook.Apply())
                     {
-                        Memory.ProcessExited += (sender, args) => BotManager.DxHookInstance.Restore();
+                        Memory.ProcessExited += (sender, args) => DetachFromProcess();
                         Logger.Info("Attached to: " + process.Id);
                         return;
                     }
-                    DetachFromProcess();
                 }
             }
             catch (FileNotFoundException ex)
@@ -204,10 +199,9 @@ namespace CoolFishNS.Management
             }
             catch(Exception ex)
             {
-                DetachFromProcess();
                 Logger.Error("Failed to attach do to an exception.", ex);
             }
-
+            DetachFromProcess();
             Logger.Warn("Failed to attach to: " + process.Id);
         }
 
@@ -216,16 +210,23 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void DetachFromProcess()
         {
-            if (Memory != null)
+            try
             {
-                Memory.Dispose();
-                Memory = null;
+                StopActiveBot();
+                DxHook.Restore();
+                if (Memory != null)
+                {
+                    Memory.Dispose();
+                    Memory = null;
+                }
             }
-            if (DxHookInstance != null)
+            catch (Exception ex)
             {
-                DxHookInstance.Restore();
-                DxHookInstance = null;
+
+                Logger.Error("Failed to detach do to an exception.", ex);
             }
+            
+
             
         }
 
@@ -241,6 +242,7 @@ namespace CoolFishNS.Management
                     Logger.Info("Starting bot...");
                     ActiveBot.StartBot();
                 }
+
             }
             catch (Exception ex)
             {

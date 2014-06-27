@@ -29,7 +29,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get
             {
                 string res =
-                    BotManager.DxHookInstance.ExecuteScript("local startTime, duration,enable = GetItemCooldown(88535) " +
+                    DxHook.ExecuteScript("local startTime, duration,enable = GetItemCooldown(88535) " +
                                                   " expires =  GetTime() - (startTime + duration) " +
                                                   " if expires > 0 and enable == 1 then expires=1 else expires = 0 end; ",
                         "expires");
@@ -51,7 +51,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Logger.Info(Name);
 
-            string weaponId = BotManager.DxHookInstance.ExecuteScript("SpellStopCasting() " +
+            string weaponId = DxHook.ExecuteScript("SpellStopCasting() " +
                                                             " weaponId = GetInventoryItemID(\"player\", 16); " +
                                                             " EquipItemByName(88535);", "weaponId");
 
@@ -65,12 +65,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
             Thread.Sleep(1000);
 
-            BotManager.DxHookInstance.ExecuteScript("RunMacroText(\"/use 16 \"); ");
+            DxHook.ExecuteScript("RunMacroText(\"/use 16 \"); ");
 
 
             Thread.Sleep(1500);
 
-            BotManager.DxHookInstance.ExecuteScript("EquipItemByName(weaponId);");
+            DxHook.ExecuteScript("EquipItemByName(weaponId);");
 
             Thread.Sleep(500);
         }

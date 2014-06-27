@@ -29,7 +29,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = BotManager.DxHookInstance.GetLocalizedText("NewMessage");
+                string result = DxHook.GetLocalizedText("NewMessage");
                 return result == "1";
             }
         }
@@ -39,7 +39,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override void Run()
         {
-            Dictionary<string, string> result = BotManager.DxHookInstance.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
+            Dictionary<string, string> result = DxHook.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
 
             Logger.Info("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
 

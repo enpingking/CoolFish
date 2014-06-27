@@ -49,7 +49,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 if (LocalSettings.Settings["StopOnNoLures"] &&
                     !LocalSettings.Settings["NoLure"])
                 {
-                    string result = BotManager.DxHookInstance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
+                    string result = DxHook.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
 
                     if (result == "1")
                     {
@@ -122,7 +122,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
             if (LocalSettings.Settings["LogoutOnStop"])
             {
-                BotManager.DxHookInstance.ExecuteScript("Logout();");
+                DxHook.ExecuteScript("Logout();");
             }
 
             if (LocalSettings.Settings["ShutdownPConStop"])

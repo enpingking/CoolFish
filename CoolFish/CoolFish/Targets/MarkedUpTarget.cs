@@ -13,9 +13,9 @@ namespace CoolFishNS.Targets
     {
         public MarkedUpTarget()
         {
-            if (!Analytics.MarkedUp.IsInitialized)
+            if (!Analytics.MarkedUpAnalytics.IsInitialized)
             {
-                Analytics.MarkedUp.Initialize();
+                Analytics.MarkedUpAnalytics.Initialize();
             }
         }
 

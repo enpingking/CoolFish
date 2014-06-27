@@ -77,7 +77,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
             BotManager.Memory.Write(Offsets.Addresses["MouseOverGUID"], _bobber.Guid);
             Logger.Info("Clicking bobber");
-            BotManager.DxHookInstance.ExecuteScript("InteractUnit(\"mouseover\");");
+            DxHook.ExecuteScript("InteractUnit(\"mouseover\");");
             Thread.Sleep(1000);
         }
     }

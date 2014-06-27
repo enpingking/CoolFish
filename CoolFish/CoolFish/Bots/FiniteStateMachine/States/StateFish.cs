@@ -32,7 +32,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = BotManager.DxHookInstance.ExecuteScript("loot = IsFishingLoot();", "loot");
+                string result = DxHook.ExecuteScript("loot = IsFishingLoot();", "loot");
                 return (ObjectManager.Me.Channeling == 0) && (result != "1");
             }
         }
@@ -49,7 +49,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Thread.Sleep(_random.Next(1000));
             Logger.Info(Name);
-            BotManager.DxHookInstance.ExecuteScript("local name = GetSpellInfo(131490);  CastSpellByName(name);");
+            DxHook.ExecuteScript("local name = GetSpellInfo(131490);  CastSpellByName(name);");
 
 
             // This is the current system uptime as per GetTime() function in lua.

@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Windows.Forms;
+using CoolFishNS.Management;
 using CoolFishNS.PluginSystem;
 
 namespace TestPlugin
 {
     public class TestPlugin : IPlugin
     {
-
-        public static int Count = 0;
-        public static int Pulses = 1000;
 
         private ConfigWindow _window = new ConfigWindow();
 
@@ -28,7 +27,6 @@ namespace TestPlugin
 
         public void OnEnabled()
         {
-            
         }
 
         public void OnDisabled()
@@ -43,19 +41,7 @@ namespace TestPlugin
 
         public void OnPulse()
         {
-            if (Count == 0)
-            {
-                
-              
-            }
 
-            Count++;
-
-
-            if (Count >= Pulses)
-            {
-                Count = 0;
-            }
         }
 
         public void OnShutdown()

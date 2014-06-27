@@ -5,15 +5,16 @@ namespace CoolFishNS.Exceptions
     /// <summary>
     /// Exception that is thrown when a method is called while a Hook is not applied
     /// </summary>
-    public class HookNotAppliedException : Exception
+    public class CodeInjectionFailedException : Exception
     {
         /// <inheritdoc  />
-        public HookNotAppliedException(string message) : base(message)
+        public CodeInjectionFailedException(string message) : base(message)
         {
             
         }
         /// <inheritdoc  />
-        public HookNotAppliedException(string message, Exception inner) : base(message, inner)
+        public CodeInjectionFailedException(string message, Exception inner)
+            : base(message, inner)
         {
             
         }

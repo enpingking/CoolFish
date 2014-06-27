@@ -28,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string res = BotManager.DxHookInstance.ExecuteScript(Resources.NeedToRunCharm, "expires");
+                string res = DxHook.ExecuteScript(Resources.NeedToRunCharm, "expires");
 
                 return res == "1";
             }
@@ -46,7 +46,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Logger.Info(Name);
 
-            BotManager.DxHookInstance.ExecuteScript(
+            DxHook.ExecuteScript(
                 "local name = GetItemInfo(85973); if name then RunMacroText(\"/use  \" .. name); end");
 
             Thread.Sleep(3000);
