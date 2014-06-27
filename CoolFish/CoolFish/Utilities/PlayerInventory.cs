@@ -26,7 +26,7 @@ namespace CoolFishNS.Utilities
             get
             {
                 string slots =
-                    BotManager.DxHookInstance.ExecuteScript(
+                    DxHook.ExecuteScript(
                         "slots = 0; for i=0,4 do local count = GetContainerNumFreeSlots(i); slots = slots + count; end ",
                         "slots");
 
@@ -51,7 +51,7 @@ namespace CoolFishNS.Utilities
         {
             get
             {
-                Dictionary<string, string> count = BotManager.DxHookInstance.ExecuteScript(Resources.GetLureName, new[] {"Count", "LureName"});
+                Dictionary<string, string> count = DxHook.ExecuteScript(Resources.GetLureName, new[] {"Count", "LureName"});
 
                 if (count["Count"] == "1" && !string.IsNullOrEmpty(count["LureName"]))
                 {

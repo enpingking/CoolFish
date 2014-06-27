@@ -27,14 +27,7 @@ namespace TestPlugin
 
         private void SaveBTN_OnClick(object sender, RoutedEventArgs e)
         {
-            if (int.TryParse(PulsesTB.Text, out TestPlugin.Pulses ))
-            {
-                this.Close();
-            }
-            else
-            {
-                MessageBox.Show("Invalid number of pulses!");
-            }
+
         }
     }
 }

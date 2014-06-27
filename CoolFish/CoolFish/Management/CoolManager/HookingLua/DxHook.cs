@@ -18,35 +18,24 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
     /// <summary>
     ///     This class handles Hooking Endscene/Present function so that we can inject ASM if we need to do so.
     /// </summary>
-    public class DxHook
+    public static class DxHook 
     {
-        private const int CODECAVESIZE = 0x1000;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        internal readonly ExternalProcessReader Memory;
-        private readonly byte[] _eraser = new byte[CODECAVESIZE];
-        private readonly object _lockObject = new object();
-        private readonly Random _random = new Random();
 
-        private readonly string[] _registerNames =
+        private const int CODECAVESIZE = 0x1000;
+        private static readonly byte[] Eraser = new byte[CODECAVESIZE];
+        private static readonly object LockObject = new object();
+        private static readonly Random Random = new Random();
+
+        private static readonly string[] RegisterNames =
         {
             "ah", "al", "bh", "bl", "ch", "cl", "dh", "dl", "eax",
             "ebx", "ecx", "edx"
         };
 
-        private AllocatedMemory _allocatedMemory;
-
-        private Dirext3D _dxAddress;
-        private byte[] _endSceneOriginalBytes;
-
-        /// <summary>
-        ///     Creates a new DXHook object for the specified process
-        /// </summary>
-        /// <param name="process"> process to open</param>
-        public DxHook(Process process)
-        {
-            Memory = new ExternalProcessReader(process);
-        }
-
+        private static AllocatedMemory _allocatedMemory;
+        private static Dirext3D _dxAddress;
+        private static byte[] _endSceneOriginalBytes;
 
         /// <summary>
         ///     Determine if the hook is currently applied or not
@@ -54,123 +43,90 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <value>
         ///     <c>true</c> if the hook is applied; otherwise, <c>false</c>.
         /// </value>
-        private bool IsApplied { get; set; }
+        private static bool IsApplied { get; set; }
 
-        private int Inject(IEnumerable<string> asm, IntPtr address)
+        private static int Inject(IEnumerable<string> asm, IntPtr address)
         {
-            Memory.Asm.Clear();
-            Memory.Asm.SetMemorySize(0x4096);
+            BotManager.Memory.Asm.Clear();
+            BotManager.Memory.Asm.SetMemorySize(0x4096);
 
             foreach (string s in asm)
             {
-                Memory.Asm.AddLine(s);
+                BotManager.Memory.Asm.AddLine(s);
             }
 
-            int size = Memory.Asm.Assemble().Length;
-            bool returnVal = Memory.Asm.Inject((uint) address);
+            int size = BotManager.Memory.Asm.Assemble().Length;
+            bool returnVal = BotManager.Memory.Asm.Inject((uint) address);
 
             if (!returnVal)
             {
-                throw new Exception("Failed to inject code: \n " + Memory.Asm.AssemblyString);
+                throw new Exception("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
             }
             return size;
         }
 
 
-        private List<string> AddRandomAsm(IEnumerable<string> asm)
-        {
-            var randomizedList = new List<string>();
 
-            foreach (string a in asm)
-            {
-                int ranNum = _random.Next(0, 7);
-                if (ranNum == 0)
-                {
-                    randomizedList.Add("nop");
-                    if (_random.Next(2) == 1)
-                    {
-                        randomizedList.Add("nop");
-                    }
-                }
-                else if (ranNum <= 5)
-                {
-                    randomizedList.Add(GetRandomMov());
-                    if (_random.Next(5) == 1)
-                    {
-                        randomizedList.Add("nop");
-                    }
-                }
-                randomizedList.Add(a);
-            }
-
-
-            return randomizedList;
-        }
-
-        private string GetRandomMov()
-        {
-            int ranNum = _random.Next(0, _registerNames.Length);
-            return string.Format("mov {0}, {1}", _registerNames[ranNum], _registerNames[ranNum]);
-        }
 
         /// <summary>
         ///     Apply the DirectX function hook to the WoW process
         /// </summary>
         /// <returns>true if it applied correctly. Otherwise, false</returns>
-        internal bool Apply()
+        internal static bool Apply()
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
-                //Lets check if we are already hooked.
-                if (IsApplied)
+                try
                 {
-                    return true;
-                }
-                if (Memory.Process.HasExited)
-                {
-                    return false;
-                }
-
-                _allocatedMemory = Memory.CreateAllocatedMemory(CODECAVESIZE + 0x1000 + 0x4 + 0x4);
-
-                _dxAddress = new Dirext3D(Memory.Process);
-
-
-                // store original bytes
-                _endSceneOriginalBytes = Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
-                if (_endSceneOriginalBytes[0] == 0xE9)
-                {
-                    MessageBox.Show(
-                        "It seems CoolFish might have crashed before it could clean up after itself. Please restart WoW and reattach the bot.");
-                    return false;
-                }
-                int jumpLoc = 0;
-
-                if (_endSceneOriginalBytes[5] == 0xE9)
-                {
-                    DialogResult result =
-                        MessageBox.Show(
-                            "Another Application was detected that may interfere with CoolFish. Would you like to continue anyway? (This may crash WoW, the other application, or cause CoolFish to not work properly. USE AT YOUR OWN RISK)",
-                            "Warning", MessageBoxButtons.YesNo,
-                            MessageBoxIcon.Warning);
-
-
-                    if (result == DialogResult.No)
+                    //Lets check if we are already hooked.
+                    if (IsApplied)
+                    {
+                        return true;
+                    }
+                    if (BotManager.Memory == null || BotManager.Memory.Process.HasExited)
                     {
                         return false;
                     }
 
-                    Logger.Info("Detected Another hook. Trying to hook anyway.");
+                    _allocatedMemory = BotManager.Memory.CreateAllocatedMemory(CODECAVESIZE + 0x1000 + 0x4 + 0x4);
 
-                    var offset = Memory.Read<int>(_dxAddress.HookPtr + 1);
-                    jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
-                }
+                    _dxAddress = new Dirext3D(BotManager.Memory.Process);
 
 
-                try
-                {
-                    _allocatedMemory.WriteBytes("codeCavePtr", _eraser);
-                    _allocatedMemory.WriteBytes("injectedCode", _eraser);
+                    // store original bytes
+                    _endSceneOriginalBytes = BotManager.Memory.ReadBytes(_dxAddress.HookPtr - 5, 10);
+                    if (_endSceneOriginalBytes[0] == 0xE9)
+                    {
+                        MessageBox.Show(
+                            "It seems CoolFish might have crashed before it could clean up after itself. Please restart WoW and reattach the bot.");
+                        return false;
+                    }
+                    int jumpLoc = 0;
+
+                    if (_endSceneOriginalBytes[5] == 0xE9)
+                    {
+                        DialogResult result =
+                            MessageBox.Show(
+                                "Another Application was detected that may interfere with CoolFish. Would you like to continue anyway? (This may crash WoW, the other application, or cause CoolFish to not work properly. USE AT YOUR OWN RISK)",
+                                "Warning", MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Warning);
+
+
+                        if (result == DialogResult.No)
+                        {
+                            return false;
+                        }
+
+                        Logger.Info("Detected Another hook. Trying to hook anyway.");
+
+                        var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
+                        jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
+                    }
+
+
+
+                    _allocatedMemory.WriteBytes("codeCavePtr", Eraser);
+                    _allocatedMemory.WriteBytes("injectedCode", Eraser);
                     _allocatedMemory.Write("addressInjection", 0);
                     _allocatedMemory.Write("returnInjectionAsm", 0);
 
@@ -212,7 +168,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     }
                     else
                     {
-                        Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
+                        BotManager.Memory.WriteBytes(IntPtr.Add(_allocatedMemory["injectedCode"], sizeAsm),
                             new[] {_endSceneOriginalBytes[5], _endSceneOriginalBytes[6]});
                         sizeJumpBack = 2;
                     }
@@ -235,10 +191,19 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Error applying hook", ex);
+                    
                     IsApplied = false;
-                    return false;
+                    if (_allocatedMemory != null)
+                    {
+                        _allocatedMemory.Dispose();
+                    }
+                    if (_dxAddress != null)
+                    {
+                        _dxAddress.Device.Dispose();;
+                    }
+                    throw;
                 }
+
                 return true;
             }
         }
@@ -246,23 +211,23 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <summary>
         ///     Restore the original Endscene function and remove the function hook
         /// </summary>
-        internal void Restore()
+        internal static void Restore()
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
                 //Lets check if were hooked
                 if (!IsApplied)
                 {
                     return;
                 }
-                if (Memory.Process.HasExited)
+                if (BotManager.Memory == null || BotManager.Memory.Process.HasExited)
                 {
                     IsApplied = false;
                     return;
                 }
 
                 // Restore original endscene:
-                Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
+                BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
 
                 _allocatedMemory.Dispose();
                 _dxAddress.Device.Dispose();
@@ -277,9 +242,9 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <param name="asm">Assembly code to inject</param>
         /// <returns>true if the code was injected. Otherwise false.</returns>
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
-        private void InjectAndExecute(IEnumerable<string> asm)
+        private static void InjectAndExecute(IEnumerable<string> asm)
         {
-            lock (_lockObject)
+            lock (LockObject)
             {
                 if (!IsApplied)
                 {
@@ -292,16 +257,17 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 _allocatedMemory.Write("addressInjection", _allocatedMemory["codeCavePtr"]);
 
                 var timer = Stopwatch.StartNew();
+                
                 while (_allocatedMemory.Read<int>("addressInjection") > 0)
                 {
                     Thread.Sleep(1);
                     if (timer.ElapsedMilliseconds >= 5000)
                     {
-                        throw new Exception("Failed to inject code after 5 seconds");
+                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds");
                     }
                 } // Wait to launch code
 
-                _allocatedMemory.WriteBytes("codeCavePtr", _eraser);
+                _allocatedMemory.WriteBytes("codeCavePtr", Eraser);
             }
         }
 
@@ -310,7 +276,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </summary>
         /// <param name="command">Lua code to execute</param>
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
-        public void ExecuteScript(string command)
+        public static void ExecuteScript(string command)
         {
             if (Logger.IsTraceEnabled)
             {
@@ -336,7 +302,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <param name="command">Lua code to execute</param>
         /// <param name="returnVariableName">Name of the global LUA variable to return</param>
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
-        public string ExecuteScript(string command, string returnVariableName)
+        public static string ExecuteScript(string command, string returnVariableName)
         {
             if (Logger.IsTraceEnabled)
             {
@@ -364,7 +330,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <param name="commands">Collection of string name of global lua variables to retrieve</param>
         /// <returns>values of the variables to retrieve</returns>
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
-        public Dictionary<string, string> ExecuteScript(string executeCommand, IEnumerable<string> commands)
+        public static Dictionary<string, string> ExecuteScript(string executeCommand, IEnumerable<string> commands)
         {
             if (Logger.IsTraceEnabled)
             {
@@ -407,7 +373,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             int returnAddressSpace = enumerable.Count == 0 ? 0x4 : enumerable.Count*0x4;
 
             AllocatedMemory mem =
-                Memory.CreateAllocatedMemory(commandSpace + commandExecuteSpace + returnAddressSpace +
+                BotManager.Memory.CreateAllocatedMemory(commandSpace + commandExecuteSpace + returnAddressSpace +
                                              0x4 + 0x4);
 
             try
@@ -425,7 +391,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                 if (enumerable.Any())
                 {
-                    byte[] address = Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
+                    byte[] address = BotManager.Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
 
                     Parallel.ForEach(enumerable, // source collection
                         () => 0, // method to initialize the local variable
@@ -436,12 +402,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                             if (dwAddress != IntPtr.Zero)
                             {
-                                var buf = Memory.Read<byte>(dwAddress);
+                                var buf = BotManager.Memory.Read<byte>(dwAddress);
                                 while (buf != 0)
                                 {
                                     retnByte.Add(buf);
                                     dwAddress = dwAddress + 1;
-                                    buf = Memory.Read<byte>(dwAddress);
+                                    buf = BotManager.Memory.Read<byte>(dwAddress);
                                 }
                             }
                             returnDict[value] = Encoding.UTF8.GetString(retnByte.ToArray());
@@ -466,7 +432,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <param name="command">String name of variable to retrieve</param>
         /// <returns>value of the variable to retrieve</returns>
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
-        public string GetLocalizedText(string command)
+        public static string GetLocalizedText(string command)
         {
             if (Logger.IsTraceEnabled)
             {
@@ -497,7 +463,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <param name="commands">String names of variables to retrieve</param>
         /// <returns>values of the variables to retrieve</returns>
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
-        public Dictionary<string, string> GetLocalizedText(IEnumerable<string> commands)
+        public static Dictionary<string, string> GetLocalizedText(IEnumerable<string> commands)
         {
             if (Logger.IsTraceEnabled)
             {
@@ -538,7 +504,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             int returnAddressSpace = enumerable.Count == 0 ? 0x4 : enumerable.Count*0x4;
 
             AllocatedMemory mem =
-                Memory.CreateAllocatedMemory(commandSpace + returnAddressSpace + 0x4 + 0x4);
+                BotManager.Memory.CreateAllocatedMemory(commandSpace + returnAddressSpace + 0x4 + 0x4);
 
             try
             {
@@ -552,7 +518,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                 if (enumerable.Any())
                 {
-                    byte[] address = Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
+                    byte[] address = BotManager.Memory.ReadBytes(mem["returnVarsPtr"], enumerable.Count*4);
 
                     Parallel.ForEach(enumerable, // source collection
                         () => 0, // method to initialize the local variable
@@ -563,12 +529,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                             if (dwAddress != IntPtr.Zero)
                             {
-                                var buf = Memory.Read<byte>(dwAddress);
+                                var buf = BotManager.Memory.Read<byte>(dwAddress);
                                 while (buf != 0)
                                 {
                                     retnByte.Add(buf);
                                     dwAddress = dwAddress + 1;
-                                    buf = Memory.Read<byte>(dwAddress);
+                                    buf = BotManager.Memory.Read<byte>(dwAddress);
                                 }
                             }
                             returnDict[value] = Encoding.UTF8.GetString(retnByte.ToArray());
@@ -587,7 +553,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             return returnDict;
         }
 
-        private void InternalExecute(IntPtr executeCommandPtr, IntPtr returnVarsNamesPtr, int numberOfReturnVars, IntPtr returnVarsPtr,
+        private static void InternalExecute(IntPtr executeCommandPtr, IntPtr returnVarsNamesPtr, int numberOfReturnVars, IntPtr returnVarsPtr,
             IntPtr numberOfReturnVarsAddress)
         {
             var asm = new List<string>();
@@ -644,6 +610,43 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
             asm.Add("retn");
             InjectAndExecute(asm);
+        }
+
+
+        private static List<string> AddRandomAsm(IEnumerable<string> asm)
+        {
+            var randomizedList = new List<string>();
+
+            foreach (string a in asm)
+            {
+                int ranNum = Random.Next(0, 7);
+                if (ranNum == 0)
+                {
+                    randomizedList.Add("nop");
+                    if (Random.Next(2) == 1)
+                    {
+                        randomizedList.Add("nop");
+                    }
+                }
+                else if (ranNum <= 5)
+                {
+                    randomizedList.Add(GetRandomMov());
+                    if (Random.Next(5) == 1)
+                    {
+                        randomizedList.Add("nop");
+                    }
+                }
+                randomizedList.Add(a);
+            }
+
+
+            return randomizedList;
+        }
+
+        private static string GetRandomMov()
+        {
+            int ranNum = Random.Next(0, RegisterNames.Length);
+            return string.Format("mov {0}, {1}", RegisterNames[ranNum], RegisterNames[ranNum]);
         }
     }
 }

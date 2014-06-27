@@ -30,7 +30,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         private void StopTimeMinutesTB_TextChanged(object sender, TextChangedEventArgs e)
         {
             double minutes;
-            if (Double.TryParse(StopTimeMinutesTB.Text, out minutes))
+            if (double.TryParse(StopTimeMinutesTB.Text, out minutes))
             {
                 DateTime date = DateTime.Now.AddMinutes(minutes);
 

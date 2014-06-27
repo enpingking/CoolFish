@@ -188,28 +188,13 @@ namespace CoolFishNS
 
         private void MetroWindow_Closing_1(object sender, CancelEventArgs e)
         {
-            try
-            {
-                SaveControlSettings();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error closing window", ex);
-            }
-
+            SaveControlSettings();
         }
 
         private void StartBTN_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                SaveControlSettings();
-                BotManager.StartActiveBot();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error Starting bot", ex);
-            }
+            SaveControlSettings();
+            BotManager.StartActiveBot();
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -280,7 +265,6 @@ namespace CoolFishNS
 
             if (DateTime.Now.Month == 4 && DateTime.Now.Day == 1)
             {
-                FontSize = 3;
                 BackgroundColorObj.Color = Color.FromArgb(0xFF, 0xFF, 0x5C, 0xCD);
                 GradientStopObj.Color = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
                 MessageBox.Show("Happy April 1st! :)");

@@ -28,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = BotManager.DxHookInstance.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
+                string result = DxHook.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
 
                 if (result == "1")
                 {
@@ -51,7 +51,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             Logger.Info(Name);
 
-            BotManager.DxHookInstance.ExecuteScript("RunMacroText(\"/use \" .. LureName);");
+            DxHook.ExecuteScript("RunMacroText(\"/use \" .. LureName);");
 
             Thread.Sleep(3000);
         }

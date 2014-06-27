@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Net;
+using System.Net.Cache;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.Management;
@@ -10,6 +12,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
+using Octokit;
 
 namespace CoolFishNS
 {
@@ -19,47 +22,34 @@ namespace CoolFishNS
     internal partial class App
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         internal static App CurrentApp = new App();
-
-        private static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
-        {
-            Logger.Error("Unhandled error has occurred on another thread. This may cause an unstable state of the application.", (Exception)unobservedTaskExceptionEventArgs.Exception);
-        }
-
-        public static void UnhandledException(object sender, UnhandledExceptionEventArgs ex)
-        {
-            try
-            {
-                var e = (Exception) ex.ExceptionObject;
-                Logger.Fatal("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.", e);
-                MessageBox.Show("An unhandled error has occurred. Please send the log file to the developer. The application will now exit.");
-                ShutDown();
-                
-            }
-            catch (Exception)
-            {
-            }
-            
-            Environment.Exit(-1);
-        }
+        internal static string ActiveLogFileName;
 
         internal static void StartUp()
         {
             try
             {
-                AppDomain.CurrentDomain.UnhandledException += UnhandledException;
-                TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
-                CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
-                CultureInfo.DefaultThreadCurrentCulture = culture;
+                AppDomain.CurrentDomain.UnhandledException += ErrorHandling.UnhandledException;
+                TaskScheduler.UnobservedTaskException += ErrorHandling.TaskSchedulerOnUnobservedTaskException;
+                CultureInfo.DefaultThreadCurrentCulture = DefaultCultureInfo();
+                LogManager.DefaultCultureInfo = DefaultCultureInfo;
                 LocalSettings.LoadSettings();
-                InitializeLoggers();
+                InitializeLoggers();            
                 
             }
             catch (Exception ex)
             {
-                Logger.Error("Error while starting up", ex);
+                Logger.Fatal("Error while starting up", ex);
             }
+           
 
+
+        }
+
+        private static CultureInfo DefaultCultureInfo()
+        {
+            return CultureInfo.CreateSpecificCulture("en-US");
         }
 
         internal static void ShutDown()
@@ -68,13 +58,13 @@ namespace CoolFishNS
             {
                 BotManager.ShutDown();
                 LocalSettings.SaveSettings();
-                Analytics.MarkedUp.ShutDown();
+                Analytics.MarkedUpAnalytics.ShutDown();
                 LogManager.Flush(5000);
                 LogManager.Shutdown();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                
+                Logger.Fatal("Error while shutting down", ex);
             }
         }
 
@@ -82,12 +72,13 @@ namespace CoolFishNS
         {
             var config = new LoggingConfiguration();
             var now = DateTime.Now;
-            var directory = string.Format("{0}\\Logs\\{1}", Utilities.Utilities.ApplicationPath, now.ToString("MMMM dd yyyy"));
-            const string layout = @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}";
+            ActiveLogFileName = string.Format("{0}\\Logs\\{1}\\[CoolFish-{2}] {3}.txt", Utilities.Utilities.ApplicationPath, now.ToString("MMMM dd yyyy"), Process.GetCurrentProcess().Id,
+                now.ToString("T").Replace(':', '.'));
+
             var file = new FileTarget
             {
-                FileName = string.Format("{0}\\[CoolFish-{1}] {2}.txt",directory,Process.GetCurrentProcess().Id,now.ToString("T").Replace(':','.')),
-                Layout = layout,
+                FileName = ActiveLogFileName,
+                Layout = @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}",
                 CreateDirs = true,
                 ConcurrentWrites = false
                     
@@ -98,7 +89,7 @@ namespace CoolFishNS
 
             var markedUp = new MarkedUpTarget
             {
-                Layout = layout
+                Layout = @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}"
             };
 
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace,

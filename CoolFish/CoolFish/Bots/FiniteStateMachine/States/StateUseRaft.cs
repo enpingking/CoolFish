@@ -28,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string res = BotManager.DxHookInstance.ExecuteScript(Resources.NeedToRunUseRaft, "expires");
+                string res = DxHook.ExecuteScript(Resources.NeedToRunUseRaft, "expires");
 
                 return res == "1";
             }
@@ -45,7 +45,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public override void Run()
         {
             Logger.Info(Name);
-            BotManager.DxHookInstance.ExecuteScript(Resources.UseRaft);
+            DxHook.ExecuteScript(Resources.UseRaft);
             Thread.Sleep(1000);
         }
     }

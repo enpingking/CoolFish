@@ -179,14 +179,16 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Analytics\MarkedUp.cs" />
+    <Compile Include="Analytics\MarkedUpAnalytics.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Bots\CoolFishBot\CoolFishBotSettings.xaml.cs">
       <DependentUpon>CoolFishBotSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Exceptions\CodeInjectFailedException.cs" />
     <Compile Include="Exceptions\HookNotAppliedException.cs" />
+    <Compile Include="GitHub\GithubAPI.cs" />
     <Compile Include="Management\CoolManager\FindPattern.cs" />
     <Compile Include="Management\CoolManager\Point.cs" />
     <Compile Include="Management\BotManager.cs" />
@@ -232,6 +234,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\ErrorHandling.cs" />
     <Compile Include="Utilities\SerializableItem.cs" />
     <Compile Include="Utilities\SerializablePlugin.cs" />
     <Page Include="App.xaml">
@@ -422,7 +425,7 @@ Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.e
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_DetectChanges="True" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_DetectChanges="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

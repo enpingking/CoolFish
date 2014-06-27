@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NLog;
 
 namespace CoolFishNS.Management.CoolManager.Objects
 {
@@ -10,15 +9,67 @@ namespace CoolFishNS.Management.CoolManager.Objects
     /// </summary>
     public static class ObjectManager
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         /// <summary>
         ///    Expensive call to get a list of all Objects. This will be a currently up to date list.
         ///    Cache this result if you don't need an updated list each call
         /// </summary>
         public static List<WoWObject> Objects
         {
-            get { return GetObjects(); }
+            get
+            {
+                var objects = new List<WoWObject>();
+
+                var playerguid = PlayerGuid;
+                var currentObject =
+                    new WoWObject(
+                        BotManager.Memory.Read<IntPtr>(CurrentManager + (int)Offsets.ObjectManager.FirstObject));
+
+                while (((currentObject.BaseAddress.ToInt64() & 1) == 0) && currentObject.BaseAddress != IntPtr.Zero)
+                {
+                    switch (currentObject.Type)
+                    {
+                        case (int)ObjectType.Unit:
+                            objects.Add(new WoWUnit(currentObject.BaseAddress));
+                            break;
+
+                        case (int)ObjectType.Item:
+                            objects.Add(new WoWItem(currentObject.BaseAddress));
+                            break;
+
+                        case (int)ObjectType.Container:
+                            objects.Add(new WoWContainer(currentObject.BaseAddress));
+                            break;
+
+                        case (int)ObjectType.Corpse:
+                            objects.Add(new WoWCorpse(currentObject.BaseAddress));
+                            break;
+
+                        case (int)ObjectType.Gameobject:
+                            objects.Add(new WoWGameObject(currentObject.BaseAddress));
+                            break;
+
+                        case (int)ObjectType.Dynamicobject:
+                            objects.Add(new WoWDynamicObject(currentObject.BaseAddress));
+                            break;
+                        case (int)ObjectType.Player:
+                            if (currentObject.Guid != playerguid)
+                            {
+                                objects.Add(new WoWPlayer(currentObject.BaseAddress));
+                            }
+                            break;
+                        default:
+                            objects.Add(currentObject);
+                            break;
+                    }
+
+
+                    currentObject.BaseAddress =
+                        BotManager.Memory.Read<IntPtr>(
+                            currentObject.BaseAddress + (int)Offsets.ObjectManager.NextObject);
+                }
+
+                return objects;
+            }
         }
 
         /// <summary>
@@ -27,7 +78,15 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public static WoWPlayerMe Me
         {
-            get { return GetMe(); }
+            get
+            {
+                   var pointer = BotManager.Memory.Read<IntPtr>(Offsets.Addresses["PlayerPointer"]);
+                    if (pointer.Equals(IntPtr.Zero))
+                    {
+                        return null;
+                    }
+                    return new WoWPlayerMe(pointer);
+            }
         }
 
 
@@ -94,90 +153,6 @@ namespace CoolFishNS.Management.CoolManager.Objects
         #endregion
 
         #endregion <Enums>
-
-        private static WoWPlayerMe GetMe()
-        {
-            try
-            {
-                var pointer = BotManager.Memory.Read<IntPtr>(Offsets.Addresses["PlayerPointer"]);
-                if (pointer.Equals(IntPtr.Zero))
-                {
-                    return null;
-                }
-                return new WoWPlayerMe(pointer);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error finding LocalPlayer", ex);
-            }
-            return null;
-        }
-
-        private static List<WoWObject> GetObjects()
-        {
-            var objects = new List<WoWObject>();
-            var playerguid = PlayerGuid;
-            try
-            {
-                var currentObject =
-                    new WoWObject(
-                        BotManager.Memory.Read<IntPtr>(CurrentManager + (int) Offsets.ObjectManager.FirstObject));
-
-                while (((currentObject.BaseAddress.ToInt64() & 1) == 0) && currentObject.BaseAddress != IntPtr.Zero)
-                {
-                    switch (currentObject.Type)
-                    {
-                        case (int) ObjectType.Unit:
-                            objects.Add(new WoWUnit(currentObject.BaseAddress));
-                            break;
-
-                        case (int) ObjectType.Item:
-                            objects.Add(new WoWItem(currentObject.BaseAddress));
-                            break;
-
-                        case (int) ObjectType.Container:
-                            objects.Add(new WoWContainer(currentObject.BaseAddress));
-                            break;
-
-                        case (int) ObjectType.Corpse:
-                            objects.Add(new WoWCorpse(currentObject.BaseAddress));
-                            break;
-
-                        case (int) ObjectType.Gameobject:
-                            objects.Add(new WoWGameObject(currentObject.BaseAddress));
-                            break;
-
-                        case (int) ObjectType.Dynamicobject:
-                            objects.Add(new WoWDynamicObject(currentObject.BaseAddress));
-                            break;
-                        case (int) ObjectType.Player:
-                            if (currentObject.Guid != playerguid)
-                            {
-                                objects.Add(new WoWPlayer(currentObject.BaseAddress));
-                            }
-                            break;
-                        default:
-                            objects.Add(currentObject);
-                            break;
-                    }
-
-
-                    currentObject.BaseAddress =
-                        BotManager.Memory.Read<IntPtr>(
-                            currentObject.BaseAddress + (int) Offsets.ObjectManager.NextObject);
-                }
-            }
-            catch (AccessViolationException ex)
-            {
-                Logger.Trace("AccessViolation In ObjectManager", (Exception)ex);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error accessing Objects", ex);
-            }
-
-            return objects;
-        }
 
         /// <summary>
         ///    Expensive call to get objects of the specified type.
