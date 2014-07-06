@@ -12,6 +12,8 @@ namespace GreyMagic
     {
         private PatchManager _patchManager;
 
+        public bool IsDisposed { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MemoryBase"/> class.
         /// </summary>
@@ -19,6 +21,11 @@ namespace GreyMagic
         /// <remarks>Created 2012-02-15</remarks>
         protected MemoryBase(Process proc)
         {
+            if (proc.HasExited)
+            {
+                throw new AccessViolationException("Process: " + proc.Id + " has already exited. Can not attach to it.");
+            }
+
             // Good to set this too if ure using events.
             proc.EnableRaisingEvents = true;
 
@@ -253,6 +260,7 @@ namespace GreyMagic
         public virtual void Dispose()
         {
             Process.LeaveDebugMode();
+            IsDisposed = true;
         }
 
         #endregion

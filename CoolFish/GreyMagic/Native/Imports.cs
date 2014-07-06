@@ -35,7 +35,7 @@ namespace GreyMagic.Native
         /// <param name="dwProcessId">The identifier of the local process to be opened. </param>
         /// <returns>If the function succeeds, the return value is an open handle to the specified process.</returns>
         /// <remarks>Created 2012-01-17 13:00 by Nesox.</remarks>
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll",SetLastError = true)]
         internal static extern SafeMemoryHandle OpenProcess(ProcessAccessFlags dwDesiredAccess,
             [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
 

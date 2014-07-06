@@ -220,7 +220,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 {
                     return;
                 }
-                if (BotManager.Memory == null || BotManager.Memory.Process.HasExited)
+                if (BotManager.Memory == null || BotManager.Memory.IsDisposed || BotManager.Memory.Process.HasExited)
                 {
                     IsApplied = false;
                     return;
@@ -263,7 +263,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     Thread.Sleep(1);
                     if (timer.ElapsedMilliseconds >= 5000)
                     {
-                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds");
+                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds. LoggedIn: " + BotManager.LoggedIn);
                     }
                 } // Wait to launch code
 

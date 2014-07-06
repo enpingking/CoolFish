@@ -73,13 +73,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                bool dead = false;
-                if (ObjectManager.Me != null)
-                {
-                    dead = ObjectManager.Me.Dead;
-                }
+                var me = ObjectManager.Me;
 
-                return BagsCondition || LureCondition || dead ||
+
+                return me == null || me.Dead || BagsCondition || LureCondition  ||
                        StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3;
             }
         }

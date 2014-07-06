@@ -24,7 +24,15 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </value>
         public override bool NeedToRun
         {
-            get { return ObjectManager.Me.Combat || ObjectManager.Me.Speed > 0; }
+            get
+            {
+                var me = ObjectManager.Me;
+                if (me == null)
+                {
+                    return false;
+                }
+                return me.Combat || me.Speed > 0;
+            }
         }
 
         /// <summary>

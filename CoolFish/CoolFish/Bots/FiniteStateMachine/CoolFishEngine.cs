@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private static readonly object LockObject = new object();
+
         #region StatePriority enum
 
         /// <summary>
@@ -39,7 +42,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             StateBobbing,
             StateDoLoot,
             StateDoWhisper,
-            StateStopOrLogout = 10
+            StateStopOrLogout = 11
         }
 
         #endregion
@@ -51,26 +54,30 @@ namespace CoolFishNS.Bots.FiniteStateMachine
         /// </summary>
         public bool Running { get; private set; }
 
-        private List<State> States { get; set; }
+        private SortedSet<State> States { get; set; }
 
         /// <summary>
         ///     Starts the engine.
         /// </summary>
         public void StartEngine()
         {
-            if (!BotManager.LoggedIn)
+            lock (LockObject)
             {
-                Logger.Info("Please log into the game first");
-            }
+                if (!BotManager.LoggedIn)
+                {
+                    Logger.Info("Please log into the game first");
+                }
 
-            if (Running)
-            {
-                Logger.Info("The engine is running");
-                return;
-            }
+                if (Running)
+                {
+                    Logger.Info("The engine is running");
+                    return;
+                }
 
-            Running = true;
-            _workerTask = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+                Running = true;
+                _workerTask = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            }
+            
         }
 
         /// <summary>
@@ -78,26 +85,29 @@ namespace CoolFishNS.Bots.FiniteStateMachine
         /// </summary>
         public void StopEngine()
         {
-            if (!Running)
+            lock (LockObject)
             {
-                Logger.Info("The engine is stopped");
-                return;
-            }
+                if (!Running)
+                {
+                    Logger.Info("The engine is stopped");
+                    return;
+                }
 
-            Running = false;
-            if (_workerTask != null)
-            {
-                _workerTask.Wait();
-                _workerTask.Dispose();
-                _workerTask = null;
+                Running = false;
+                if (_workerTask != null)
+                {
+                    _workerTask.Wait(5000);
+                    _workerTask = null;
+                }
             }
+            
             
         }
 
         private void AddStates()
         {
-            States = new List<State> {new StateDoNothing(), new StateStopOrLogout()};
-
+            States = new SortedSet<State>{new StateDoNothing(), new StateStopOrLogout()};
+            
             if (LocalSettings.Settings["DoFishing"])
             {
                 States.Add(new StateFish());
@@ -136,7 +146,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
 
 
-            States.Sort();
+            
         }
 
         private void InitOptions()
@@ -144,18 +154,17 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             AddStates();
             StateBobbing.BuggedTimer.Restart();
             var builder = new StringBuilder();
-
-            foreach (SerializableItem serializableItem in LocalSettings.Items)
+            foreach (SerializableItem serializableItem in LocalSettings.Items.Where(item => !string.IsNullOrWhiteSpace(item.Value)))
             {
-                builder.Append("\"");
+                builder.Append("[\"");
                 builder.Append(serializableItem.Value);
-                builder.Append("\",");
+                builder.Append("\"] = true, ");
             }
             string items = builder.ToString();
 
             if (items.Length > 0)
             {
-                items = items.Remove(items.Length - 1);
+                items = items.Remove(items.Length - 2);
             }
 
             builder.Clear();

@@ -214,10 +214,9 @@ namespace CoolFishNS.Management
             {
                 StopActiveBot();
                 DxHook.Restore();
-                if (Memory != null)
+                if (Memory != null && !Memory.IsDisposed)
                 {
                     Memory.Dispose();
-                    Memory = null;
                 }
             }
             catch (Exception ex)
@@ -225,8 +224,8 @@ namespace CoolFishNS.Management
 
                 Logger.Error("Failed to detach do to an exception.", ex);
             }
-            
 
+            Memory = null;
             
         }
 

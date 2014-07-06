@@ -44,10 +44,12 @@ namespace CoolFishNS.Management.CoolManager
             }
             var addresses = new Dictionary<string, IntPtr>(_addresses.Count);
 
-            var fp = new FindPattern(new MemoryStream(Encoding.UTF8.GetBytes(Resources.Patterns)), proc);
-            var baseAddr = (int) proc.MainModule.BaseAddress;
+
             try
             {
+                var fp = new FindPattern(new MemoryStream(Encoding.UTF8.GetBytes(Resources.Patterns)), proc);
+                var baseAddr = (int) proc.MainModule.BaseAddress;
+
                 foreach (var pattern in fp.Patterns)
                 {
                     switch (pattern.Key)
@@ -68,13 +70,15 @@ namespace CoolFishNS.Management.CoolManager
                 {
                     Logger.Debug(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
                 }
+                _addresses = addresses;
+                return fp.NotFoundCount == 0;
             }
             catch (Exception ex)
             {
-                Logger.Error("Error while finding offsets", ex);
+                Logger.Error("Error while finding offsets. HRESULT: " + ex.HResult, ex);
             }
-            _addresses = addresses;
-            return fp.NotFoundCount == 0;
+            _addresses = new Dictionary<string, IntPtr>();
+            return false;
         }
 
         /****

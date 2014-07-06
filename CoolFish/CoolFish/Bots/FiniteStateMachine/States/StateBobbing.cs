@@ -43,9 +43,15 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
+                var me = ObjectManager.Me;
+                if (me == null)
+                {
+                    return false;
+                }
+
                 List<WoWGameObject> list =
                     ObjectManager.GetObjectsOfType<WoWGameObject>().Where(
-                        o => o.CreatedBy == ObjectManager.Me.Guid && o.AnimationState == 0x440001)
+                        o => o.CreatedBy == me.Guid && o.AnimationState == 0x440001)
                         .ToList();
 
                 _bobber = list.Any() ? list[0] : null;

@@ -21,6 +21,13 @@ namespace CoolFishNS.Utilities
 
         internal static void UnhandledException(object sender, UnhandledExceptionEventArgs ex)
         {
+
+#if DEBUG
+            Logger.Fatal("Unhandled Exception",(Exception) ex.ExceptionObject);
+            MessageBox.Show(ex.ExceptionObject.ToString());
+            return;
+#endif
+
             try
             {
                 var e = (Exception)ex.ExceptionObject;
