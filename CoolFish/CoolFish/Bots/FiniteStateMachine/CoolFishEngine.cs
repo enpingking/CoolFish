@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,7 +11,9 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
+using MarkedUp;
 using NLog;
+using LogLevel = NLog.LogLevel;
 
 namespace CoolFishNS.Bots.FiniteStateMachine
 {
@@ -186,6 +188,24 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             DxHook.ExecuteScript(builder.ToString());
         }
 
+        private void Pulse()
+        {
+            foreach (State state in States)
+            {
+                if (!Running || !BotManager.LoggedIn)
+                {
+                    return;
+                }
+                if (state.NeedToRun)
+                {
+                    state.Run();
+                    return;
+                }
+              
+            }
+
+        }
+
         private void Run()
         {
             Logger.Info("Started Engine");
@@ -195,20 +215,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 InitOptions();
                 while (Running && BotManager.LoggedIn)
                 {
-                    // This starts at the highest priority state,
-                    // and iterates its way to the lowest priority.
-                    foreach (State state in States.TakeWhile(state => Running && BotManager.LoggedIn).Where(state => state.NeedToRun))
-                    {
-                        state.Run();
-
-                        // Break out of the iteration,
-                        // as we found a state that has run.
-                        // We don't want to run any more states
-                        // this time around.
-                        break;
-                    }
-
-                    Thread.Sleep(1000/60);
+                    Pulse();
+                    Thread.Sleep(1000 / 60);
                 }
 
                 if (BotManager.LoggedIn)
@@ -217,9 +225,18 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                         "if CoolFrame then CoolFrame:UnregisterAllEvents(); end print(\"|cff00ff00---Loot Log---\"); for key,value in pairs(LootLog) do local _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end print(\"|cffff0000---DID NOT Loot Log---\"); for key,value in pairs(NoLootLog) do _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end");
                 }
             }
-            catch (CodeInjectionFailedException)
+            catch (CodeInjectionFailedException ex)
             {
-                Logger.Warn("Stopping bot because we could not execute code required to continue");
+                const string msg = "Stopping bot because we could not execute code required to continue";
+                if (DxHook.TriedHackyHook)
+                {
+                    Logger.Warn(msg, (Exception)ex);
+                    Logger.Info("It seems you tried to create the hook CoolFish needs despite the mention of problems it could cause. This error is likely a result of that. It is recommended that you stop running the interfering program.");
+                }
+                else
+                {
+                    Logger.Error(msg, (Exception)ex);
+                }
             }
             catch (HookNotAppliedException)
             {

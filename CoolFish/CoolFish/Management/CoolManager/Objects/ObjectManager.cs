@@ -9,6 +9,75 @@ namespace CoolFishNS.Management.CoolManager.Objects
     /// </summary>
     public static class ObjectManager
     {
+
+        private static int GetWoWTypeFromClassType(Type t)
+        {
+            if (t == typeof (WoWObject))
+            {
+                return 0;
+            }
+            if (t == typeof (WoWItem))
+            {
+                return 1;
+            }
+            if (t == typeof (WoWContainer))
+            {
+                return 2;
+            }
+            if (t == typeof(WoWUnit))
+            {
+                return 3;
+            }
+            if (t == typeof(WoWPlayer) || t == typeof(WoWPlayerMe))
+            {
+                return 4;
+            }
+            if (t == typeof(WoWGameObject))
+            {
+                return 5;
+            }
+            if (t == typeof(WoWDynamicObject))
+            {
+                return 6;
+            }
+            if (t == typeof(WoWCorpse))
+            {
+                return 7;
+            }
+            return -1;
+        }
+
+        public static T GetSpecificObject<T>(Predicate<T> predicate, Func<WoWObject,T> conversionFunction ) where T: WoWObject
+        {
+            if (predicate == null)
+            {
+                return null;
+            }
+
+            var type = GetWoWTypeFromClassType(typeof(T));
+            var currentObject =
+                   new WoWObject(
+                       BotManager.Memory.Read<IntPtr>(CurrentManager + (int)Offsets.ObjectManager.FirstObject));
+
+            while (((currentObject.BaseAddress.ToInt64() & 1) == 0) && currentObject.BaseAddress != IntPtr.Zero)
+            {
+                if (currentObject.Type == type)
+                {
+                    var obj = conversionFunction(currentObject);
+
+                    if (predicate(obj))
+                    {
+                        return obj;
+                    }
+                }
+
+                currentObject.BaseAddress =
+                    BotManager.Memory.Read<IntPtr>(
+                        currentObject.BaseAddress + (int)Offsets.ObjectManager.NextObject);
+            }
+            return null;
+        }
+
         /// <summary>
         ///    Expensive call to get a list of all Objects. This will be a currently up to date list.
         ///    Cache this result if you don't need an updated list each call
@@ -158,11 +227,11 @@ namespace CoolFishNS.Management.CoolManager.Objects
         ///    Expensive call to get objects of the specified type.
         ///    Cache this result if you don't need an updated list each call
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Type of objects to get. Must inherit from WoWObject</typeparam>
         /// <returns></returns>
-        public static IEnumerable<T> GetObjectsOfType<T>() where T : WoWObject
+        public static List<T> GetObjectsOfType<T>() where T : WoWObject
         {
-            return (from t1 in Objects.AsParallel() let t = t1.GetType() where t == typeof (T) select t1).OfType<T>();
+            return (from t1 in Objects.AsParallel() let t = t1.GetType() where t == typeof (T) select t1).OfType<T>().ToList();
         }
     }
 }

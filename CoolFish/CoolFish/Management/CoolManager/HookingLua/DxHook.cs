@@ -22,6 +22,8 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        public static bool TriedHackyHook { get; private set; }
+
         private const int CODECAVESIZE = 0x1000;
         private static readonly byte[] Eraser = new byte[CODECAVESIZE];
         private static readonly object LockObject = new object();
@@ -116,7 +118,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                         {
                             return false;
                         }
-
+                        TriedHackyHook = true;
                         Logger.Info("Detected Another hook. Trying to hook anyway.");
 
                         var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
@@ -191,7 +193,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 }
                 catch (Exception ex)
                 {
-                    
+                    TriedHackyHook = false;
                     IsApplied = false;
                     if (_allocatedMemory != null)
                     {
@@ -222,6 +224,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 }
                 if (BotManager.Memory == null || BotManager.Memory.IsDisposed || BotManager.Memory.Process.HasExited)
                 {
+                    TriedHackyHook = false;
                     IsApplied = false;
                     return;
                 }
@@ -231,7 +234,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                 _allocatedMemory.Dispose();
                 _dxAddress.Device.Dispose();
-
+                TriedHackyHook = false;
                 IsApplied = false;
             }
         }

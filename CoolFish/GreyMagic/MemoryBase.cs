@@ -25,7 +25,7 @@ namespace GreyMagic
             {
                 throw new AccessViolationException("Process: " + proc.Id + " has already exited. Can not attach to it.");
             }
-
+            Process.EnterDebugMode();
             // Good to set this too if ure using events.
             proc.EnableRaisingEvents = true;
 
@@ -43,12 +43,12 @@ namespace GreyMagic
             proc.ErrorDataReceived += OutputDataReceived;
             proc.OutputDataReceived += OutputDataReceived;
 
-            Process.EnterDebugMode();
-            ProcessAccessFlags a = ProcessAccessFlags.PROCESS_CREATE_THREAD |
-                                   ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
-                                   ProcessAccessFlags.PROCESS_SET_INFORMATION | ProcessAccessFlags.PROCESS_TERMINATE |
-                                   ProcessAccessFlags.PROCESS_VM_OPERATION | ProcessAccessFlags.PROCESS_VM_READ |
-                                   ProcessAccessFlags.PROCESS_VM_WRITE | ProcessAccessFlags.SYNCHRONIZE;
+          
+            const ProcessAccessFlags a = ProcessAccessFlags.PROCESS_CREATE_THREAD |
+                                         ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
+                                         ProcessAccessFlags.PROCESS_SET_INFORMATION | ProcessAccessFlags.PROCESS_TERMINATE |
+                                         ProcessAccessFlags.PROCESS_VM_OPERATION | ProcessAccessFlags.PROCESS_VM_READ |
+                                         ProcessAccessFlags.PROCESS_VM_WRITE | ProcessAccessFlags.SYNCHRONIZE;
 
             ProcessHandle = Imports.OpenProcess(a, false, proc.Id);
             ImageBase = Process.MainModule.BaseAddress;

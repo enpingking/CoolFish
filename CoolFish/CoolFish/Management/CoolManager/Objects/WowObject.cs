@@ -163,5 +163,10 @@ namespace CoolFishNS.Management.CoolManager.Objects
         {
             ObjectManager.Me.MoveTo(Location);
         }
+
+        public static WoWGameObject ToWoWGameObject(WoWObject obj)
+        {
+            return new WoWGameObject(obj.BaseAddress);
+        }
     }
 }

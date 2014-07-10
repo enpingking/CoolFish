@@ -33,6 +33,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get { return (int) CoolFishEngine.StatePriority.StateBobbing; }
         }
 
+        private static bool IsBobber(WoWGameObject objectToCheck)
+        {
+            return objectToCheck.CreatedBy == ObjectManager.PlayerGuid && objectToCheck.AnimationState == 0x440001;
+        }
+
         /// <summary>
         ///     Gets a value indicating whether [need to run].
         /// </summary>
@@ -43,19 +48,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                var me = ObjectManager.Me;
-                if (me == null)
-                {
-                    return false;
-                }
-
-                List<WoWGameObject> list =
-                    ObjectManager.GetObjectsOfType<WoWGameObject>().Where(
-                        o => o.CreatedBy == me.Guid && o.AnimationState == 0x440001)
-                        .ToList();
-
-                _bobber = list.Any() ? list[0] : null;
-
+                _bobber = ObjectManager.GetSpecificObject(IsBobber, WoWObject.ToWoWGameObject);
 
                 if (_bobber == null)
                 {
