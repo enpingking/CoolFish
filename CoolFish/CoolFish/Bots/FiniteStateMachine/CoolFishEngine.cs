@@ -21,6 +21,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private static readonly object LockObject = new object();
+
         #region StatePriority enum
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             StateBobbing,
             StateDoLoot,
             StateDoWhisper,
-            StateStopOrLogout = 10
+            StateStopOrLogout = 11
         }
 
         #endregion
@@ -51,26 +53,29 @@ namespace CoolFishNS.Bots.FiniteStateMachine
         /// </summary>
         public bool Running { get; private set; }
 
-        private List<State> States { get; set; }
+        private SortedSet<State> States { get; set; }
 
         /// <summary>
         ///     Starts the engine.
         /// </summary>
         public void StartEngine()
         {
-            if (!BotManager.LoggedIn)
+            lock (LockObject)
             {
-                Logger.Info("Please log into the game first");
-            }
+                if (!BotManager.LoggedIn)
+                {
+                    Logger.Info("Please log into the game first");
+                }
 
-            if (Running)
-            {
-                Logger.Info("The engine is running");
-                return;
-            }
+                if (Running)
+                {
+                    Logger.Info("The engine is running");
+                    return;
+                }
 
-            Running = true;
-            _workerTask = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+                Running = true;
+                _workerTask = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            }
         }
 
         /// <summary>
@@ -78,25 +83,26 @@ namespace CoolFishNS.Bots.FiniteStateMachine
         /// </summary>
         public void StopEngine()
         {
-            if (!Running)
+            lock (LockObject)
             {
-                Logger.Info("The engine is stopped");
-                return;
-            }
+                if (!Running)
+                {
+                    Logger.Info("The engine is stopped");
+                    return;
+                }
 
-            Running = false;
-            if (_workerTask != null)
-            {
-                _workerTask.Wait();
-                _workerTask.Dispose();
-                _workerTask = null;
+                Running = false;
+                if (_workerTask != null)
+                {
+                    _workerTask.Wait(5000);
+                    _workerTask = null;
+                }
             }
-            
         }
 
         private void AddStates()
         {
-            States = new List<State> {new StateDoNothing(), new StateStopOrLogout()};
+            States = new SortedSet<State> {new StateDoNothing(), new StateStopOrLogout()};
 
             if (LocalSettings.Settings["DoFishing"])
             {
@@ -134,9 +140,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             {
                 States.Add(new StateUseSpear());
             }
-
-
-            States.Sort();
         }
 
         private void InitOptions()
@@ -144,26 +147,25 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             AddStates();
             StateBobbing.BuggedTimer.Restart();
             var builder = new StringBuilder();
-
-            foreach (SerializableItem serializableItem in LocalSettings.Items)
+            foreach (SerializableItem serializableItem in LocalSettings.Items.Where(item => !string.IsNullOrWhiteSpace(item.Value)))
             {
-                builder.Append("\"");
+                builder.Append("[\"");
                 builder.Append(serializableItem.Value);
-                builder.Append("\",");
+                builder.Append("\"] = true, ");
             }
             string items = builder.ToString();
 
             if (items.Length > 0)
             {
-                items = items.Remove(items.Length - 1);
+                items = items.Remove(items.Length - 2);
             }
 
             builder.Clear();
             builder.AppendLine("ItemsList = {" + items + "}");
             builder.AppendLine("LootLeftOnly = " +
-                           LocalSettings.Settings["LootOnlyItems"].ToString().ToLower());
+                               LocalSettings.Settings["LootOnlyItems"].ToString().ToLower());
             builder.AppendLine("DontLootLeft = " +
-                           LocalSettings.Settings["DontLootLeft"].ToString().ToLower());
+                               LocalSettings.Settings["DontLootLeft"].ToString().ToLower());
             builder.AppendLine("LootQuality = " + LocalSettings.Settings["LootQuality"]);
             builder.AppendLine(Resources.WhisperNotes);
             builder.AppendLine("LootLog = {}");
@@ -177,6 +179,22 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             DxHook.ExecuteScript(builder.ToString());
         }
 
+        private void Pulse()
+        {
+            foreach (State state in States)
+            {
+                if (!Running || !BotManager.LoggedIn)
+                {
+                    return;
+                }
+                if (state.NeedToRun)
+                {
+                    state.Run();
+                    return;
+                }
+            }
+        }
+
         private void Run()
         {
             Logger.Info("Started Engine");
@@ -186,19 +204,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 InitOptions();
                 while (Running && BotManager.LoggedIn)
                 {
-                    // This starts at the highest priority state,
-                    // and iterates its way to the lowest priority.
-                    foreach (State state in States.TakeWhile(state => Running && BotManager.LoggedIn).Where(state => state.NeedToRun))
-                    {
-                        state.Run();
-
-                        // Break out of the iteration,
-                        // as we found a state that has run.
-                        // We don't want to run any more states
-                        // this time around.
-                        break;
-                    }
-
+                    Pulse();
                     Thread.Sleep(1000/60);
                 }
 
@@ -208,9 +214,19 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                         "if CoolFrame then CoolFrame:UnregisterAllEvents(); end print(\"|cff00ff00---Loot Log---\"); for key,value in pairs(LootLog) do local _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end print(\"|cffff0000---DID NOT Loot Log---\"); for key,value in pairs(NoLootLog) do _, itemLink = GetItemInfo(key); print(itemLink .. \": \" .. value) end");
                 }
             }
-            catch (CodeInjectionFailedException)
+            catch (CodeInjectionFailedException ex)
             {
-                Logger.Warn("Stopping bot because we could not execute code required to continue");
+                const string msg = "Stopping bot because we could not execute code required to continue";
+                if (DxHook.TriedHackyHook)
+                {
+                    Logger.Warn(msg, (Exception) ex);
+                    Logger.Info(
+                        "It seems you tried to create the hook CoolFish needs despite the mention of problems it could cause. This error is likely a result of that. It is recommended that you stop running the interfering program.");
+                }
+                else
+                {
+                    Logger.Error(msg, (Exception) ex);
+                }
             }
             catch (HookNotAppliedException)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -23,7 +24,6 @@ namespace CoolFishNS.Bots.CoolFishBot
         public CoolFishBotSettings()
         {
             InitializeComponent();
-
         }
 
 
@@ -32,18 +32,42 @@ namespace CoolFishNS.Bots.CoolFishBot
             double minutes;
             if (double.TryParse(StopTimeMinutesTB.Text, out minutes))
             {
-                DateTime date = DateTime.Now.AddMinutes(minutes);
+                try
+                {
+                    DateTime date = DateTime.Now.AddMinutes(minutes);
 
-                DateLBL.Content = date.ToString();
+                    DateLBL.Content = date.ToString();
+                }
+                catch (Exception)
+                {
+                    StopTimeMinutesTB.Text = string.Empty;
+                    DateLBL.Content = "Invalid Date";
+                }
             }
             else
             {
-                DateLBL.Content = String.Empty;
+                StopTimeMinutesTB.Text = string.Empty;
+                DateLBL.Content = "Invalid Date";
+            }
+        }
+
+        private void CheckDataGrid()
+        {
+            IEditableCollectionView collection = ItemsGrid.Items;
+
+            if (collection.IsEditingItem)
+            {
+                collection.CommitEdit();
+            }
+            if (collection.IsAddingNew)
+            {
+                collection.CommitNew();
             }
         }
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
+            CheckDataGrid();
             if (!BotManager.ActiveBot.IsRunning)
             {
                 SaveControlSettings();
@@ -59,14 +83,26 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void CloseButton_OnClick(object sender, RoutedEventArgs e)
         {
+            CheckDataGrid();
             Close();
         }
 
 
         public void FillDataGrid()
         {
-            ItemsGrid.ItemsSource = null;
-            ItemsGrid.ItemsSource = _items;
+            try
+            {
+                ItemsGrid.ItemsSource = null;
+                ItemsGrid.ItemsSource = _items;
+            }
+            catch (InvalidOperationException)
+            {
+                // Shouldn't happen anymore, but in case it does silently fail since there is no impact
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error updating datagrid", ex);
+            }
         }
 
         private void UpdateControlSettings()
@@ -116,11 +152,15 @@ namespace CoolFishNS.Bots.CoolFishBot
             LocalSettings.Settings["DoLoot"] = DoLootingCB.IsChecked;
             LocalSettings.Items = _items;
             double result;
-            if (!double.TryParse(StopTimeMinutesTB.Text, out result))
+            if (double.TryParse(StopTimeMinutesTB.Text, out result))
+            {
+                LocalSettings.Settings["MinutesToStop"] = result;
+            }
+            else
             {
                 Logger.Warn("Invalid Stop Time.");
+                LocalSettings.Settings["MinutesToStop"] = 0d;
             }
-            LocalSettings.Settings["MinutesToStop"] = BotSetting.As(result);
         }
 
 
@@ -133,7 +173,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         {
             try
             {
-                var col1 = new DataGridTextColumn { Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150 };
+                var col1 = new DataGridTextColumn {Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150};
                 col1.SetValue(NameProperty, "ItemColumn");
 
                 ItemsGrid.Columns.Add(col1);
@@ -141,10 +181,8 @@ namespace CoolFishNS.Bots.CoolFishBot
             }
             catch (Exception ex)
             {
-                
                 Logger.Error("Error thrown while updating controls", ex);
             }
-            
         }
     }
 }

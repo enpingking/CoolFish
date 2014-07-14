@@ -73,13 +73,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                bool dead = false;
-                if (ObjectManager.Me != null)
-                {
-                    dead = ObjectManager.Me.Dead;
-                }
+                WoWPlayerMe me = ObjectManager.Me;
 
-                return BagsCondition || LureCondition || dead ||
+
+                return me == null || me.Dead || BagsCondition || LureCondition ||
                        StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3;
             }
         }
@@ -132,16 +129,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
             if (LocalSettings.Settings["CloseWoWonStop"])
             {
-                var proc = BotManager.Memory.Process;
+                Process proc = BotManager.Memory.Process;
                 BotManager.DetachFromProcess();
                 proc.CloseMainWindow();
                 proc.Close();
                 App.ShutDown();
                 Environment.Exit(0);
-
             }
-
-
         }
     }
 }

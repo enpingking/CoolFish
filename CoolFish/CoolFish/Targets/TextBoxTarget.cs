@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using NLog;
@@ -36,7 +37,7 @@ namespace CoolFishNS.Targets
                 return;
             }
 
-            App.CurrentApp.Dispatcher.InvokeAsync(() =>
+            Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 try
                 {
@@ -46,7 +47,6 @@ namespace CoolFishNS.Targets
                 catch
                 {
                 }
-                
             }, DispatcherPriority.Background);
         }
     }

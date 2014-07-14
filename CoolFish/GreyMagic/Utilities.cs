@@ -6,12 +6,12 @@ namespace GreyMagic
     internal class Utilities
     {
         /// <summary>
-        /// Determines whether the specified item has attrib.
+        ///     Determines whether the specified item has attrib.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="item">The item.</param>
         /// <returns>
-        ///   <c>true</c> if the specified item has attrib; otherwise, <c>false</c>.
+        ///     <c>true</c> if the specified item has attrib; otherwise, <c>false</c>.
         /// </returns>
         /// <remarks>Created 2012-01-16 19:28 by Nesox.</remarks>
         internal static bool HasAttrib<T>(Type item)
@@ -20,11 +20,11 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Determines whether [has UFP attribute] [the specified d].
+        ///     Determines whether [has UFP attribute] [the specified d].
         /// </summary>
         /// <param name="d">The d.</param>
         /// <returns>
-        ///   <c>true</c> if [has UFP attribute] [the specified d]; otherwise, <c>false</c>.
+        ///     <c>true</c> if [has UFP attribute] [the specified d]; otherwise, <c>false</c>.
         /// </returns>
         /// <remarks>Created 2012-01-16 19:28 by Nesox.</remarks>
         internal static bool HasUFPAttribute(Delegate d)
@@ -33,11 +33,11 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Determines whether [has UFP attribute] [the specified t].
+        ///     Determines whether [has UFP attribute] [the specified t].
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>
-        ///   <c>true</c> if [has UFP attribute] [the specified t]; otherwise, <c>false</c>.
+        ///     <c>true</c> if [has UFP attribute] [the specified t]; otherwise, <c>false</c>.
         /// </returns>
         /// <remarks>Created 2012-01-16 19:28 by Nesox.</remarks>
         internal static bool HasUFPAttribute(Type t)

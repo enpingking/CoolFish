@@ -15,10 +15,13 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Provides access to the DetourManager class, that allows you to create and remove
-        /// detours and hooks for functions. (Or any other use you may find...)
+        ///     Provides access to the DetourManager class, that allows you to create and remove
+        ///     detours and hooks for functions. (Or any other use you may find...)
         /// </summary>
-        public virtual DetourManager Detours { get { return _detourManager ?? (_detourManager = new DetourManager(this)); } }
+        public virtual DetourManager Detours
+        {
+            get { return _detourManager ?? (_detourManager = new DetourManager(this)); }
+        }
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory", SetLastError = false)]
         private static extern void MoveMemory(void* dest, void* src, int size);
@@ -40,7 +43,7 @@ namespace GreyMagic
                 {
                     case TypeCode.Object:
 
-                        if (MarshalCache<T>.RealType == typeof(IntPtr))
+                        if (MarshalCache<T>.RealType == typeof (IntPtr))
                         {
                             return (T) (object) *(IntPtr*) address;
                         }
@@ -112,7 +115,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads a specific number of bytes from memory and writes them to an unsafe address.
+        ///     Reads a specific number of bytes from memory and writes them to an unsafe address.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="buffer"></param>
@@ -124,7 +127,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads a specific number of bytes from memory.
+        ///     Reads a specific number of bytes from memory.
         /// </summary>
         /// <param name="dwAddress">The address.</param>
         /// <param name="buffer">The buffer.</param>
@@ -148,13 +151,13 @@ namespace GreyMagic
         #region Overrides of MemoryBase
 
         /// <summary>
-        /// Writes a set of bytes to memory.
+        ///     Writes a set of bytes to memory.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="bytes">The bytes.</param>
         /// <param name="isRelative">if set to <c>true</c> [is relative].</param>
         /// <returns>
-        /// Number of bytes written.
+        ///     Number of bytes written.
         /// </returns>
         public override int WriteBytes(IntPtr address, byte[] bytes, bool isRelative = false)
         {
@@ -174,7 +177,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads a specific number of bytes from memory.
+        ///     Reads a specific number of bytes from memory.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="count">The count.</param>
@@ -237,7 +240,7 @@ namespace GreyMagic
             var ret = new T[count];
             for (int i = 0; i < count; i++)
             {
-                ret[i] = Read<T>(address + (i * size), isRelative);
+                ret[i] = Read<T>(address + (i*size), isRelative);
             }
             return ret;
         }
@@ -258,7 +261,7 @@ namespace GreyMagic
             for (int i = 0; i < value.Length; i++)
             {
                 T val = value[i];
-                Write(address + (i * size), val);
+                Write(address + (i*size), val);
             }
             return true;
         }

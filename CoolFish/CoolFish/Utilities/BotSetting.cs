@@ -58,6 +58,11 @@ namespace CoolFishNS.Utilities
             return As(s);
         }
 
+        public static implicit operator BotSetting(double s)
+        {
+            return As(s);
+        }
+
         public override string ToString()
         {
             return Value.ToString();

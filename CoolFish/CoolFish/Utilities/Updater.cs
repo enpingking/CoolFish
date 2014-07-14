@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.GitHub;
 using NLog;
-using Octokit;
-
 
 namespace CoolFishNS.Utilities
 {
@@ -25,13 +18,10 @@ namespace CoolFishNS.Utilities
         {
             try
             {
-                
                 using (var client = new WebClient {Proxy = WebRequest.DefaultWebProxy})
                 {
                     return client.DownloadString("http://unknowndev.github.io/CoolFish/Message.txt");
                 }
-                
-                
             }
             catch (Exception ex)
             {
@@ -46,10 +36,10 @@ namespace CoolFishNS.Utilities
             {
                 try
                 {
-                    var latestInfo = GithubAPI.GetLatestVersionInfo();
+                    Tuple<int, string> latestInfo = GithubAPI.GetLatestVersionInfo();
                     if (latestInfo != null)
                     {
-                        var result =
+                        DialogResult result =
                             MessageBox.Show("There is a new version of CoolFish available. Would you like to download it now?",
                                 "New Version", MessageBoxButtons.YesNo);
                         if (result == DialogResult.Yes)
@@ -68,7 +58,5 @@ namespace CoolFishNS.Utilities
                 }
             });
         }
-
-
     }
 }

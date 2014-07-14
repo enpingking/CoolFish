@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
+using System.Windows;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
-using CoolFishNS.GitHub;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
-using CoolFishNS.Utilities;
 using GreyMagic;
 using MarkedUp;
 using NLog;
@@ -197,7 +195,7 @@ namespace CoolFishNS.Management
                     throw;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error("Failed to attach do to an exception.", ex);
             }
@@ -206,7 +204,6 @@ namespace CoolFishNS.Management
         }
 
         /// <summary>
-        /// 
         /// </summary>
         public static void DetachFromProcess()
         {
@@ -214,20 +211,17 @@ namespace CoolFishNS.Management
             {
                 StopActiveBot();
                 DxHook.Restore();
-                if (Memory != null)
+                if (Memory != null && !Memory.IsDisposed)
                 {
                     Memory.Dispose();
-                    Memory = null;
                 }
             }
             catch (Exception ex)
             {
-
                 Logger.Error("Failed to detach do to an exception.", ex);
             }
-            
 
-            
+            Memory = null;
         }
 
         /// <summary>
@@ -242,14 +236,11 @@ namespace CoolFishNS.Management
                     Logger.Info("Starting bot...");
                     ActiveBot.StartBot();
                 }
-
             }
             catch (Exception ex)
             {
-                
                 Logger.Error("Exception thrown while trying to start the bot", ex);
             }
-           
         }
 
         /// <summary>
@@ -267,11 +258,46 @@ namespace CoolFishNS.Management
             }
             catch (Exception ex)
             {
-                
-               Logger.Error("Exception thrown while trying to stop the bot", ex);
+                Logger.Error("Exception thrown while trying to stop the bot", ex);
             }
-            
         }
+
+        /// <summary>
+        ///     Gets a List of 32-bit Wow processes currently running on the system
+        /// </summary>
+        /// <returns>List of Process objects</returns>
+        public static Process[] GetWowProcesses()
+        {
+            Process[] proc = Process.GetProcessesByName("WoW");
+            Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
+
+            if (!proc.Any())
+            {
+                if (proc64Bit.Any())
+                {
+                    Logger.Info(
+                        "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
+                }
+                else
+                {
+                    var result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",MessageBoxButton.YesNo);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        proc = Process.GetProcesses();
+                    }
+                    else
+                    {
+                        Logger.Info("No WoW processes were found.");
+                    }
+                    
+                }
+            }
+
+
+            return proc;
+        }
+
 
         /// <summary>
         ///     Calls <see cref="IBot.Settings()" /> for the currently ActiveBot
@@ -284,10 +310,8 @@ namespace CoolFishNS.Management
             }
             catch (Exception ex)
             {
-
                 Logger.Error("Exception thrown while trying to modify bot settings", ex);
             }
-           
         }
 
         internal static void StartUp()

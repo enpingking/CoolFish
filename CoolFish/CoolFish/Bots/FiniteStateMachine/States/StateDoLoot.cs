@@ -1,5 +1,4 @@
-﻿using CoolFishNS.Management;
-using CoolFishNS.Management.CoolManager.HookingLua;
+﻿using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using NLog;
 

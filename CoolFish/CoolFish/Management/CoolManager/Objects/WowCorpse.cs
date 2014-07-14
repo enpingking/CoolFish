@@ -29,7 +29,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int DisplayId
         {
-            get { return GetStorageField<int>( Offsets.WoWCorpseFields.DisplayID); }
+            get { return GetStorageField<int>(Offsets.WoWCorpseFields.DisplayID); }
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWCorpseFields field) where T : struct
         {
-            return GetStorageField<T>((int)field);
+            return GetStorageField<T>((int) field);
         }
     }
 }

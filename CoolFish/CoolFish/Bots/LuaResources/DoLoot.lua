@@ -8,17 +8,9 @@ local _,name, lootQuantity ,Quality  = GetLootSlotInfo(i)
     _, _, id = string.find(Link, "item:(%d+):")
         if Quality >= LootQuality then
             if LootLeftOnly or DontLootLeft then 
-                for j=1,# ItemsList do
-                    nameMatch = ItemsList[j] == name
-                    idMatch = ItemsList[j] == id
-                    if DODEBUG then
-                        print("item: " .. tostring(ItemsList[j]));
-                    end
-                    if nameMatch or idMatch then
-                        break
-                    end
-                end 
-                if (nameMatch or idMatch) and LootLeftOnly then 
+                match = ItemsList[name] or ItemsList[id]
+                
+				if (match) and LootLeftOnly then 
                     LootSlot(i) 
                     ConfirmLootSlot(i)
                     if LootLog[id] then
@@ -30,7 +22,7 @@ local _,name, lootQuantity ,Quality  = GetLootSlotInfo(i)
                         print("Trying to Loot: " .. Link);
                     end                
                 else
-                    if (not nameMatch and not idMatch) and DontLootLeft then
+                    if (not match) and DontLootLeft then
                         LootSlot(i) 
                         ConfirmLootSlot(i)
                         if LootLog[id] then

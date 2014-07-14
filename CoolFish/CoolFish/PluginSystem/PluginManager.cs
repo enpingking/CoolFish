@@ -32,8 +32,7 @@ namespace CoolFishNS.PluginSystem
             ShouldPulse = false; // stop pulsing plugins
             if (PluginThread != null)
             {
-                PluginThread.Wait();
-                PluginThread.Dispose();
+                PluginThread.Wait(5000);
                 PluginThread = null;
             }
         }

@@ -13,7 +13,7 @@ namespace GreyMagic
     public sealed unsafe class ExternalProcessReader : InProcessMemoryReader
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExternalProcessReader"/> class.
+        ///     Initializes a new instance of the <see cref="ExternalProcessReader" /> class.
         /// </summary>
         /// <param name="proc">The proc.</param>
         /// <remarks>Created 2012-04-24</remarks>
@@ -34,39 +34,48 @@ namespace GreyMagic
         public ManagedFasm Asm { get; private set; }
 
         /// <summary>
-        /// This is not valid in this memory reader type.
+        ///     This is not valid in this memory reader type.
         /// </summary>
-        public override DetourManager Detours { get { return null; } }
+        public override DetourManager Detours
+        {
+            get { return null; }
+        }
 
         /// <summary>
-        /// Gets the thread handle.
+        ///     Gets the thread handle.
         /// </summary>
         /// <remarks>Created 2012-04-23</remarks>
         public IntPtr ThreadHandle { get; private set; }
 
         /// <summary>
-        /// Gets the window handle.
+        ///     Gets the window handle.
         /// </summary>
         /// <remarks>Created 2012-04-23</remarks>
         public IntPtr WindowHandle { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether the main thread is open.
+        ///     Gets a value indicating whether the main thread is open.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if the main thread is open; otherwise, <c>false</c>.
+        ///     <c>true</c> if the main thread is open; otherwise, <c>false</c>.
         /// </value>
         /// <remarks>Created 2012-04-23</remarks>
-        public bool IsThreadOpen { get { return ThreadHandle != IntPtr.Zero; } }
+        public bool IsThreadOpen
+        {
+            get { return ThreadHandle != IntPtr.Zero; }
+        }
 
         /// <summary>
-        /// Gets a value indicating whether the process is open for memory manipulation.
+        ///     Gets a value indicating whether the process is open for memory manipulation.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if the process is open for memory manipulation; otherwise, <c>false</c>.
+        ///     <c>true</c> if the process is open for memory manipulation; otherwise, <c>false</c>.
         /// </value>
         /// <remarks>Created 2012-04-23</remarks>
-        public bool IsProcessOpen { get { return ProcessHandle != null && !ProcessHandle.IsClosed && !ProcessHandle.IsInvalid; } }
+        public bool IsProcessOpen
+        {
+            get { return ProcessHandle != null && !ProcessHandle.IsClosed && !ProcessHandle.IsInvalid; }
+        }
 
         #region Imports
 
@@ -95,7 +104,7 @@ namespace GreyMagic
         #region Overrides of MemoryBase
 
         /// <summary>
-        /// Reads a specific number of bytes from memory.
+        ///     Reads a specific number of bytes from memory.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="count">The count.</param>
@@ -132,13 +141,13 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes a set of bytes to memory.
+        ///     Writes a set of bytes to memory.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="bytes">The bytes.</param>
         /// <param name="isRelative">if set to <c>true</c> [is relative].</param>
         /// <returns>
-        /// Number of bytes written.
+        ///     Number of bytes written.
         /// </returns>
         public override int WriteBytes(IntPtr address, byte[] bytes, bool isRelative = false)
         {
@@ -159,7 +168,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads a specific number of bytes from memory.
+        ///     Reads a specific number of bytes from memory.
         /// </summary>
         /// <param name="dwAddress">The address.</param>
         /// <param name="buffer">The buffer.</param>
@@ -177,7 +186,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads a specific number of bytes from memory and writes them to an unsafe address.
+        ///     Reads a specific number of bytes from memory and writes them to an unsafe address.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="buffer"></param>
@@ -204,13 +213,13 @@ namespace GreyMagic
 
         public override T[] Read<T>(IntPtr address, int count, bool isRelative = false)
         {
-            T[] ret = new T[count];
-            var size = MarshalCache<T>.Size;
-            fixed(byte* buffer = ReadBytes(address, size*count, isRelative))
+            var ret = new T[count];
+            int size = MarshalCache<T>.Size;
+            fixed (byte* buffer = ReadBytes(address, size*count, isRelative))
             {
                 for (int i = 0; i < count; i++)
                 {
-                    ret[i] = base.Read<T>((IntPtr) (buffer + (i * size)));
+                    ret[i] = base.Read<T>((IntPtr) (buffer + (i*size)));
                 }
             }
             return ret;
@@ -256,9 +265,12 @@ namespace GreyMagic
 
         public override void Dispose()
         {
-            
-            ProcessHandle.Dispose();
-            ProcessHandle = null;
+            if (ProcessHandle != null)
+            {
+                ProcessHandle.Dispose();
+                ProcessHandle = null;
+            }
+
             SafeMemoryHandle.CloseHandle(ThreadHandle);
             if (Asm != null)
             {
@@ -281,12 +293,12 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Frees an allocated block of memory in the opened process.
+        ///     Frees an allocated block of memory in the opened process.
         /// </summary>
         /// <param name="address">Base address of the block of memory to be freed.</param>
         /// <returns>Returns true on success, false on failure.</returns>
         /// <remarks>
-        /// Frees a block of memory using <see cref="MemoryFreeType.MEM_RELEASE"/>.
+        ///     Frees a block of memory using <see cref="MemoryFreeType.MEM_RELEASE" />.
         /// </remarks>
         public bool FreeMemory(IntPtr address)
         {
@@ -294,11 +306,14 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Frees an allocated block of memory in the opened process.
+        ///     Frees an allocated block of memory in the opened process.
         /// </summary>
         /// <param name="address">Base address of the block of memory to be freed.</param>
-        /// <param name="size">Number of bytes to be freed.  This must be zero (0) if using <see cref="MemoryFreeType.MEM_RELEASE"/>.</param>
-        /// <param name="freeType">Type of free operation to use.  See <see cref="MemoryFreeType"/>.</param>
+        /// <param name="size">
+        ///     Number of bytes to be freed.  This must be zero (0) if using
+        ///     <see cref="MemoryFreeType.MEM_RELEASE" />.
+        /// </param>
+        /// <param name="freeType">Type of free operation to use.  See <see cref="MemoryFreeType" />.</param>
         /// <returns>Returns true on success, false on failure.</returns>
         public bool FreeMemory(IntPtr address, int size, MemoryFreeType freeType)
         {
@@ -309,11 +324,11 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Allocates memory inside the opened process.
+        ///     Allocates memory inside the opened process.
         /// </summary>
         /// <param name="size">Number of bytes to allocate.</param>
-        /// <param name="allocationType">Type of memory allocation.  See <see cref="MemoryAllocationType"/>.</param>
-        /// <param name="protect">Type of memory protection.  See <see cref="MemoryProtectionType"/></param>
+        /// <param name="allocationType">Type of memory allocation.  See <see cref="MemoryAllocationType" />.</param>
+        /// <param name="protect">Type of memory protection.  See <see cref="MemoryProtectionType" /></param>
         /// <returns>Returns NULL on failure, or the base address of the allocated memory on success.</returns>
         public IntPtr AllocateMemory(int size, MemoryAllocationType allocationType = MemoryAllocationType.MEM_COMMIT,
             MemoryProtectionType protect = MemoryProtectionType.PAGE_EXECUTE_READWRITE)
@@ -324,7 +339,7 @@ namespace GreyMagic
         #endregion
 
         /// <summary>
-        /// Gets the module loaded by the opened process that matches the given string.
+        ///     Gets the module loaded by the opened process that matches the given string.
         /// </summary>
         /// <param name="sModuleName">String specifying which module to return.</param>
         /// <returns>Returns the module loaded by the opened process that matches the given string.</returns>

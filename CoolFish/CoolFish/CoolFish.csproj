@@ -129,17 +129,10 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>AFFC8B4FEB64C2030BEEF143772FBC574740181C</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>CoolFish.pfx</ManifestKeyFile>
+    <ManifestCertificateThumbprint>2F61D99BCF8DE7DEB9D351657CF72EF30CA242E1</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>false</GenerateManifests>
@@ -151,17 +144,17 @@
     <StartupObject>CoolFishNS.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MarkedUp %28NET45%29, Version=1.3.1.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="MarkedUp %28NET45%29, Version=1.3.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MarkedUp.1.3.1\lib\Net45\MarkedUp (NET45).dll</HintPath>
+      <HintPath>..\packages\MarkedUp.1.3.5\lib\Net45\MarkedUp (NET45).dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=3.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+    <Reference Include="NLog, Version=3.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.3.0.0.0\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Octokit, Version=0.3.4.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Octokit, Version=0.3.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Octokit.0.3.4\lib\net45\Octokit.dll</HintPath>
+      <HintPath>..\packages\Octokit.0.3.5\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
@@ -399,6 +392,7 @@
     <Content Include="README.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <SplashScreen Include="SplashScreen.png" />
     <None Include="Resources\GreyMagic.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -418,14 +412,12 @@
 Version.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>cd $(TargetDir)
-
-del *.zip
-Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.exe.config GreyMagic.dll Octokit.dll NLog.dll "MarkedUp (NET45).dll"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_DetectChanges="True" />
+      <UserProperties BuildVersion_DetectChanges="True" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

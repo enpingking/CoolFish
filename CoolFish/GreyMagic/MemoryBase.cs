@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Fasm;
 using GreyMagic.Internals;
 using GreyMagic.Native;
 
@@ -10,70 +9,24 @@ namespace GreyMagic
 {
     public abstract class MemoryBase : IDisposable
     {
-        private PatchManager _patchManager;
+        /// <summary>Gets the image base.</summary>
+        public IntPtr ImageBase;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MemoryBase"/> class.
-        /// </summary>
-        /// <param name="proc">The process.</param>
-        /// <remarks>Created 2012-02-15</remarks>
-        protected MemoryBase(Process proc)
-        {
-            // Good to set this too if ure using events.
-            proc.EnableRaisingEvents = true;
-
-            // Since people tend to not realize it exists, we make sure to handle it.
-            proc.Exited += (s, e) =>
-                {
-                    if (ProcessExited != null)
-                    {
-                        ProcessExited(s, e);
-                    }
-                    HandleProcessExiting();
-                };
-
-            Process = proc;
-            proc.ErrorDataReceived += OutputDataReceived;
-            proc.OutputDataReceived += OutputDataReceived;
-
-            Process.EnterDebugMode();
-            ProcessAccessFlags a = ProcessAccessFlags.PROCESS_CREATE_THREAD |
-                                   ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
-                                   ProcessAccessFlags.PROCESS_SET_INFORMATION | ProcessAccessFlags.PROCESS_TERMINATE |
-                                   ProcessAccessFlags.PROCESS_VM_OPERATION | ProcessAccessFlags.PROCESS_VM_READ |
-                                   ProcessAccessFlags.PROCESS_VM_WRITE | ProcessAccessFlags.SYNCHRONIZE;
-
-            ProcessHandle = Imports.OpenProcess(a, false, proc.Id);
-            ImageBase = Process.MainModule.BaseAddress;
-        }
-
-        /// <summary>
-        /// Provides access to the PatchManager class, which allows you to apply and remove patches.
-        /// </summary>
-        public PatchManager Patches { get { return _patchManager ?? (_patchManager = new PatchManager(this)); } }
-
-        /// <summary>
-        /// Gets the process.
-        /// </summary>
-        /// <remarks>Created 2012-02-15</remarks>
-        public Process Process { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the process handle.
+        ///     Gets or sets the process handle.
         /// </summary>
         /// <value>
-        /// The process handle.
+        ///     The process handle.
         /// </value>
         /// <remarks>Created 2012-02-15</remarks>
         public SafeMemoryHandle ProcessHandle;
 
-        /// <summary>Gets the image base.</summary>
-        public IntPtr ImageBase;
+        private PatchManager _patchManager;
 
         #region Read-Write
 
         /// <summary>
-        /// Reads a specific number of bytes from memory.
+        ///     Reads a specific number of bytes from memory.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="count">The count.</param>
@@ -82,18 +35,18 @@ namespace GreyMagic
         public abstract byte[] ReadBytes(IntPtr address, int count, bool isRelative = false);
 
         /// <summary>
-        /// Writes a set of bytes to memory.
+        ///     Writes a set of bytes to memory.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="bytes">The bytes.</param>
         /// <param name="isRelative">if set to <c>true</c> [is relative].</param>
         /// <returns>
-        /// Number of bytes written.
+        ///     Number of bytes written.
         /// </returns>
         public abstract int WriteBytes(IntPtr address, byte[] bytes, bool isRelative = false);
 
         /// <summary>
-        /// Reads the struct array.
+        ///     Reads the struct array.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="address">The address.</param>
@@ -104,19 +57,18 @@ namespace GreyMagic
         {
             if (isRelative)
                 address = GetAbsolute(address);
-            
+
             var ret = new T[elements];
 
             for (int i = 0; i < elements; i++)
             {
-                ret[i] = Read<T>(address + (i * MarshalCache<T>.Size));
+                ret[i] = Read<T>(address + (i*MarshalCache<T>.Size));
             }
 
             return ret;
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -127,7 +79,6 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -136,17 +87,17 @@ namespace GreyMagic
         /// <param name="destIsRelative"></param>
         public virtual void MemCopy<T>(IntPtr source, bool sourceIsRelative, IntPtr dest, bool destIsRelative) where T : struct
         {
-            Write(dest, Read<T>(source,sourceIsRelative),destIsRelative);
+            Write(dest, Read<T>(source, sourceIsRelative), destIsRelative);
         }
 
         public virtual void MemCopy(IntPtr source, IntPtr dest, int count)
         {
-            WriteBytes(dest, ReadBytes(source,count));
+            WriteBytes(dest, ReadBytes(source, count));
         }
 
         public virtual void MemCopyString(IntPtr source, IntPtr dest, Encoding encoding)
         {
-            WriteString(dest, ReadString(source, encoding),encoding);
+            WriteString(dest, ReadString(source, encoding), encoding);
         }
 
         /// <summary> Reads a value from the specified address in memory. </summary>
@@ -247,18 +198,75 @@ namespace GreyMagic
         #region IDisposable Members
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <remarks>Created 2012-02-15</remarks>
         public virtual void Dispose()
         {
             Process.LeaveDebugMode();
+            IsDisposed = true;
         }
 
         #endregion
 
         /// <summary>
-        /// Handles the process exiting.
+        ///     Initializes a new instance of the <see cref="MemoryBase" /> class.
+        /// </summary>
+        /// <param name="proc">The process.</param>
+        /// <remarks>Created 2012-02-15</remarks>
+        protected MemoryBase(Process proc)
+        {
+            if (proc.HasExited)
+            {
+                throw new AccessViolationException("Process: " + proc.Id + " has already exited. Can not attach to it.");
+            }
+            Process.EnterDebugMode();
+            // Good to set this too if ure using events.
+            proc.EnableRaisingEvents = true;
+
+            // Since people tend to not realize it exists, we make sure to handle it.
+            proc.Exited += (s, e) =>
+            {
+                if (ProcessExited != null)
+                {
+                    ProcessExited(s, e);
+                }
+                HandleProcessExiting();
+            };
+
+            Process = proc;
+            proc.ErrorDataReceived += OutputDataReceived;
+            proc.OutputDataReceived += OutputDataReceived;
+
+
+            const ProcessAccessFlags a = ProcessAccessFlags.PROCESS_CREATE_THREAD |
+                                         ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
+                                         ProcessAccessFlags.PROCESS_SET_INFORMATION | ProcessAccessFlags.PROCESS_TERMINATE |
+                                         ProcessAccessFlags.PROCESS_VM_OPERATION | ProcessAccessFlags.PROCESS_VM_READ |
+                                         ProcessAccessFlags.PROCESS_VM_WRITE | ProcessAccessFlags.SYNCHRONIZE;
+
+            ProcessHandle = Imports.OpenProcess(a, false, proc.Id);
+            ImageBase = Process.MainModule.BaseAddress;
+        }
+
+        public bool IsDisposed { get; set; }
+
+        /// <summary>
+        ///     Provides access to the PatchManager class, which allows you to apply and remove patches.
+        /// </summary>
+        public PatchManager Patches
+        {
+            get { return _patchManager ?? (_patchManager = new PatchManager(this)); }
+        }
+
+        /// <summary>
+        ///     Gets the process.
+        /// </summary>
+        /// <remarks>Created 2012-02-15</remarks>
+        public Process Process { get; private set; }
+
+        /// <summary>
+        ///     Handles the process exiting.
         /// </summary>
         /// <remarks>Created 2012-02-15</remarks>
         protected virtual void HandleProcessExiting()
@@ -274,7 +282,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the absolute.
+        ///     Gets the absolute.
         /// </summary>
         /// <param name="relative">The relative.</param>
         /// <returns></returns>
@@ -285,7 +293,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the relative.
+        ///     Gets the relative.
         /// </summary>
         /// <param name="absolute">The absolute.</param>
         /// <returns></returns>
@@ -296,7 +304,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Creates a function.
+        ///     Creates a function.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="address">The address.</param>
@@ -309,7 +317,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the funtion pointer from a delegate.
+        ///     Gets the funtion pointer from a delegate.
         /// </summary>
         /// <param name="d">The d.</param>
         /// <returns></returns>
@@ -320,7 +328,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the VF table entry.
+        ///     Gets the VF table entry.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="index">The index.</param>
@@ -329,7 +337,7 @@ namespace GreyMagic
         public IntPtr GetVFTableEntry(IntPtr address, int index)
         {
             var vftable = Read<IntPtr>(address);
-            return Read<IntPtr>(vftable + (index * 4));
+            return Read<IntPtr>(vftable + (index*4));
         }
     }
 }

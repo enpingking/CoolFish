@@ -30,8 +30,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             {
                 string res =
                     DxHook.ExecuteScript("local startTime, duration,enable = GetItemCooldown(88535) " +
-                                                  " expires =  GetTime() - (startTime + duration) " +
-                                                  " if expires > 0 and enable == 1 then expires=1 else expires = 0 end; ",
+                                         " expires =  GetTime() - (startTime + duration) " +
+                                         " if expires > 0 and enable == 1 then expires=1 else expires = 0 end; ",
                         "expires");
 
 
@@ -52,8 +52,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             Logger.Info(Name);
 
             string weaponId = DxHook.ExecuteScript("SpellStopCasting() " +
-                                                            " weaponId = GetInventoryItemID(\"player\", 16); " +
-                                                            " EquipItemByName(88535);", "weaponId");
+                                                   " weaponId = GetInventoryItemID(\"player\", 16); " +
+                                                   " EquipItemByName(88535);", "weaponId");
 
 
             if (weaponId == "88535")

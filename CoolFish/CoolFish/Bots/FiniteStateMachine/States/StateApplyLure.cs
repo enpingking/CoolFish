@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Utilities;
 using NLog;

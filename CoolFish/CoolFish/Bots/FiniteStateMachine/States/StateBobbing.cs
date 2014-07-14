@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager;
@@ -43,13 +41,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                List<WoWGameObject> list =
-                    ObjectManager.GetObjectsOfType<WoWGameObject>().Where(
-                        o => o.CreatedBy == ObjectManager.Me.Guid && o.AnimationState == 0x440001)
-                        .ToList();
-
-                _bobber = list.Any() ? list[0] : null;
-
+                _bobber = ObjectManager.GetSpecificObject(IsBobber, WoWObject.ToWoWGameObject);
 
                 if (_bobber == null)
                 {
@@ -63,6 +55,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public override string Name
         {
             get { return "Caught a fish."; }
+        }
+
+        private static bool IsBobber(WoWGameObject objectToCheck)
+        {
+            return objectToCheck.CreatedBy == ObjectManager.PlayerGuid && objectToCheck.AnimationState == 0x440001;
         }
 
         /// <summary>

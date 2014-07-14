@@ -112,12 +112,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F90F5498D7E82E01432091684C0B1EDA"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_FB0ECB51F240A1E23B21298F896B8B60"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -131,6 +125,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_7F552492C56DFD24772E7CF2D6DFB04E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F90F5498D7E82E01432091684C0B1EDA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -312,7 +312,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:fasmdll_managed, Version=1.0.5290.36751, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:fasmdll_managed, Version=1.0.5295.15658, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_6E8F20C15A80163695AF4894F41948DF"
@@ -601,15 +601,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CoolFish"
-        "ProductCode" = "8:{615C8FD3-4B28-4900-89B7-BF93224AD741}"
-        "PackageCode" = "8:{E1958809-D5DD-43A7-A199-5E7B98D937A6}"
+        "ProductCode" = "8:{1E2E704D-2A66-4522-BB11-B446D4B74DA2}"
+        "PackageCode" = "8:{25E8847A-FA2F-4827-86CC-04170C82E999}"
         "UpgradeCode" = "8:{799429CB-2997-4E92-B7E5-D0BDC2461FF1}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.1"
+        "ProductVersion" = "8:2.2.2"
         "Manufacturer" = "8:~Unknown~"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://unknowndev.github.io/CoolFish"
@@ -1177,6 +1177,34 @@
                 {
                 }
             }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7C033B5095FB43AE9047AFC241A89641"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_C679D93DBC194C68B3F1C0250B26F6A7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{4756CF18-2091-446F-A79D-9E521611DEB5}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A31F997FE0674AD4B66BE8A48223381E"
             {
             "SourcePath" = "8:..\\CoolFish\\obj\\x86\\Release\\CoolFish.exe"
@@ -1200,6 +1228,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{440BA8EC-0DAA-4E57-9EE4-52B2088031AE}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AD5D30D4CCF240498E4845D544A60F53"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_C679D93DBC194C68B3F1C0250B26F6A7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{29BEE34E-8D6A-47BF-96FA-ABA46F6E9B66}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

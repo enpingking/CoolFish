@@ -19,7 +19,7 @@ namespace CoolFishNS.Utilities
             using (var fs = new FileStream(filename, FileMode.Open))
             {
                 var formatter = new BinaryFormatter();
-                return (T)formatter.Deserialize(fs);
+                return (T) formatter.Deserialize(fs);
             }
         }
 

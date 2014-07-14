@@ -7,8 +7,7 @@
     Title="CoolFish" Height="268.2"
     Width="649.8" ResizeMode="NoResize" Closing="MetroWindow_Closing_1" Visibility="Visible"
     Loaded="MetroWindow_Loaded_1"
-    ShowActivated="True" WindowStyle="None"
-    WindowStartupLocation="CenterScreen">
+    ShowActivated="True" WindowStyle="None" >
 
 
     <Border x:Uid="Border_1" Padding="6">

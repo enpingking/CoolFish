@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Net;
-using System.Net.Cache;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Navigation;
+using CoolFishNS.Analytics;
 using CoolFishNS.Management;
 using CoolFishNS.Targets;
 using CoolFishNS.Utilities;
@@ -12,7 +12,6 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using NLog.Targets.Wrappers;
-using Octokit;
 
 namespace CoolFishNS
 {
@@ -23,7 +22,6 @@ namespace CoolFishNS
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        internal static App CurrentApp = new App();
         internal static string ActiveLogFileName;
 
         internal static void StartUp()
@@ -35,16 +33,12 @@ namespace CoolFishNS
                 CultureInfo.DefaultThreadCurrentCulture = DefaultCultureInfo();
                 LogManager.DefaultCultureInfo = DefaultCultureInfo;
                 LocalSettings.LoadSettings();
-                InitializeLoggers();            
-                
+                InitializeLoggers();
             }
             catch (Exception ex)
             {
                 Logger.Fatal("Error while starting up", ex);
             }
-           
-
-
         }
 
         private static CultureInfo DefaultCultureInfo()
@@ -58,7 +52,7 @@ namespace CoolFishNS
             {
                 BotManager.ShutDown();
                 LocalSettings.SaveSettings();
-                Analytics.MarkedUpAnalytics.ShutDown();
+                MarkedUpAnalytics.ShutDown();
                 LogManager.Flush(5000);
                 LogManager.Shutdown();
             }
@@ -71,29 +65,31 @@ namespace CoolFishNS
         private static void InitializeLoggers()
         {
             var config = new LoggingConfiguration();
-            var now = DateTime.Now;
-            ActiveLogFileName = string.Format("{0}\\Logs\\{1}\\[CoolFish-{2}] {3}.txt", Utilities.Utilities.ApplicationPath, now.ToString("MMMM dd yyyy"), Process.GetCurrentProcess().Id,
+            DateTime now = DateTime.Now;
+            ActiveLogFileName = string.Format("{0}\\Logs\\{1}\\[CoolFish-{2}] {3}.txt", Utilities.Utilities.ApplicationPath,
+                now.ToString("MMMM dd yyyy"), Process.GetCurrentProcess().Id,
                 now.ToString("T").Replace(':', '.'));
 
             var file = new FileTarget
             {
                 FileName = ActiveLogFileName,
-                Layout = @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}",
+                Layout =
+                    @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}",
                 CreateDirs = true,
                 ConcurrentWrites = false
-                    
             };
 
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace,
+            config.LoggingRules.Add(new LoggingRule("*", LogLevel.FromOrdinal(LocalSettings.Settings["LogLevel"]),
                 new AsyncTargetWrapper(file) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
 
             var markedUp = new MarkedUpTarget
             {
-                Layout = @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}"
+                Layout =
+                    @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}"
             };
 
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace,
-                new AsyncTargetWrapper(markedUp) { OverflowAction = AsyncTargetWrapperOverflowAction.Grow }));
+            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Error,
+                new AsyncTargetWrapper(markedUp) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
 
 
             LogManager.Configuration = config;
@@ -102,8 +98,9 @@ namespace CoolFishNS
         [STAThread]
         public static void Main()
         {
+            new SplashScreen("SplashScreen.png").Show(true,true);
             StartUp();
-            CurrentApp.Run(new MainWindow());
+            new App().Run(new MainWindow());
             ShutDown();
         }
     }

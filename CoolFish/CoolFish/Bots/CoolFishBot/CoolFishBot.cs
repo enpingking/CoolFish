@@ -89,7 +89,7 @@ namespace CoolFishNS.Bots.CoolFishBot
                 _stopTimer = new Timer(Callback, null, 0,
                     (int) (LocalSettings.Settings["MinutesToStop"].As<double>()*60*1000));
             }
-            
+
             LocalSettings.DumpSettingsToLog();
             _theEngine.StartEngine();
         }
@@ -102,11 +102,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         public void StopBot()
         {
             _theEngine.StopEngine();
-            if (_stopTimer != null)
-            {
-                _stopTimer.Dispose();
-                _stopTimer = null;
-            }
+            _stopTimer = null;
         }
 
         /// <inheritdoc />
@@ -145,10 +141,7 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void Dispose(bool disposing)
         {
-            if (disposing && _stopTimer != null)
-            {
-                _stopTimer.Dispose();
-            }
+            _stopTimer = null;
         }
 
         ~CoolFishBot()

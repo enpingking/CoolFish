@@ -6,17 +6,17 @@ using System.Text;
 namespace GreyMagic.Native
 {
     /// <summary>
-    /// A class to extract PE header information from modules or PE files.
+    ///     A class to extract PE header information from modules or PE files.
     /// </summary>
     public class PeHeaderParser
     {
         /// <summary>
-        /// The handle, or base address, to the current PE file.
+        ///     The handle, or base address, to the current PE file.
         /// </summary>
         public IntPtr ModulePtr;
 
         /// <summary>
-        /// Creates a new instance of the PeHeaderParser class, using the specified path to a PE file.
+        ///     Creates a new instance of the PeHeaderParser class, using the specified path to a PE file.
         /// </summary>
         /// <param name="peFile"></param>
         public PeHeaderParser(string peFile)
@@ -32,7 +32,7 @@ namespace GreyMagic.Native
         }
 
         /// <summary>
-        /// Creates a new instance of the PeHeaderParser class, using the handle or base address, to the specified module.
+        ///     Creates a new instance of the PeHeaderParser class, using the handle or base address, to the specified module.
         /// </summary>
         /// <param name="hModule">The hModule.</param>
         public PeHeaderParser(IntPtr hModule)
@@ -45,12 +45,12 @@ namespace GreyMagic.Native
         }
 
         /// <summary>
-        /// Retrieves the IMAGE_DOS_HEADER for this PE file.
+        ///     Retrieves the IMAGE_DOS_HEADER for this PE file.
         /// </summary>
         public ImageDosHeader DosHeader { get; private set; }
 
         /// <summary>
-        /// Retrieves the IMAGE_NT_HEADER for this PE file. (This includes and nested structs, etc)
+        ///     Retrieves the IMAGE_NT_HEADER for this PE file. (This includes and nested structs, etc)
         /// </summary>
         public ImageNtHeader NtHeader { get; private set; }
 
@@ -95,14 +95,12 @@ namespace GreyMagic.Native
             public UInt16 e_lfarlc; // File address of relocation table
             public UInt16 e_ovno; // Overlay number
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-            public UInt16[] e_res1; // Reserved words
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)] public UInt16[] e_res1; // Reserved words
 
             public UInt16 e_oemid; // OEM identifier (for e_oeminfo)
             public UInt16 e_oeminfo; // OEM information; e_oemid specific
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-            public UInt16[] e_res2; // Reserved words
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)] public UInt16[] e_res2; // Reserved words
 
             public Int32 e_lfanew; // File address of new exe header
         }
@@ -197,15 +195,14 @@ namespace GreyMagic.Native
             public uint LoaderFlags;
             public uint NumberOfRvaAndSizes;
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-            public ImageDataDirectory[] DataDirectory;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)] public ImageDataDirectory[] DataDirectory;
 
             public override string ToString()
             {
                 var dataDir = new StringBuilder();
                 foreach (ImageDataDirectory directory in DataDirectory)
                 {
-                    dataDir.Append(directory.ToString());
+                    dataDir.Append(directory);
                 }
                 return
                     string.Format(
@@ -241,12 +238,10 @@ namespace GreyMagic.Native
             }
         }
 
-        // ReSharper disable InconsistentNaming
-
         #region Nested type: PeHeaderConstants
 
         /// <summary>
-        /// Contains constants ripped from WinNT.h
+        ///     Contains constants ripped from WinNT.h
         /// </summary>
         public class PeHeaderConstants
         {
@@ -304,6 +299,8 @@ namespace GreyMagic.Native
         }
 
         #endregion
+
+        // ReSharper disable InconsistentNaming
 
         // ReSharper restore InconsistentNaming
     }

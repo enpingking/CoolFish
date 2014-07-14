@@ -10,8 +10,8 @@ namespace CoolFishNS.Management.CoolManager.Objects
     public static class ObjectManager
     {
         /// <summary>
-        ///    Expensive call to get a list of all Objects. This will be a currently up to date list.
-        ///    Cache this result if you don't need an updated list each call
+        ///     Expensive call to get a list of all Objects. This will be a currently up to date list.
+        ///     Cache this result if you don't need an updated list each call
         /// </summary>
         public static List<WoWObject> Objects
         {
@@ -19,39 +19,39 @@ namespace CoolFishNS.Management.CoolManager.Objects
             {
                 var objects = new List<WoWObject>();
 
-                var playerguid = PlayerGuid;
+                ulong playerguid = PlayerGuid;
                 var currentObject =
                     new WoWObject(
-                        BotManager.Memory.Read<IntPtr>(CurrentManager + (int)Offsets.ObjectManager.FirstObject));
+                        BotManager.Memory.Read<IntPtr>(CurrentManager + (int) Offsets.ObjectManager.FirstObject));
 
                 while (((currentObject.BaseAddress.ToInt64() & 1) == 0) && currentObject.BaseAddress != IntPtr.Zero)
                 {
                     switch (currentObject.Type)
                     {
-                        case (int)ObjectType.Unit:
+                        case (int) ObjectType.Unit:
                             objects.Add(new WoWUnit(currentObject.BaseAddress));
                             break;
 
-                        case (int)ObjectType.Item:
+                        case (int) ObjectType.Item:
                             objects.Add(new WoWItem(currentObject.BaseAddress));
                             break;
 
-                        case (int)ObjectType.Container:
+                        case (int) ObjectType.Container:
                             objects.Add(new WoWContainer(currentObject.BaseAddress));
                             break;
 
-                        case (int)ObjectType.Corpse:
+                        case (int) ObjectType.Corpse:
                             objects.Add(new WoWCorpse(currentObject.BaseAddress));
                             break;
 
-                        case (int)ObjectType.Gameobject:
+                        case (int) ObjectType.Gameobject:
                             objects.Add(new WoWGameObject(currentObject.BaseAddress));
                             break;
 
-                        case (int)ObjectType.Dynamicobject:
+                        case (int) ObjectType.Dynamicobject:
                             objects.Add(new WoWDynamicObject(currentObject.BaseAddress));
                             break;
-                        case (int)ObjectType.Player:
+                        case (int) ObjectType.Player:
                             if (currentObject.Guid != playerguid)
                             {
                                 objects.Add(new WoWPlayer(currentObject.BaseAddress));
@@ -65,7 +65,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
                     currentObject.BaseAddress =
                         BotManager.Memory.Read<IntPtr>(
-                            currentObject.BaseAddress + (int)Offsets.ObjectManager.NextObject);
+                            currentObject.BaseAddress + (int) Offsets.ObjectManager.NextObject);
                 }
 
                 return objects;
@@ -80,12 +80,12 @@ namespace CoolFishNS.Management.CoolManager.Objects
         {
             get
             {
-                   var pointer = BotManager.Memory.Read<IntPtr>(Offsets.Addresses["PlayerPointer"]);
-                    if (pointer.Equals(IntPtr.Zero))
-                    {
-                        return null;
-                    }
-                    return new WoWPlayerMe(pointer);
+                var pointer = BotManager.Memory.Read<IntPtr>(Offsets.Addresses["PlayerPointer"]);
+                if (pointer.Equals(IntPtr.Zero))
+                {
+                    return null;
+                }
+                return new WoWPlayerMe(pointer);
             }
         }
 
@@ -154,15 +154,93 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
         #endregion <Enums>
 
-        /// <summary>
-        ///    Expensive call to get objects of the specified type.
-        ///    Cache this result if you don't need an updated list each call
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IEnumerable<T> GetObjectsOfType<T>() where T : WoWObject
+        private static int GetWoWTypeFromClassType(Type t)
         {
-            return (from t1 in Objects.AsParallel() let t = t1.GetType() where t == typeof (T) select t1).OfType<T>();
+            if (t == typeof (WoWObject))
+            {
+                return 0;
+            }
+            if (t == typeof (WoWItem))
+            {
+                return 1;
+            }
+            if (t == typeof (WoWContainer))
+            {
+                return 2;
+            }
+            if (t == typeof (WoWUnit))
+            {
+                return 3;
+            }
+            if (t == typeof (WoWPlayer) || t == typeof (WoWPlayerMe))
+            {
+                return 4;
+            }
+            if (t == typeof (WoWGameObject))
+            {
+                return 5;
+            }
+            if (t == typeof (WoWDynamicObject))
+            {
+                return 6;
+            }
+            if (t == typeof (WoWCorpse))
+            {
+                return 7;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        ///     Gets a first object matching the passed boolean predicate function
+        /// </summary>
+        /// <typeparam name="T">The WoWObject (or subclass) type desired</typeparam>
+        /// <param name="predicate">The boolean function to check objects against</param>
+        /// <param name="conversionFunction">
+        ///     Function to convert a WoWObject to the T object type (Can just instantiate a new
+        ///     object of type T).
+        /// </param>
+        /// <returns></returns>
+        public static T GetSpecificObject<T>(Predicate<T> predicate, Func<WoWObject, T> conversionFunction) where T : WoWObject
+        {
+            if (predicate == null)
+            {
+                return null;
+            }
+
+            int type = GetWoWTypeFromClassType(typeof (T));
+            var currentObject =
+                new WoWObject(
+                    BotManager.Memory.Read<IntPtr>(CurrentManager + (int) Offsets.ObjectManager.FirstObject));
+
+            while (((currentObject.BaseAddress.ToInt64() & 1) == 0) && currentObject.BaseAddress != IntPtr.Zero)
+            {
+                if (currentObject.Type == type)
+                {
+                    T obj = conversionFunction(currentObject);
+
+                    if (predicate(obj))
+                    {
+                        return obj;
+                    }
+                }
+
+                currentObject.BaseAddress =
+                    BotManager.Memory.Read<IntPtr>(
+                        currentObject.BaseAddress + (int) Offsets.ObjectManager.NextObject);
+            }
+            return null;
+        }
+
+        /// <summary>
+        ///     Expensive call to get objects of the specified type.
+        ///     Cache this result if you don't need an updated list each call
+        /// </summary>
+        /// <typeparam name="T">Type of objects to get. Must inherit from WoWObject</typeparam>
+        /// <returns></returns>
+        public static List<T> GetObjectsOfType<T>() where T : WoWObject
+        {
+            return (from t1 in Objects.AsParallel() let t = t1.GetType() where t == typeof (T) select t1).OfType<T>().ToList();
         }
     }
 }

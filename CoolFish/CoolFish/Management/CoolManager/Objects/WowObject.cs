@@ -116,7 +116,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public virtual BitVector32 DynamicFlags
         {
-            get { return GetStorageField<BitVector32>( Offsets.WoWObjectFields.DynamicFlags); }
+            get { return GetStorageField<BitVector32>(Offsets.WoWObjectFields.DynamicFlags); }
         }
 
         /// <summary>
@@ -162,6 +162,11 @@ namespace CoolFishNS.Management.CoolManager.Objects
         public void MoveTo()
         {
             ObjectManager.Me.MoveTo(Location);
+        }
+
+        public static WoWGameObject ToWoWGameObject(WoWObject obj)
+        {
+            return new WoWGameObject(obj.BaseAddress);
         }
     }
 }

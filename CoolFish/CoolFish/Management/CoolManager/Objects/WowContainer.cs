@@ -41,7 +41,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWContainerFields field) where T : struct
         {
-            return GetStorageField<T>((int)field);
+            return GetStorageField<T>((int) field);
         }
     }
 }

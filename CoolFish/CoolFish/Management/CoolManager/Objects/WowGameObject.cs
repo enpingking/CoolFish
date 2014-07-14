@@ -24,7 +24,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int DisplayID
         {
-            get { return GetStorageField<int>( Offsets.WoWGameObjectFields.DisplayID); }
+            get { return GetStorageField<int>(Offsets.WoWGameObjectFields.DisplayID); }
         }
 
         public int AnimationState
@@ -37,12 +37,12 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Faction
         {
-            get { return GetStorageField<int>( Offsets.WoWGameObjectFields.FactionTemplate); }
+            get { return GetStorageField<int>(Offsets.WoWGameObjectFields.FactionTemplate); }
         }
 
         public BitVector32 Flags
         {
-            get { return GetStorageField<BitVector32>( Offsets.WoWGameObjectFields.Flags); }
+            get { return GetStorageField<BitVector32>(Offsets.WoWGameObjectFields.Flags); }
         }
 
         public bool Locked
@@ -70,7 +70,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Level
         {
-            get { return GetStorageField<int>( Offsets.WoWGameObjectFields.Level); }
+            get { return GetStorageField<int>(Offsets.WoWGameObjectFields.Level); }
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong CreatedBy
         {
-            get { return GetStorageField<ulong>( Offsets.WoWGameObjectFields.CreatedBy); }
+            get { return GetStorageField<ulong>(Offsets.WoWGameObjectFields.CreatedBy); }
         }
 
         /// <summary>
@@ -91,9 +91,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
             {
                 return
                     BotManager.Memory.ReadString(
-                            BotManager.Memory.Read<IntPtr>(
-                                    BotManager.Memory.Read<IntPtr>(BaseAddress + (int) Offsets.WowGameObject.Name1) +
-                                      (int)Offsets.WowGameObject.Name2), Encoding.UTF8);
+                        BotManager.Memory.Read<IntPtr>(
+                            BotManager.Memory.Read<IntPtr>(BaseAddress + (int) Offsets.WowGameObject.Name1) +
+                            (int) Offsets.WowGameObject.Name2), Encoding.UTF8);
             }
         }
 
@@ -146,7 +146,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWGameObjectFields field) where T : struct
         {
-            return GetStorageField<T>((int)field);
+            return GetStorageField<T>((int) field);
         }
     }
 }

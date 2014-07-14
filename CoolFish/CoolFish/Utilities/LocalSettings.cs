@@ -103,7 +103,6 @@ namespace CoolFishNS.Utilities
             {
                 Logger.Warn("Failed to save settings to disk. Settings may be lost upon reopening CoolFish", ex);
             }
-            
         }
 
         /// <summary>

@@ -32,8 +32,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                string result = DxHook.ExecuteScript("loot = IsFishingLoot();", "loot");
-                return (ObjectManager.Me.Channeling == 0) && (result != "1");
+                WoWPlayerMe me = ObjectManager.Me;
+                if (me == null)
+                {
+                    return false;
+                }
+
+                return (me.Channeling == 0) && (DxHook.ExecuteScript("loot = IsFishingLoot();", "loot") != "1");
             }
         }
 
