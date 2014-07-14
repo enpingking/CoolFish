@@ -36,7 +36,6 @@ namespace CoolFishNS.Management.CoolManager
         /// </returns>
         internal static bool FindOffsets(Process proc)
         {
-            
             if (proc == null || proc.HasExited)
             {
                 Logger.Info("Invalid process");

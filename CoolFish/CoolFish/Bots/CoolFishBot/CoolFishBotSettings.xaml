@@ -42,11 +42,12 @@
             </Border.Background>
             <Grid x:Uid="SettingsGrid" x:Name="SettingsGrid" Height="269"
                   VerticalAlignment="Top" HorizontalAlignment="Left" Width="833" Margin="-6">
-                <Label x:Name="DataGridInfo" Content="Deselect cell to finish editing" Margin="10,10,630,232" FontWeight="Bold"/>
+                <Label x:Name="DataGridInfo" Content="Deselect cell to finish editing" Margin="10,10,630,232"
+                       FontWeight="Bold" />
                 <DataGrid x:Uid="ItemsGrid" x:Name="ItemsGrid" HorizontalAlignment="Left" Margin="10,37,0,0"
                           IsReadOnly="False"
                           VerticalAlignment="Top" Height="191" Width="193" AutoGenerateColumns="False"
-                          Background="#FFB0B0B0" BorderBrush="{x:Null}"  />
+                          Background="#FFB0B0B0" BorderBrush="{x:Null}" />
                 <Label x:Uid="StopLBL" x:Name="StopLBL" Content="Stop On" HorizontalAlignment="Left"
                        Margin="607,31,0,0" VerticalAlignment="Top" Foreground="Black"
                        FontSize="13" Width="216" />

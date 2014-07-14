@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using NLog;

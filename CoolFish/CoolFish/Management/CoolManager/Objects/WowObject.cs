@@ -116,7 +116,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public virtual BitVector32 DynamicFlags
         {
-            get { return GetStorageField<BitVector32>( Offsets.WoWObjectFields.DynamicFlags); }
+            get { return GetStorageField<BitVector32>(Offsets.WoWObjectFields.DynamicFlags); }
         }
 
         /// <summary>

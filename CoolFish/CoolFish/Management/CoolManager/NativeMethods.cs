@@ -28,6 +28,5 @@ namespace CoolFishNS.Management.CoolManager
 
         [DllImport("d3d9.dll")]
         internal static extern IntPtr Direct3DCreate9(uint sdkVersion);
-
     }
 }

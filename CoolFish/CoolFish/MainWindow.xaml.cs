@@ -7,18 +7,14 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using CoolFishNS.Bots;
-using CoolFishNS.Exceptions;
 using CoolFishNS.Management;
-using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
 using CoolFishNS.Targets;
 using CoolFishNS.Utilities;
 using NLog;
 using NLog.Config;
 using NLog.Targets.Wrappers;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace CoolFishNS
 {
@@ -64,13 +60,14 @@ namespace CoolFishNS
                     isEnabled = script.IsChecked
                 };
             }
+            LocalSettings.Settings["LogLevel"] = LogLevelCMB.SelectedIndex;
         }
 
         private void RefreshProcesses()
         {
             ProcessCB.Items.Clear();
 
-            _processes = GetWowProcesses();
+            _processes = BotManager.GetWowProcesses();
 
             foreach (Process process in _processes)
             {
@@ -83,32 +80,6 @@ namespace CoolFishNS
                     Logger.Trace("Error adding process", ex);
                 }
             }
-        }
-
-        /// <summary>
-        ///     Gets a List of 32-bit Wow processes currently running on the system
-        /// </summary>
-        /// <returns>List of Process objects</returns>
-        public static Process[] GetWowProcesses()
-        {
-            Process[] proc = Process.GetProcessesByName("WoW");
-            Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
-
-            if (!proc.Any())
-            {
-                if (proc64Bit.Any())
-                {
-                    Logger.Info(
-                        "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
-                }
-                else
-                {
-                    Logger.Info("No WoW processes were found.");
-                }
-            }
-
-
-            return proc;
         }
 
         private void OnCloseWindow(object sender, MouseButtonEventArgs e)
@@ -126,9 +97,8 @@ namespace CoolFishNS
             {
                 if (Logger.IsTraceEnabled)
                 {
-                    Logger.Trace("Error moving window", (Exception)ex);
+                    Logger.Trace("Error moving window", (Exception) ex);
                 }
-                
             }
             catch (Exception ex)
             {
@@ -143,21 +113,17 @@ namespace CoolFishNS
 
         private void LogLevelCMB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-          
-
             try
             {
                 int ordinal = LogLevelCMB.SelectedIndex == -1 ? 2 : LogLevelCMB.SelectedIndex;
-                LocalSettings.Settings["LogLevel"] = BotSetting.As(ordinal);
                 Utilities.Utilities.Reconfigure(ordinal);
-
             }
             catch (Exception ex)
             {
-               Logger.Error("Exception throw while changing log level", ex);
+                Logger.Error("Exception throw while changing log level", ex);
             }
-
         }
+
 
         #region EventHandlers
 
@@ -252,23 +218,17 @@ namespace CoolFishNS
 
         private void MetroWindow_Loaded_1(object sender, RoutedEventArgs e)
         {
-            var textbox = new TextBoxTarget(OutputText) {Layout = @"[${date:format=h\:mm\:ss.ff tt}] [${level:uppercase=true}] ${message}"};
+            var textbox = new TextBoxTarget(OutputText) { Layout = @"[${date:format=h\:mm\:ss.ff tt}] [${level:uppercase=true}] ${message}" };
             var asyncWrapper = new AsyncTargetWrapper(textbox);
-            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, asyncWrapper));
+            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.FromOrdinal(LocalSettings.Settings["LogLevel"]), asyncWrapper));
             LogManager.ReconfigExistingLoggers();
 
             OutputText.Text = Updater.GetNews() + Environment.NewLine;
             Logger.Info("CoolFish Version: " + Utilities.Utilities.Version);
+
             BotManager.StartUp();
 
             UpdateControlSettings();
-
-            if (DateTime.Now.Month == 4 && DateTime.Now.Day == 1)
-            {
-                BackgroundColorObj.Color = Color.FromArgb(0xFF, 0xFF, 0x5C, 0xCD);
-                GradientStopObj.Color = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
-                MessageBox.Show("Happy April 1st! :)");
-            }
 
             BotBaseCB_DropDownOpened(null, null);
             BotBaseCB.SelectedIndex = 0;

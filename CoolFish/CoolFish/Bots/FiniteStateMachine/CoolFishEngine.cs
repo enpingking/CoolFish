@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,9 +10,7 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
-using MarkedUp;
 using NLog;
-using LogLevel = NLog.LogLevel;
 
 namespace CoolFishNS.Bots.FiniteStateMachine
 {
@@ -79,7 +76,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 Running = true;
                 _workerTask = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
             }
-            
         }
 
         /// <summary>
@@ -102,14 +98,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                     _workerTask = null;
                 }
             }
-            
-            
         }
 
         private void AddStates()
         {
-            States = new SortedSet<State>{new StateDoNothing(), new StateStopOrLogout()};
-            
+            States = new SortedSet<State> {new StateDoNothing(), new StateStopOrLogout()};
+
             if (LocalSettings.Settings["DoFishing"])
             {
                 States.Add(new StateFish());
@@ -146,9 +140,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             {
                 States.Add(new StateUseSpear());
             }
-
-
-            
         }
 
         private void InitOptions()
@@ -172,9 +163,9 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             builder.Clear();
             builder.AppendLine("ItemsList = {" + items + "}");
             builder.AppendLine("LootLeftOnly = " +
-                           LocalSettings.Settings["LootOnlyItems"].ToString().ToLower());
+                               LocalSettings.Settings["LootOnlyItems"].ToString().ToLower());
             builder.AppendLine("DontLootLeft = " +
-                           LocalSettings.Settings["DontLootLeft"].ToString().ToLower());
+                               LocalSettings.Settings["DontLootLeft"].ToString().ToLower());
             builder.AppendLine("LootQuality = " + LocalSettings.Settings["LootQuality"]);
             builder.AppendLine(Resources.WhisperNotes);
             builder.AppendLine("LootLog = {}");
@@ -201,9 +192,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                     state.Run();
                     return;
                 }
-              
             }
-
         }
 
         private void Run()
@@ -216,7 +205,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 while (Running && BotManager.LoggedIn)
                 {
                     Pulse();
-                    Thread.Sleep(1000 / 60);
+                    Thread.Sleep(1000/60);
                 }
 
                 if (BotManager.LoggedIn)
@@ -230,12 +219,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 const string msg = "Stopping bot because we could not execute code required to continue";
                 if (DxHook.TriedHackyHook)
                 {
-                    Logger.Warn(msg, (Exception)ex);
-                    Logger.Info("It seems you tried to create the hook CoolFish needs despite the mention of problems it could cause. This error is likely a result of that. It is recommended that you stop running the interfering program.");
+                    Logger.Warn(msg, (Exception) ex);
+                    Logger.Info(
+                        "It seems you tried to create the hook CoolFish needs despite the mention of problems it could cause. This error is likely a result of that. It is recommended that you stop running the interfering program.");
                 }
                 else
                 {
-                    Logger.Error(msg, (Exception)ex);
+                    Logger.Error(msg, (Exception) ex);
                 }
             }
             catch (HookNotAppliedException)

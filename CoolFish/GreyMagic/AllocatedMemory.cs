@@ -11,7 +11,7 @@ namespace GreyMagic
         private uint _currentOffset;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AllocatedMemory"/> class.
+        ///     Initializes a new instance of the <see cref="AllocatedMemory" /> class.
         /// </summary>
         /// <param name="memory">The memory.</param>
         /// <param name="bytes">The bytes.</param>
@@ -23,19 +23,22 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the <see cref="System.IntPtr"/> with the specified allocated name.
+        ///     Gets the <see cref="System.IntPtr" /> with the specified allocated name.
         /// </summary>
         /// <remarks>Created 2012-02-15</remarks>
-        public IntPtr this[string allocatedName] { get { return (Address + (int) _allocated[allocatedName]); } }
+        public IntPtr this[string allocatedName]
+        {
+            get { return (Address + (int) _allocated[allocatedName]); }
+        }
 
         /// <summary>
-        /// Gets the address.
+        ///     Gets the address.
         /// </summary>
         /// <remarks>Created 2012-02-15</remarks>
         public IntPtr Address { get; private set; }
 
         /// <summary>
-        /// Writes the specified offset in bytes.
+        ///     Writes the specified offset in bytes.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="offsetInBytes">The offset in bytes.</param>
@@ -47,7 +50,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the specified allocated name.
+        ///     Writes the specified allocated name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="allocatedName">Name of the allocated.</param>
@@ -64,7 +67,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the specified allocated name.
+        ///     Writes the specified allocated name.
         /// </summary>
         /// <param name="allocatedName">Name of the allocated.</param>
         /// <param name="value">The value.</param>
@@ -79,7 +82,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the specified allocated name.
+        ///     Writes the specified allocated name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="allocatedName">Name of the allocated.</param>
@@ -92,7 +95,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the string.
+        ///     Writes the string.
         /// </summary>
         /// <param name="allocatedName">Name of the allocated.</param>
         /// <param name="offsetInBytes">The offset in bytes.</param>
@@ -105,7 +108,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the string.
+        ///     Writes the string.
         /// </summary>
         /// <param name="offsetInBytes">The offset in bytes.</param>
         /// <param name="value">The value.</param>
@@ -117,7 +120,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the bytes.
+        ///     Writes the bytes.
         /// </summary>
         /// <param name="offsetInBytes">The offset in bytes.</param>
         /// <param name="bytes">The bytes.</param>
@@ -128,7 +131,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Writes the bytes.
+        ///     Writes the bytes.
         /// </summary>
         /// <param name="allocatedName">Name of the allocated.</param>
         /// <param name="bytes">The bytes.</param>
@@ -144,7 +147,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads the specified offset in bytes.
+        ///     Reads the specified offset in bytes.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="offsetInBytes">The offset in bytes.</param>
@@ -156,7 +159,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads the specified allocated name.
+        ///     Reads the specified allocated name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="allocatedName">Name of the allocated.</param>
@@ -168,7 +171,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Reads the specified allocated name.
+        ///     Reads the specified allocated name.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="allocatedName">Name of the allocated.</param>
@@ -181,7 +184,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the address.
+        ///     Gets the address.
         /// </summary>
         /// <param name="offsetInBytes">The offset in bytes.</param>
         /// <returns></returns>
@@ -192,7 +195,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Allocates the of chunk.
+        ///     Allocates the of chunk.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="allocatedName">Name of the allocated.</param>
@@ -203,7 +206,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Allocates the of chunk.
+        ///     Allocates the of chunk.
         /// </summary>
         /// <param name="allocatedName">Name of the allocated.</param>
         /// <param name="bytes">The bytes.</param>
@@ -216,7 +219,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Gets the allocated chunk.
+        ///     Gets the allocated chunk.
         /// </summary>
         /// <param name="allocatedName">Name of the allocated.</param>
         /// <returns></returns>
@@ -227,14 +230,14 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Aligns to.
+        ///     Aligns to.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="align">The align.</param>
         /// <remarks>Created 2012-02-15</remarks>
         public static void AlignTo(ref uint address, uint align)
         {
-            uint rest = address % align;
+            uint rest = address%align;
             if (rest != 0)
             {
                 address += align - rest;
@@ -242,7 +245,7 @@ namespace GreyMagic
         }
 
         /// <summary>
-        /// Calculates the total size.
+        ///     Calculates the total size.
         /// </summary>
         /// <param name="sizes">The sizes.</param>
         /// <returns></returns>
@@ -262,7 +265,7 @@ namespace GreyMagic
         #region Implementation of IDisposable
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
         public void Dispose()

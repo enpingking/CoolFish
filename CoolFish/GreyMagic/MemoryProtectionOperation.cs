@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace GreyMagic
 {
     /// <summary>
-    /// Can be used to temporarily set Memory protection constants on a page.
+    ///     Can be used to temporarily set Memory protection constants on a page.
     /// </summary>
     /// <remarks>Created 2012-01-16 16:33 by Nesox.</remarks>
     public class MemoryProtectionOperation : IDisposable
@@ -15,14 +15,14 @@ namespace GreyMagic
         private readonly int _size;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MemoryProtectionOperation"/> class.
+        ///     Initializes a new instance of the <see cref="MemoryProtectionOperation" /> class.
         /// </summary>
         /// <param name="hProcess">The process handle.</param>
         /// <param name="address">The address.</param>
         /// <param name="size">The size.</param>
         /// <param name="flNewProtect">The fl new protect.</param>
         /// <remarks>
-        /// Created 2012-01-16 16:34 by Nesox.
+        ///     Created 2012-01-16 16:34 by Nesox.
         /// </remarks>
         public MemoryProtectionOperation(SafeMemoryHandle hProcess, IntPtr address, int size, uint flNewProtect)
         {
@@ -39,7 +39,7 @@ namespace GreyMagic
         #region Implementation of IDisposable
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -54,7 +54,7 @@ namespace GreyMagic
         #endregion
 
         /// <summary>
-        /// Virtuals the protect.
+        ///     Virtuals the protect.
         /// </summary>
         /// <param name="lpAddress">The lp address.</param>
         /// <param name="dwSize">Size of the dw.</param>
@@ -67,7 +67,7 @@ namespace GreyMagic
             out uint lpflOldProtect);
 
         /// <summary>
-        /// Virtuals the protect.
+        ///     Virtuals the protect.
         /// </summary>
         /// <param name="hProcess">The process handle.</param>
         /// <param name="lpAddress">The lp address.</param>

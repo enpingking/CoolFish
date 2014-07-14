@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using CoolFishNS.Management.CoolManager.D3D;
 using NLog;
 using Octokit;
-using Octokit.Internal;
 
 namespace CoolFishNS.GitHub
 {
@@ -22,7 +22,7 @@ namespace CoolFishNS.GitHub
         {
             try
             {
-                var gist = new NewGist { Description = description, Public = false };
+                var gist = new NewGist {Description = description, Public = false};
                 gist.Files.Add(filename, contents);
                 return Client.Gist.Create(gist).Result;
             }
@@ -32,23 +32,20 @@ namespace CoolFishNS.GitHub
             }
             catch (Exception ex)
             {
-                
                 Logger.Warn("Failed to create Gist", ex);
-                
             }
             return null;
-
         }
 
         internal static Tuple<int, string> GetLatestVersionInfo()
         {
-            var latestId = -1;
+            int latestId = -1;
             var latestTag = (string) null;
             try
             {
-                var releases = Client.Release.GetAll("unknowndev", "CoolFish").Result;
-                var latestRelease = Utilities.Utilities.Version;
-                
+                IReadOnlyList<Release> releases = Client.Release.GetAll("unknowndev", "CoolFish").Result;
+                Version latestRelease = Utilities.Utilities.Version;
+
                 foreach (Release release in releases)
                 {
                     var version = new Version(release.TagName.Substring(1) + ".0");
@@ -59,8 +56,6 @@ namespace CoolFishNS.GitHub
                         latestRelease = version;
                     }
                 }
-
-
             }
             catch (RateLimitExceededException ex)
             {
@@ -75,7 +70,7 @@ namespace CoolFishNS.GitHub
 
         internal static void DownloadAsset(int id, string tag)
         {
-            var assets = Client.Release.GetAssets("unknowndev", "CoolFish", id).Result;
+            IReadOnlyList<ReleaseAsset> assets = Client.Release.GetAssets("unknowndev", "CoolFish", id).Result;
             if (assets.Any())
             {
                 using (var client = new WebClient())
@@ -83,14 +78,15 @@ namespace CoolFishNS.GitHub
                     Logger.Info("Downloading File...");
                     DeleteOldSetupFiles();
                     client.DownloadFileCompleted += ClientOnDownloadFileCompleted;
-                    client.DownloadFileAsync(new Uri(string.Format("https://github.com/unknowndev/CoolFish/releases/download/{0}/{1}", tag, assets[0].Name)), assets[0].Name, assets[0].Name);
+                    client.DownloadFileAsync(
+                        new Uri(string.Format("https://github.com/unknowndev/CoolFish/releases/download/{0}/{1}", tag, assets[0].Name)),
+                        assets[0].Name, assets[0].Name);
                 }
             }
         }
 
         private static void ClientOnDownloadFileCompleted(object sender, AsyncCompletedEventArgs asyncCompletedEventArgs)
         {
-
             if (asyncCompletedEventArgs.Error != null)
             {
                 Logger.Warn("Error downloading new version", asyncCompletedEventArgs.Error);
@@ -98,11 +94,10 @@ namespace CoolFishNS.GitHub
             }
             else
             {
-                
                 try
                 {
                     MessageBox.Show("Download Complete.");
-                    System.IO.Compression.ZipFile.ExtractToDirectory(asyncCompletedEventArgs.UserState.ToString(), Utilities.Utilities.ApplicationPath);
+                    ZipFile.ExtractToDirectory(asyncCompletedEventArgs.UserState.ToString(), Utilities.Utilities.ApplicationPath);
                     if (File.Exists(Utilities.Utilities.ApplicationPath + "\\setup.exe"))
                     {
                         Process.Start("setup.exe");
@@ -114,10 +109,8 @@ namespace CoolFishNS.GitHub
                 }
                 catch (Exception ex)
                 {
-
                     Logger.Warn("Failed to extract and run the setup. Please run it manually.", ex);
                 }
-
             }
         }
 
@@ -126,20 +119,19 @@ namespace CoolFishNS.GitHub
             try
             {
                 // Clean up old setup files if they exist
-                var files = Directory.GetFiles(Utilities.Utilities.ApplicationPath).Where(file => file.EndsWith(".zip") || file.EndsWith("setup.exe") || file.EndsWith(".msi"));
+                IEnumerable<string> files =
+                    Directory.GetFiles(Utilities.Utilities.ApplicationPath)
+                        .Where(file => file.EndsWith(".zip") || file.EndsWith("setup.exe") || file.EndsWith(".msi"));
 
-                foreach (var file in files)
+                foreach (string file in files)
                 {
                     File.Delete(file);
                 }
             }
             catch (Exception ex)
             {
-                
                 Logger.Warn("Failed to delete old setup files", ex);
             }
-            
         }
-
     }
 }

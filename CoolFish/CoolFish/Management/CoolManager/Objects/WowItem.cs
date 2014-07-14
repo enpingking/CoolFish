@@ -21,7 +21,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Durability
         {
-            get { return GetStorageField<int>( Offsets.WoWItemFields.Durability); }
+            get { return GetStorageField<int>(Offsets.WoWItemFields.Durability); }
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int MaximumDurability
         {
-            get { return GetStorageField<int>( Offsets.WoWItemFields.MaxDurability); }
+            get { return GetStorageField<int>(Offsets.WoWItemFields.MaxDurability); }
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int StackCount
         {
-            get { return GetStorageField<int>( Offsets.WoWItemFields.StackCount); }
+            get { return GetStorageField<int>(Offsets.WoWItemFields.StackCount); }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Charges
         {
-            get { return GetStorageField<int>( Offsets.WoWItemFields.SpellCharges); }
+            get { return GetStorageField<int>(Offsets.WoWItemFields.SpellCharges); }
         }
 
         /// <summary>
@@ -65,8 +65,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWItemFields field) where T : struct
         {
-            return GetStorageField<T>((int)field);
+            return GetStorageField<T>((int) field);
         }
-
     }
 }

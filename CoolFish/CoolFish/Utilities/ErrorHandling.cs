@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.GitHub;
 using NLog;
+using Octokit;
 
 namespace CoolFishNS.Utilities
 {
@@ -16,22 +14,22 @@ namespace CoolFishNS.Utilities
 
         internal static void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
         {
-            Logger.Error("Unhandled error has occurred on another thread. This may cause an unstable state of the application.", (Exception)unobservedTaskExceptionEventArgs.Exception);
+            Logger.Error("Unhandled error has occurred on another thread. This may cause an unstable state of the application.",
+                (Exception) unobservedTaskExceptionEventArgs.Exception);
         }
 
         internal static void UnhandledException(object sender, UnhandledExceptionEventArgs ex)
         {
-
 #if DEBUG
-            Logger.Fatal("Unhandled Exception",(Exception) ex.ExceptionObject);
+            Logger.Fatal("Unhandled Exception", (Exception) ex.ExceptionObject);
             MessageBox.Show(ex.ExceptionObject.ToString());
             return;
 #endif
 
             try
             {
-                var e = (Exception)ex.ExceptionObject;
-                var gist = GithubAPI.CreateGist("UnhandledException", "LogFile", File.ReadAllText(App.ActiveLogFileName));
+                var e = (Exception) ex.ExceptionObject;
+                Gist gist = GithubAPI.CreateGist("UnhandledException", "LogFile", File.ReadAllText(App.ActiveLogFileName));
                 string msg;
                 if (gist != null)
                 {
@@ -46,15 +44,11 @@ namespace CoolFishNS.Utilities
                 MessageBox.Show(msg);
                 App.ShutDown();
                 Environment.Exit(-1);
-
             }
             catch (Exception exception)
             {
                 Logger.Fatal("Failed to handle exception", exception);
             }
-
-
         }
-
     }
 }

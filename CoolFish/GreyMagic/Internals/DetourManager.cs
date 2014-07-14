@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace GreyMagic.Internals
 {
     /// <summary>
-    /// A manager class to handle function detours, and hooks.
+    ///     A manager class to handle function detours, and hooks.
     /// </summary>
     public class DetourManager : Manager<Detour>
     {
@@ -14,12 +14,18 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Creates a new Detour.
+        ///     Creates a new Detour.
         /// </summary>
-        /// <param name="target">The original function to detour. (This delegate should already be registered via Magic.RegisterDelegate)</param>
+        /// <param name="target">
+        ///     The original function to detour. (This delegate should already be registered via
+        ///     Magic.RegisterDelegate)
+        /// </param>
         /// <param name="newTarget">The new function to be called. (This delegate should NOT be registered!)</param>
         /// <param name="name">The name of the detour.</param>
-        /// <returns>A <see cref="Detour"/> object containing the required methods to apply, remove, and call the original function.</returns>
+        /// <returns>
+        ///     A <see cref="Detour" /> object containing the required methods to apply, remove, and call the original
+        ///     function.
+        /// </returns>
         public Detour Create(Delegate target, Delegate newTarget, string name)
         {
             if (target == null)
@@ -56,12 +62,18 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Creates and applies new Detour.
+        ///     Creates and applies new Detour.
         /// </summary>
-        /// <param name="target">The original function to detour. (This delegate should already be registered via Magic.RegisterDelegate)</param>
+        /// <param name="target">
+        ///     The original function to detour. (This delegate should already be registered via
+        ///     Magic.RegisterDelegate)
+        /// </param>
         /// <param name="newTarget">The new function to be called. (This delegate should NOT be registered!)</param>
         /// <param name="name">The name of the detour.</param>
-        /// <returns>A <see cref="Detour"/> object containing the required methods to apply, remove, and call the original function.</returns>
+        /// <returns>
+        ///     A <see cref="Detour" /> object containing the required methods to apply, remove, and call the original
+        ///     function.
+        /// </returns>
         public Detour CreateAndApply(Delegate target, Delegate newTarget, string name)
         {
             Detour ret = Create(target, newTarget, name);
@@ -74,15 +86,15 @@ namespace GreyMagic.Internals
     }
 
     /// <summary>
-    /// Contains methods, and information for a detour, or hook.
+    ///     Contains methods, and information for a detour, or hook.
     /// </summary>
     public class Detour : IMemoryOperation
     {
         private readonly IntPtr _hook;
 
         /// <summary>
-        /// This var is not used within the detour itself. It is only here
-        /// to keep a reference, to avoid the GC from collecting the delegate instance!
+        ///     This var is not used within the detour itself. It is only here
+        ///     to keep a reference, to avoid the GC from collecting the delegate instance!
         /// </summary>
         private readonly Delegate _hookDelegate;
 
@@ -116,17 +128,17 @@ namespace GreyMagic.Internals
         #region IMemoryOperation Members
 
         /// <summary>
-        /// Returns true if this Detour is currently applied.
+        ///     Returns true if this Detour is currently applied.
         /// </summary>
         public bool IsApplied { get; private set; }
 
         /// <summary>
-        /// Returns the name for this Detour.
+        ///     Returns the name for this Detour.
         /// </summary>
         public string Name { get; private set; }
 
         /// <summary>
-        /// Applies this Detour to memory. (Writes new bytes to memory)
+        ///     Applies this Detour to memory. (Writes new bytes to memory)
         /// </summary>
         /// <returns></returns>
         public bool Apply()
@@ -140,7 +152,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Removes this Detour from memory. (Reverts the bytes back to their originals.)
+        ///     Removes this Detour from memory. (Reverts the bytes back to their originals.)
         /// </summary>
         /// <returns></returns>
         public bool Remove()
@@ -154,7 +166,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
         public void Dispose()
@@ -169,10 +181,12 @@ namespace GreyMagic.Internals
         #endregion
 
         /// <summary>
-        /// Calls the original function, and returns a return value.
+        ///     Calls the original function, and returns a return value.
         /// </summary>
-        /// <param name="args">The arguments to pass. If it is a 'void' argument list,
-        /// you MUST pass 'null'.</param>
+        /// <param name="args">
+        ///     The arguments to pass. If it is a 'void' argument list,
+        ///     you MUST pass 'null'.
+        /// </param>
         /// <returns>An object containing the original functions return value.</returns>
         public object CallOriginal(params object[] args)
         {
@@ -183,7 +197,8 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Allows an <see cref="T:System.Object"/> to attempt to free resources and perform other cleanup operations before the <see cref="T:System.Object"/> is reclaimed by garbage collection.
+        ///     Allows an <see cref="T:System.Object" /> to attempt to free resources and perform other cleanup operations before
+        ///     the <see cref="T:System.Object" /> is reclaimed by garbage collection.
         /// </summary>
         ~Detour()
         {

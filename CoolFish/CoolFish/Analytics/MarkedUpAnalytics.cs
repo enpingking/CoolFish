@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MarkedUp;
 using NLog;
 
@@ -10,7 +9,7 @@ namespace CoolFishNS.Analytics
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private static readonly DateTime StartTime = DateTime.Now;
-        
+
 
         internal static bool IsInitialized
         {

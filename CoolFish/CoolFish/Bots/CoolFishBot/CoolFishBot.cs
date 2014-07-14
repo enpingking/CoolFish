@@ -89,7 +89,7 @@ namespace CoolFishNS.Bots.CoolFishBot
                 _stopTimer = new Timer(Callback, null, 0,
                     (int) (LocalSettings.Settings["MinutesToStop"].As<double>()*60*1000));
             }
-            
+
             LocalSettings.DumpSettingsToLog();
             _theEngine.StartEngine();
         }

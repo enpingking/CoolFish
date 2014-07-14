@@ -18,13 +18,10 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
     /// <summary>
     ///     This class handles Hooking Endscene/Present function so that we can inject ASM if we need to do so.
     /// </summary>
-    public static class DxHook 
+    public static class DxHook
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        public static bool TriedHackyHook { get; private set; }
-
         private const int CODECAVESIZE = 0x1000;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static readonly byte[] Eraser = new byte[CODECAVESIZE];
         private static readonly object LockObject = new object();
         private static readonly Random Random = new Random();
@@ -38,6 +35,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         private static AllocatedMemory _allocatedMemory;
         private static Dirext3D _dxAddress;
         private static byte[] _endSceneOriginalBytes;
+        public static bool TriedHackyHook { get; private set; }
 
         /// <summary>
         ///     Determine if the hook is currently applied or not
@@ -66,8 +64,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             }
             return size;
         }
-
-
 
 
         /// <summary>
@@ -124,7 +120,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                         var offset = BotManager.Memory.Read<int>(_dxAddress.HookPtr + 1);
                         jumpLoc = _dxAddress.HookPtr.ToInt32() + offset + 5;
                     }
-
 
 
                     _allocatedMemory.WriteBytes("codeCavePtr", Eraser);
@@ -201,7 +196,8 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     }
                     if (_dxAddress != null)
                     {
-                        _dxAddress.Device.Dispose();;
+                        _dxAddress.Device.Dispose();
+                        ;
                     }
                     throw;
                 }
@@ -259,14 +255,14 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
                 _allocatedMemory.Write("addressInjection", _allocatedMemory["codeCavePtr"]);
 
-                var timer = Stopwatch.StartNew();
-                
+                Stopwatch timer = Stopwatch.StartNew();
+
                 while (_allocatedMemory.Read<int>("addressInjection") > 0)
                 {
                     Thread.Sleep(1);
                     if (timer.ElapsedMilliseconds >= 5000)
                     {
-                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds. LoggedIn: " + BotManager.LoggedIn);
+                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds");
                     }
                 } // Wait to launch code
 
@@ -377,7 +373,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
             AllocatedMemory mem =
                 BotManager.Memory.CreateAllocatedMemory(commandSpace + commandExecuteSpace + returnAddressSpace +
-                                             0x4 + 0x4);
+                                                        0x4 + 0x4);
 
             try
             {

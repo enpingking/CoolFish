@@ -4,7 +4,7 @@ using System.Linq;
 namespace GreyMagic.Internals
 {
     /// <summary>
-    /// A manager class to handle memory patches.
+    ///     A manager class to handle memory patches.
     /// </summary>
     public class PatchManager : Manager<Patch>
     {
@@ -13,7 +13,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Applies all enabled patches in this manager via their Apply() method.
+        ///     Applies all enabled patches in this manager via their Apply() method.
         /// </summary>
         public override void ApplyAll()
         {
@@ -25,7 +25,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Removes all the IMemoryOperations contained in this manager via their Remove() method.
+        ///     Removes all the IMemoryOperations contained in this manager via their Remove() method.
         /// </summary>
         public override void RemoveAll()
         {
@@ -37,7 +37,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Creates a new <see cref="Patch"/> at the specified address.
+        ///     Creates a new <see cref="Patch" /> at the specified address.
         /// </summary>
         /// <param name="address">The address to begin the patch.</param>
         /// <param name="patchWith">The bytes to be written as the patch.</param>
@@ -55,7 +55,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Creates a new <see cref="Patch"/> at the specified address, and applies it.
+        ///     Creates a new <see cref="Patch" /> at the specified address, and applies it.
         /// </summary>
         /// <param name="address">The address to begin the patch.</param>
         /// <param name="patchWith">The bytes to be written as the patch.</param>
@@ -72,7 +72,7 @@ namespace GreyMagic.Internals
     }
 
     /// <summary>
-    /// Contains methods, and information for a memory patch.
+    ///     Contains methods, and information for a memory patch.
     /// </summary>
     public class Patch : IMemoryOperation
     {
@@ -95,7 +95,7 @@ namespace GreyMagic.Internals
         #region IMemoryOperation Members
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
         public void Dispose()
@@ -107,7 +107,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Removes this Patch from memory. (Reverts the bytes back to their originals.)
+        ///     Removes this Patch from memory. (Reverts the bytes back to their originals.)
         /// </summary>
         /// <returns></returns>
         public bool Remove()
@@ -124,7 +124,7 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Applies this Patch to memory. (Writes new bytes to memory)
+        ///     Applies this Patch to memory. (Writes new bytes to memory)
         /// </summary>
         /// <returns></returns>
         public bool Apply()
@@ -142,19 +142,23 @@ namespace GreyMagic.Internals
         }
 
         /// <summary>
-        /// Returns true if this Patch is currently applied.
+        ///     Returns true if this Patch is currently applied.
         /// </summary>
-        public bool IsApplied { get { return _memory.ReadBytes(_address, _patchBytes.Length).SequenceEqual(_patchBytes); } }
+        public bool IsApplied
+        {
+            get { return _memory.ReadBytes(_address, _patchBytes.Length).SequenceEqual(_patchBytes); }
+        }
 
         /// <summary>
-        /// Returns the name for this Patch.
+        ///     Returns the name for this Patch.
         /// </summary>
         public string Name { get; private set; }
 
         #endregion
 
         /// <summary>
-        /// Allows an <see cref="T:System.Object"/> to attempt to free resources and perform other cleanup operations before the <see cref="T:System.Object"/> is reclaimed by garbage collection.
+        ///     Allows an <see cref="T:System.Object" /> to attempt to free resources and perform other cleanup operations before
+        ///     the <see cref="T:System.Object" /> is reclaimed by garbage collection.
         /// </summary>
         ~Patch()
         {

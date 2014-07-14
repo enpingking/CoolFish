@@ -32,7 +32,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                var me = ObjectManager.Me;
+                WoWPlayerMe me = ObjectManager.Me;
                 if (me == null)
                 {
                     return false;

@@ -29,7 +29,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int NextLevel
         {
-            get { return GetStorageField<int>( Offsets.WoWPlayerFields.NextLevelXP); }
+            get { return GetStorageField<int>(Offsets.WoWPlayerFields.NextLevelXP); }
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int RestExperience
         {
-            get { return GetStorageField<int>( Offsets.WoWPlayerFields.RestState); }
+            get { return GetStorageField<int>(Offsets.WoWPlayerFields.RestState); }
         }
 
 
@@ -125,7 +125,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWPlayerFields field) where T : struct
         {
-            return GetStorageField<T>((int)field);
+            return GetStorageField<T>((int) field);
         }
     }
 }

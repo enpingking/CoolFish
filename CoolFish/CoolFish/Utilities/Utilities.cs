@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using NLog;
-using NLog.Config;
 
 namespace CoolFishNS.Utilities
 {
@@ -36,7 +35,7 @@ namespace CoolFishNS.Utilities
         }
 
         /// <summary>
-        /// Update values for a list of key-value pairs if the keys exist. Otherwise insert them into the dictionary
+        ///     Update values for a list of key-value pairs if the keys exist. Otherwise insert them into the dictionary
         /// </summary>
         /// <param name="dictionary">this IDictionary to upsert into</param>
         /// <param name="dictionaryToUpsert">the IDictionary of key-values to upsert</param>

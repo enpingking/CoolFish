@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Windows.Forms;
-using CoolFishNS.Management;
 using CoolFishNS.PluginSystem;
 
 namespace TestPlugin
 {
     public class TestPlugin : IPlugin
     {
-
         private ConfigWindow _window = new ConfigWindow();
 
         #region IPlugin Members
 
         /// <summary>
-        /// Show our config window and add handlers to buttons
+        ///     Show our config window and add handlers to buttons
         /// </summary>
         public void OnConfig()
         {
@@ -22,7 +19,6 @@ namespace TestPlugin
                 _window = new ConfigWindow();
                 _window.Show();
             }
-
         }
 
         public void OnEnabled()
@@ -31,22 +27,18 @@ namespace TestPlugin
 
         public void OnDisabled()
         {
-            
         }
 
         public void OnLoad()
         {
-           
         }
 
         public void OnPulse()
         {
-
         }
 
         public void OnShutdown()
         {
-            
         }
 
         public string Name

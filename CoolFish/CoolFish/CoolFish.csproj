@@ -392,6 +392,7 @@
     <Content Include="README.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <SplashScreen Include="SplashScreen.png" />
     <None Include="Resources\GreyMagic.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -411,14 +412,12 @@
 Version.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>cd $(TargetDir)
-
-del *.zip
-Version.exe CoolFish.exe fasmdll_managed.dll CoolFish.pdb README.html CoolFish.exe.config GreyMagic.dll Octokit.dll NLog.dll "MarkedUp (NET45).dll"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_DetectChanges="True" />
+      <UserProperties BuildVersion_DetectChanges="True" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

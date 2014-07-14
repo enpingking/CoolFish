@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Media;
 using System.Threading;
-using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using NLog;
 

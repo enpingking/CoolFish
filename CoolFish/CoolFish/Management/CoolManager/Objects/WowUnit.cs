@@ -37,7 +37,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         private BitVector32 UnitFlags
         {
-            get { return GetStorageField<BitVector32>( Offsets.WoWUnitFields.Flags); }
+            get { return GetStorageField<BitVector32>(Offsets.WoWUnitFields.Flags); }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool Critter
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.Critter) == 1; }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.Critter) == 1; }
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsUnit
         {
-            get { return Type ==  (int)ObjectManager.ObjectType.Unit; }
+            get { return Type == (int) ObjectManager.ObjectType.Unit; }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsPlayer
         {
-            get { return Type ==  (int)ObjectManager.ObjectType.Player; }
+            get { return Type == (int) ObjectManager.ObjectType.Player; }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong CharmedBy
         {
-            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.CharmedBy); }
+            get { return GetStorageField<ulong>(Offsets.WoWUnitFields.CharmedBy); }
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong SummonedBy
         {
-            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.SummonedBy); }
+            get { return GetStorageField<ulong>(Offsets.WoWUnitFields.SummonedBy); }
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong CreatedBy
         {
-            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.CreatedBy); }
+            get { return GetStorageField<ulong>(Offsets.WoWUnitFields.CreatedBy); }
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Health
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.Health); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.Health); }
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int MaximumHealth
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.MaxHealth); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.MaxHealth); }
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int BaseHealth
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.BaseHealth); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.BaseHealth); }
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int BaseMana
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.BaseMana); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.BaseMana); }
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int Level
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.Level); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.Level); }
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int DisplayID
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.DisplayID); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.DisplayID); }
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public int MountDisplayID
         {
-            get { return GetStorageField<int>( Offsets.WoWUnitFields.MountDisplayID); }
+            get { return GetStorageField<int>(Offsets.WoWUnitFields.MountDisplayID); }
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public ulong Target
         {
-            get { return GetStorageField<ulong>( Offsets.WoWUnitFields.Target); }
+            get { return GetStorageField<ulong>(Offsets.WoWUnitFields.Target); }
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
         private byte[] DisplayPower
         {
-            get { return BitConverter.GetBytes(GetStorageField<uint>( Offsets.WoWUnitFields.DisplayPower)); }
+            get { return BitConverter.GetBytes(GetStorageField<uint>(Offsets.WoWUnitFields.DisplayPower)); }
         }
 
         /// <summary>Gets the type of the power.</summary>
@@ -203,7 +203,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         {
             get
             {
-                var overridePowerId = GetStorageField<uint>( Offsets.WoWUnitFields.OverrideDisplayPowerID);
+                var overridePowerId = GetStorageField<uint>(Offsets.WoWUnitFields.OverrideDisplayPowerID);
                 if (overridePowerId == 0)
                     return (ObjectManager.PowerType) DisplayPower[3];
                 return (ObjectManager.PowerType) overridePowerId;
@@ -308,7 +308,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <returns>Descriptor field</returns>
         protected T GetStorageField<T>(Offsets.WoWUnitFields field) where T : struct
         {
-            return GetStorageField<T>((int)field);
+            return GetStorageField<T>((int) field);
         }
     }
 }

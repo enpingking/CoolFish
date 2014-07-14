@@ -43,7 +43,6 @@ namespace CoolFishNS.Bots.CoolFishBot
                     StopTimeMinutesTB.Text = string.Empty;
                     DateLBL.Content = "Invalid Date";
                 }
-                
             }
             else
             {
@@ -54,9 +53,8 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void CheckDataGrid()
         {
-
             IEditableCollectionView collection = ItemsGrid.Items;
-           
+
             if (collection.IsEditingItem)
             {
                 collection.CommitEdit();
@@ -64,7 +62,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             if (collection.IsAddingNew)
             {
                 collection.CommitNew();
-                
             }
         }
 
@@ -106,7 +103,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 Logger.Error("Error updating datagrid", ex);
             }
-            
         }
 
         private void UpdateControlSettings()
@@ -165,7 +161,6 @@ namespace CoolFishNS.Bots.CoolFishBot
                 Logger.Warn("Invalid Stop Time.");
                 LocalSettings.Settings["MinutesToStop"] = 0d;
             }
-            
         }
 
 
@@ -178,7 +173,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         {
             try
             {
-                var col1 = new DataGridTextColumn { Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150 };
+                var col1 = new DataGridTextColumn {Binding = new Binding("Value"), Header = "ItemId or Name", Width = 150};
                 col1.SetValue(NameProperty, "ItemColumn");
 
                 ItemsGrid.Columns.Add(col1);
@@ -186,10 +181,8 @@ namespace CoolFishNS.Bots.CoolFishBot
             }
             catch (Exception ex)
             {
-                
                 Logger.Error("Error thrown while updating controls", ex);
             }
-            
         }
     }
 }

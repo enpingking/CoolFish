@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Threading;
-using CoolFishNS.Utilities;
+﻿using CoolFishNS.Analytics;
 using MarkedUp;
 using NLog;
 using NLog.Common;
@@ -13,9 +11,9 @@ namespace CoolFishNS.Targets
     {
         public MarkedUpTarget()
         {
-            if (!Analytics.MarkedUpAnalytics.IsInitialized)
+            if (!MarkedUpAnalytics.IsInitialized)
             {
-                Analytics.MarkedUpAnalytics.Initialize();
+                MarkedUpAnalytics.Initialize();
             }
         }
 
