@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
 using CoolFishNS.Management.CoolManager;
@@ -279,7 +280,17 @@ namespace CoolFishNS.Management
                 }
                 else
                 {
-                    Logger.Info("No WoW processes were found.");
+                    var result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",MessageBoxButton.YesNo);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        proc = Process.GetProcesses();
+                    }
+                    else
+                    {
+                        Logger.Info("No WoW processes were found.");
+                    }
+                    
                 }
             }
 
