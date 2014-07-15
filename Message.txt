@@ -1,9 +1,8 @@
 News: 
 Coolfish for Wow 5.4.8 32-bit Client Only
-https://unknowndev.github.io/CoolFish/
 
-Like my work and want to Donate?
-Paypal:
-https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MNTAWFX9F4M7N
-Bitcoin:
-1MDhGeDkQQtRHxyEuwTHoLXASZu7ayng7b
+There are some bad bugs in the recently release 2.2.2.2 version.
+Please revert to the previous version here: https://github.com/unknowndev/CoolFish/releases/tag/v2.2.1
+I will have an updated version the fixes both version's bugs out as soon as I can.
+
+https://unknowndev.github.io/CoolFish/
