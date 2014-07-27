@@ -26,10 +26,10 @@ namespace CoolFishNS.Utilities
             {
                 string slots =
                     DxHook.ExecuteScript(
-                        "slots = 0; for i=0,4 do local count = GetContainerNumFreeSlots(i); slots = slots + count; end ",
-                        "slots");
+                        "CFFreeslots = 0; for i=0,4 do local count = GetContainerNumFreeSlots(i); CFFreeslots = CFFreeslots + count; end ",
+                        "CFFreeslots");
 
-                if (String.IsNullOrEmpty(slots))
+                if (string.IsNullOrEmpty(slots))
                 {
                     Logger.Warn("Unable to determine free bag space.");
                     return 0;

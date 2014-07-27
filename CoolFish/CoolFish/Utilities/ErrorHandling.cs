@@ -42,13 +42,15 @@ namespace CoolFishNS.Utilities
                 }
                 Logger.Fatal(msg, e);
                 MessageBox.Show(msg);
-                App.ShutDown();
-                Environment.Exit(-1);
+                
+                
             }
             catch (Exception exception)
             {
                 Logger.Fatal("Failed to handle exception", exception);
             }
+            App.ShutDown();
+            Environment.Exit(-1);
         }
     }
 }

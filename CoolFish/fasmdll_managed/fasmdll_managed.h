@@ -36,8 +36,8 @@ namespace Fasm
 
 		array<Byte> ^ Assemble();
 
-		bool Inject(IntPtr hProcess, DWORD dwAddress);
-		bool Inject(DWORD dwAddress);
+		void Inject(IntPtr hProcess, DWORD dwAddress);
+		void Inject(DWORD dwAddress);
 
 		DWORD InjectAndExecute(IntPtr hProcess, DWORD dwAddress, DWORD dwParameter);
 		DWORD InjectAndExecute(IntPtr hProcess, DWORD dwAddress);

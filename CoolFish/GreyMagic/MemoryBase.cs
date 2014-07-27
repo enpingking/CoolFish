@@ -204,7 +204,6 @@ namespace GreyMagic
         public virtual void Dispose()
         {
             Process.LeaveDebugMode();
-            IsDisposed = true;
         }
 
         #endregion
@@ -249,7 +248,6 @@ namespace GreyMagic
             ImageBase = Process.MainModule.BaseAddress;
         }
 
-        public bool IsDisposed { get; set; }
 
         /// <summary>
         ///     Provides access to the PatchManager class, which allows you to apply and remove patches.

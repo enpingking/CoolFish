@@ -56,12 +56,8 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
             }
 
             int size = BotManager.Memory.Asm.Assemble().Length;
-            bool returnVal = BotManager.Memory.Asm.Inject((uint) address);
+            BotManager.Memory.Asm.Inject((uint) address);
 
-            if (!returnVal)
-            {
-                throw new Exception("Failed to inject code: \n " + BotManager.Memory.Asm.AssemblyString);
-            }
             return size;
         }
 
@@ -218,7 +214,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 {
                     return;
                 }
-                if (BotManager.Memory == null || BotManager.Memory.IsDisposed || BotManager.Memory.Process.HasExited)
+                if (BotManager.Memory == null || BotManager.Memory.Process.HasExited)
                 {
                     TriedHackyHook = false;
                     IsApplied = false;

@@ -192,7 +192,7 @@ namespace CoolFishNS.Management
                 }
                 else
                 {
-                    throw;
+                    Logger.Error("Failed to attach do to an exception. Missing File: " + ex.FileName, (Exception)ex);
                 }
             }
             catch (Exception ex)
@@ -207,11 +207,12 @@ namespace CoolFishNS.Management
         /// </summary>
         public static void DetachFromProcess()
         {
+            
             try
             {
                 StopActiveBot();
                 DxHook.Restore();
-                if (Memory != null && !Memory.IsDisposed)
+                if (Memory != null)
                 {
                     Memory.Dispose();
                 }
@@ -268,33 +269,42 @@ namespace CoolFishNS.Management
         /// <returns>List of Process objects</returns>
         public static Process[] GetWowProcesses()
         {
-            Process[] proc = Process.GetProcessesByName("WoW");
-            Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
-
-            if (!proc.Any())
+            var proc = new Process[0];
+            try
             {
-                if (proc64Bit.Any())
-                {
-                    Logger.Info(
-                        "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
-                }
-                else
-                {
-                    var result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",MessageBoxButton.YesNo);
+                proc = Process.GetProcessesByName("WoW");
+                
 
-                    if (result == MessageBoxResult.Yes)
+                if (!proc.Any())
+                {
+                    var proc64Bit = Process.GetProcessesByName("WoW-64");
+                    if (proc64Bit.Any())
                     {
-                        proc = Process.GetProcesses();
+                        Logger.Info(
+                            "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
                     }
                     else
                     {
-                        Logger.Info("No WoW processes were found.");
+                        var result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning", MessageBoxButton.YesNo);
+
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            proc = Process.GetProcesses();
+                        }
+                        else
+                        {
+                            Logger.Info("No WoW processes were found.");
+                        }
+
                     }
-                    
                 }
             }
-
-
+            catch (Exception ex)
+            {
+                
+                Logger.Error("Failed to get open Wow processes", ex);
+            }
+            
             return proc;
         }
 
@@ -316,22 +326,38 @@ namespace CoolFishNS.Management
 
         internal static void StartUp()
         {
-            PluginManager.LoadPlugins();
+            try
+            {
+                PluginManager.LoadPlugins();
 
-            PluginManager.StartPlugins();
+                PluginManager.StartPlugins();
+            }
+            catch (Exception ex)
+            {
+                
+                Logger.Error("Exception on StartUp", ex);
+            }
 
             Logger.Debug("Start Up.");
         }
 
         internal static void ShutDown()
         {
-            StopActiveBot();
+            try
+            {
+                StopActiveBot();
 
-            PluginManager.StopPlugins();
+                PluginManager.StopPlugins();
 
-            PluginManager.ShutDownPlugins();
+                PluginManager.ShutDownPlugins();
 
-            DetachFromProcess();
+                DetachFromProcess();
+            }
+            catch (Exception ex)
+            {
+                
+                Logger.Error("Exception thrown on ShutDown", ex);
+            }
 
             Logger.Debug("Shut Down.");
         }

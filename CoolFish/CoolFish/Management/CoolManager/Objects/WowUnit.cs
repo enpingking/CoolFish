@@ -143,12 +143,17 @@ namespace CoolFishNS.Management.CoolManager.Objects
         {
             get
             {
-                return
-                    BotManager.Memory.ReadString(
-                        BotManager.Memory.Read<IntPtr>(
-                            BotManager.Memory.Read<IntPtr>(BaseAddress + (int) Offsets.WoWUnit.Name1) +
-                            (int) Offsets.WoWUnit.Name2),
-                        Encoding.UTF8);
+                var name1 = BotManager.Memory.Read<IntPtr>(BaseAddress + (int) Offsets.WoWUnit.Name1);
+                if (name1 == IntPtr.Zero)
+                {
+                    return "UnknownUnit";
+                }
+                var name2 = BotManager.Memory.Read<IntPtr>(name1 + (int) Offsets.WoWUnit.Name2);
+                if (name2 == IntPtr.Zero)
+                {
+                    return "UnknownUnit";
+                }
+                return BotManager.Memory.ReadString(name2, Encoding.UTF8);
             }
         }
 
