@@ -133,10 +133,12 @@ namespace Fasm
 		m_AssemblyString = gcnew StringBuilder("use32\n");
 	}
 
-	bool ManagedFasm::Inject(IntPtr hProcess, DWORD dwAddress)
+	void ManagedFasm::Inject(IntPtr hProcess, DWORD dwAddress)
 	{
-		if (hProcess == IntPtr::Zero)
-			return false;
+		if (hProcess == IntPtr::Zero || dwAddress == 0)
+		{
+			throw gcnew Exception("Failed to inject code. Invalid params: " + hProcess + " and " + dwAddress);
+		}
 
 		if (m_AssemblyString->ToString()->Contains("use64") || m_AssemblyString->ToString()->Contains("use16"))
 			m_AssemblyString->Replace("use32\n", "");
@@ -153,8 +155,7 @@ namespace Fasm
 		}
 		catch (Exception ^ ex)
 		{
-			Console::WriteLine(ex->Message);
-			return false;
+			throw gcnew Exception("Failed to inject code. LastError: " + GetLastError() + "\n Exception: " + ex->ToString());
 		}
 		finally
 		{
@@ -166,12 +167,15 @@ namespace Fasm
 		if (fasm_state->condition != FASM_OK)
 			throw gcnew Exception(String::Format("Assembly failed!  Error code: {0};  Error Line: {1}; ASM: {2}", fasm_state->error_code, fasm_state->error_data->line_number, m_AssemblyString->ToString()));
 		
-		return WriteProcessMemory((HANDLE)hProcess, (void *)dwAddress, fasm_state->output_data, fasm_state->output_length, NULL);
+		if (!WriteProcessMemory((HANDLE)hProcess, (void *)dwAddress, fasm_state->output_data, fasm_state->output_length, NULL))
+		{
+			throw gcnew Exception("Failed to inject code. LastError: " + GetLastError());
+		}
 	}
 
-	bool ManagedFasm::Inject(DWORD dwAddress)
+	void ManagedFasm::Inject(DWORD dwAddress)
 	{
-		return this->Inject(m_hProcess, dwAddress);
+		this->Inject(m_hProcess, dwAddress);
 	}
 
 	DWORD ManagedFasm::InjectAndExecute(IntPtr hProcess, DWORD dwAddress, DWORD dwParameter)
@@ -186,8 +190,7 @@ namespace Fasm
 		DWORD dwExitCode = 0;
 
 		try {
-			if (!this->Inject(hProcess, dwAddress))
-				throw gcnew Exception("Injection failed for some reason.");
+			this->Inject(hProcess, dwAddress);
 		} 
 		catch (Exception ^ ex)
 		{

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using CoolFishNS.Properties;
+using MarkedUp;
 using NLog;
 
 namespace CoolFishNS.Management.CoolManager
@@ -64,17 +65,34 @@ namespace CoolFishNS.Management.CoolManager
                     }
                 }
 
-                Logger.Debug("Base: 0x" + baseAddr.ToString("X"));
-                foreach (var address in addresses)
+                if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
+                    Logger.Debug("Base: 0x" + baseAddr.ToString("X"));
+                    foreach (var address in addresses)
+                    {
+                        Logger.Debug(address.Key + ": 0x" + (address.Value - baseAddr).ToString("X"));
+                    }
                 }
+                
                 _addresses = addresses;
                 return fp.NotFoundCount == 0;
             }
+            catch (FileNotFoundException ex)
+            {
+                if (ex.FileName.Contains("fasmdll_managed"))
+                {
+                    AnalyticClient.SessionEvent("Missing Redistributable");
+                    Logger.Fatal(
+                        "You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                }
+                else
+                {
+                    throw;
+                }
+            }
             catch (Exception ex)
             {
-                Logger.Error("Error while finding offsets. HRESULT: " + ex.HResult, ex);
+                Logger.Error("Error while finding offsets. ", ex);
             }
             _addresses = new Dictionary<string, IntPtr>();
             return false;
