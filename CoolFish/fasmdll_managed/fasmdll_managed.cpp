@@ -133,7 +133,7 @@ namespace Fasm
 		m_AssemblyString = gcnew StringBuilder("use32\n");
 	}
 
-	void ManagedFasm::Inject(IntPtr hProcess, DWORD dwAddress)
+	bool ManagedFasm::Inject(IntPtr hProcess, DWORD dwAddress)
 	{
 		if (hProcess == IntPtr::Zero || dwAddress == 0)
 		{
@@ -171,11 +171,13 @@ namespace Fasm
 		{
 			throw gcnew Exception("Failed to inject code. LastError: " + GetLastError());
 		}
+		return true;
 	}
 
-	void ManagedFasm::Inject(DWORD dwAddress)
+	bool ManagedFasm::Inject(DWORD dwAddress)
 	{
 		this->Inject(m_hProcess, dwAddress);
+		return true;
 	}
 
 	DWORD ManagedFasm::InjectAndExecute(IntPtr hProcess, DWORD dwAddress, DWORD dwParameter)

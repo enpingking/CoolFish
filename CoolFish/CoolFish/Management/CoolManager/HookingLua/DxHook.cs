@@ -224,8 +224,15 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 // Restore original endscene:
                 BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
 
-                _allocatedMemory.Dispose();
-                _dxAddress.Device.Dispose();
+                if (_allocatedMemory != null)
+                {
+                    _allocatedMemory.Dispose();
+                }
+                if (_dxAddress != null && _dxAddress.Device != null)
+                {
+                    _dxAddress.Device.Dispose();
+                }
+                
                 TriedHackyHook = false;
                 IsApplied = false;
             }
