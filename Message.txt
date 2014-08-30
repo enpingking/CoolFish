@@ -1,7 +1,7 @@
 News: 
 Coolfish for Wow 5.4.8 32-bit Client Only
 
-Released 2.3.0.1 that should fix some of the bugs of past versions.
+Released 2.3.1.1 that should fix some of the bugs of past versions.
 Feel free to contact me for problems/bugs in the latest version.
 
 https://unknowndev.github.io/CoolFish/
