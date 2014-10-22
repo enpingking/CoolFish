@@ -1,7 +1,8 @@
 News: 
 Coolfish for Wow 5.4.8 32-bit Client Only
 
-Released 2.3.1.1 that should fix some of the bugs of past versions.
-Feel free to contact me for problems/bugs in the latest version.
+New 6.0 WoW patch has caused CoolFish to not work. Looking to fix it shortly.
+Follow me on twitter for updates:
+https://twitter.com/TheUnknownDev
 
 https://unknowndev.github.io/CoolFish/
