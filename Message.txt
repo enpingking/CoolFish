@@ -1,8 +1,9 @@
 News: 
 Coolfish for Wow 6.0.2 32-bit Client Only
 
-CoolFish has been updated for 6.0! Download my new AppLauncher:
-https://github.com/unknowndev/unknowndev.github.io/releases/download/v1.0.0/AppLauncher.zip
+Found some bugs with the latest 6.0.2 release.
+Working on a fix.
+Latest release will be out soon.
 
 Follow me on twitter for updates:
 https://twitter.com/TheUnknownDev
