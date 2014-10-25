@@ -1,7 +1,9 @@
 News: 
-Coolfish for Wow 5.4.8 32-bit Client Only
+Coolfish for Wow 6.0.2 32-bit Client Only
 
-New 6.0 WoW patch has caused CoolFish to not work. Looking to fix it shortly.
+CoolFish has been updated for 6.0! Download my new AppLauncher:
+https://github.com/unknowndev/unknowndev.github.io/releases/download/v1.0.0/AppLauncher.zip
+
 Follow me on twitter for updates:
 https://twitter.com/TheUnknownDev
 
