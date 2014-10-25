@@ -28,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (LocalSettings.Settings["StopOnBagsFull"])
+                if (UserPreferences.Default.StopOnBagsFull)
                 {
                     return PlayerInventory.FreeSlots == 0;
                 }
@@ -46,17 +46,17 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (LocalSettings.Settings["StopOnNoLures"] &&
-                    !LocalSettings.Settings["NoLure"])
+                if (UserPreferences.Default.StopOnNoLures &&
+                    !UserPreferences.Default.NoLure)
                 {
-                    string result = DxHook.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
+                    string result = DxHook.ExecuteScript("if GetWeaponEnchantInfo() then enchant = 1 else enchant = 0 end;", "enchant");
 
                     if (result == "1")
                     {
                         return false;
                     }
 
-                    return PlayerInventory.LureCount == 0;
+                    return !PlayerInventory.HasLures();
                 }
                 return false;
             }
@@ -68,46 +68,45 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get { return (int) CoolFishEngine.StatePriority.StateStopOrLogout; }
         }
 
-
-        public override bool NeedToRun
+        public override bool Run()
         {
-            get
-            {
-                WoWPlayerMe me = ObjectManager.Me;
+            WoWPlayerMe me = ObjectManager.Me;
 
-
-                return me == null || me.Dead || BagsCondition || LureCondition ||
-                       StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3;
-            }
-        }
-
-        public override void Run()
-        {
             if (BagsCondition)
             {
                 Logger.Info("Bags are full.");
+                StopBot();
+                return true;
             }
             if (LureCondition)
             {
                 Logger.Info("We ran out of lures.");
+                StopBot();
+                return true;
             }
 
-            if (ObjectManager.Me != null)
+            if (me != null)
             {
-                if (ObjectManager.Me.Dead)
+                if (me.Dead)
                 {
                     Logger.Info("We died :(");
+                    return true;
                 }
             }
 
             if (StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3)
             {
                 Logger.Info("We haven't gotten a bobber in 3 minutes. Somethings wrong.");
-                StateBobbing.BuggedTimer.Stop();
+                return true;
             }
+            return false;
+        }
 
+
+        private static void StopBot()
+        {
             BotManager.StopActiveBot();
-
+            StateBobbing.BuggedTimer.Stop();
             Task.Run(() =>
             {
                 for (int i = 0; i < 3; i++)
@@ -117,17 +116,17 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 }
             });
 
-            if (LocalSettings.Settings["LogoutOnStop"])
+            if (UserPreferences.Default.LogoutOnStop && BotManager.LoggedIn)
             {
                 DxHook.ExecuteScript("Logout();");
             }
 
-            if (LocalSettings.Settings["ShutdownPConStop"])
+            if (UserPreferences.Default.ShutdownPcOnStop)
             {
                 Process.Start("shutdown", "/s /t 0");
             }
 
-            if (LocalSettings.Settings["CloseWoWonStop"])
+            if (UserPreferences.Default.CloseWoWOnStop)
             {
                 Process proc = BotManager.Memory.Process;
                 BotManager.DetachFromProcess();

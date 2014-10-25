@@ -1,4 +1,5 @@
-﻿using CoolFishNS.Analytics;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MarkedUp;
 using NLog;
 using NLog.Common;
@@ -9,14 +10,6 @@ namespace CoolFishNS.Targets
 {
     public class MarkedUpTarget : TargetWithLayout
     {
-        public MarkedUpTarget()
-        {
-            if (!MarkedUpAnalytics.IsInitialized)
-            {
-                MarkedUpAnalytics.Initialize();
-            }
-        }
-
         protected override void Write(AsyncLogEventInfo[] logEvents)
         {
             foreach (AsyncLogEventInfo logEvent in logEvents)
@@ -39,6 +32,14 @@ namespace CoolFishNS.Targets
             else if (logEvent.Level == LogLevel.Fatal && logEvent.Exception != null)
             {
                 AnalyticClient.Fatal(logEvent.FormattedMessage, logEvent.Exception);
+            }
+            if (logEvent.Exception != null)
+            {
+                Dictionary<string, string> dict = logEvent.Exception.Data.Keys.Cast<object>()
+                    .ToDictionary(key => key.ToString(), key => logEvent.Exception.Data[key].ToString());
+                dict.Add("TargetSite", logEvent.Exception.TargetSite.Name);
+                dict.Add("Message", logEvent.Exception.Message);
+                AnalyticClient.SessionEvent(logEvent.Exception.GetType().Name, dict);
             }
         }
     }

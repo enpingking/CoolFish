@@ -158,8 +158,8 @@ namespace CoolFishNS.Management.CoolManager
 #if !X64
                     tmpStart = (uint) (Get(pat.Attribute("start").Value) - (int) start + 1).ToInt32();
 #else
-                     tmpStart = (uint)(Get(pat.Attribute("start").Value) - (int)start + 1).ToInt64();
-                    #endif
+                    tmpStart = (uint)(Get(pat.Attribute("start").Value) - (int)start + 1).ToInt64();
+#endif
                 }
 
 #if !X64

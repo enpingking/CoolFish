@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,8 +19,6 @@ namespace CoolFishNS.Bots.CoolFishBot
     internal partial class CoolFishBotSettings
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private Collection<SerializableItem> _items = new Collection<SerializableItem>();
 
         public CoolFishBotSettings()
         {
@@ -71,7 +70,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             if (!BotManager.ActiveBot.IsRunning)
             {
                 SaveControlSettings();
-                LocalSettings.SaveSettings();
+                UserPreferences.Default.SaveSettings();
                 Logger.Info("CoolFishBot settings saved.");
                 Close();
             }
@@ -93,7 +92,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             try
             {
                 ItemsGrid.ItemsSource = null;
-                ItemsGrid.ItemsSource = _items;
+                ItemsGrid.ItemsSource = UserPreferences.Default.Items;
             }
             catch (InvalidOperationException)
             {
@@ -107,59 +106,58 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void UpdateControlSettings()
         {
-            NoLureCB.IsChecked = LocalSettings.Settings["NoLure"];
-            LootOnlyItemsCB.IsChecked = LocalSettings.Settings["LootOnlyItems"];
-            StopTimeMinutesTB.Text = LocalSettings.Settings["MinutesToStop"].ToString();
-            LogoutCB.IsChecked = LocalSettings.Settings["LogoutOnStop"];
-            UseRaftCB.IsChecked = LocalSettings.Settings["UseRaft"];
-            StopTimeCB.IsChecked = LocalSettings.Settings["StopOnTime"];
-            StopNoLuresCB.IsChecked = LocalSettings.Settings["StopOnNoLures"];
-            StopFullBagsCB.IsChecked = LocalSettings.Settings["StopOnBagsFull"];
-            CloseAppsCB.IsChecked = LocalSettings.Settings["CloseWoWonStop"];
-            ShutdownCB.IsChecked = LocalSettings.Settings["ShutdownPConStop"];
-            DontLootCB.IsChecked = LocalSettings.Settings["DontLootLeft"];
-            QualityCMB.SelectedIndex = LocalSettings.Settings["LootQuality"] + 1;
-            SoundWhisperCB.IsChecked = LocalSettings.Settings["SoundOnWhisper"];
-            UseCharmCB.IsChecked = LocalSettings.Settings["UseCharm"];
-            UseRumseyCB.IsChecked = LocalSettings.Settings["UseRumsey"];
-            UseSpearCB.IsChecked = LocalSettings.Settings["UseSpear"];
-            CastFishingCB.IsChecked = LocalSettings.Settings["DoFishing"];
-            ClickBobberCB.IsChecked = LocalSettings.Settings["DoBobbing"];
-            DoLootingCB.IsChecked = LocalSettings.Settings["DoLoot"];
-            _items = LocalSettings.Items;
+            NoLureCB.IsChecked = UserPreferences.Default.NoLure;
+            LootOnlyItemsCB.IsChecked = UserPreferences.Default.LootOnlyItems;
+            StopTimeMinutesTB.Text = UserPreferences.Default.MinutesToStop.ToString();
+            LogoutCB.IsChecked = UserPreferences.Default.LogoutOnStop;
+            UseRaftCB.IsChecked = UserPreferences.Default.UseRaft;
+            StopTimeCB.IsChecked = UserPreferences.Default.StopOnTime;
+            StopNoLuresCB.IsChecked = UserPreferences.Default.StopOnNoLures;
+            StopFullBagsCB.IsChecked = UserPreferences.Default.StopOnBagsFull;
+            CloseAppsCB.IsChecked = UserPreferences.Default.CloseWoWOnStop;
+            ShutdownCB.IsChecked = UserPreferences.Default.ShutdownPcOnStop;
+            DontLootCB.IsChecked = UserPreferences.Default.DontLootLeft;
+            QualityCMB.SelectedIndex = UserPreferences.Default.LootQuality + 1;
+            SoundWhisperCB.IsChecked = UserPreferences.Default.SoundOnWhisper;
+            UseCharmCB.IsChecked = UserPreferences.Default.UseCharm;
+            UseRumseyCB.IsChecked = UserPreferences.Default.UseRumsey;
+            UseSpearCB.IsChecked = UserPreferences.Default.UseSpear;
+            CastFishingCB.IsChecked = UserPreferences.Default.DoFishing;
+            ClickBobberCB.IsChecked = UserPreferences.Default.DoBobbing;
+            DoLootingCB.IsChecked = UserPreferences.Default.DoLoot;
             FillDataGrid();
         }
 
         private void SaveControlSettings()
         {
-            LocalSettings.Settings["NoLure"] = NoLureCB.IsChecked;
-            LocalSettings.Settings["LootOnlyItems"] = LootOnlyItemsCB.IsChecked;
-            LocalSettings.Settings["LogoutOnStop"] = LogoutCB.IsChecked;
-            LocalSettings.Settings["UseRaft"] = UseRaftCB.IsChecked;
-            LocalSettings.Settings["StopOnTime"] = StopTimeCB.IsChecked;
-            LocalSettings.Settings["StopOnNoLures"] = StopNoLuresCB.IsChecked;
-            LocalSettings.Settings["StopOnBagsFull"] = StopFullBagsCB.IsChecked;
-            LocalSettings.Settings["CloseWoWonStop"] = CloseAppsCB.IsChecked;
-            LocalSettings.Settings["ShutdownPConStop"] = ShutdownCB.IsChecked;
-            LocalSettings.Settings["DontLootLeft"] = DontLootCB.IsChecked;
-            LocalSettings.Settings["LootQuality"] = QualityCMB.SelectedIndex - 1;
-            LocalSettings.Settings["SoundOnWhisper"] = SoundWhisperCB.IsChecked;
-            LocalSettings.Settings["UseCharm"] = UseCharmCB.IsChecked;
-            LocalSettings.Settings["UseRumsey"] = UseRumseyCB.IsChecked;
-            LocalSettings.Settings["UseSpear"] = UseSpearCB.IsChecked;
-            LocalSettings.Settings["DoFishing"] = CastFishingCB.IsChecked;
-            LocalSettings.Settings["DoBobbing"] = ClickBobberCB.IsChecked;
-            LocalSettings.Settings["DoLoot"] = DoLootingCB.IsChecked;
-            LocalSettings.Items = _items;
+            UserPreferences.Default.NoLure = NoLureCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.LootOnlyItems = LootOnlyItemsCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.LogoutOnStop = LogoutCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.UseRaft = UseRaftCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.StopOnTime = StopTimeCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.StopOnNoLures = StopNoLuresCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.StopOnBagsFull = StopFullBagsCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.CloseWoWOnStop = CloseAppsCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.ShutdownPcOnStop = ShutdownCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.DontLootLeft = DontLootCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.LootQuality = QualityCMB.SelectedIndex - 1;
+            UserPreferences.Default.SoundOnWhisper = SoundWhisperCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.UseCharm = UseCharmCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.UseRumsey = UseRumseyCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.UseSpear = UseSpearCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.DoFishing = CastFishingCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.DoBobbing = ClickBobberCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.DoLoot = DoLootingCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.Items = new List<SerializableItem>(ItemsGrid.ItemsSource.Cast<SerializableItem>());
             double result;
             if (double.TryParse(StopTimeMinutesTB.Text, out result))
             {
-                LocalSettings.Settings["MinutesToStop"] = result;
+                UserPreferences.Default.MinutesToStop = result;
             }
             else
             {
                 Logger.Warn("Invalid Stop Time.");
-                LocalSettings.Settings["MinutesToStop"] = 0d;
+                UserPreferences.Default.MinutesToStop = 0;
             }
         }
 

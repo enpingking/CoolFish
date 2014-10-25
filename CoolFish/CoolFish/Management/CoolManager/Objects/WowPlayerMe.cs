@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using CoolFishNS.Management.CoolManager.Objects.Structs;
 
 namespace CoolFishNS.Management.CoolManager.Objects
 {
@@ -18,15 +18,6 @@ namespace CoolFishNS.Management.CoolManager.Objects
         }
 
         /// <summary>
-        ///     Your player's name
-        /// </summary>
-        public override string Name
-        {
-            get { return BotManager.Memory.ReadString(Offsets.Addresses["PlayerName"], Encoding.UTF8); }
-        }
-
-
-        /// <summary>
         ///     Your character's money.
         /// </summary>
         public int Copper
@@ -34,7 +25,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
             get { return GetStorageField<int>(Offsets.WoWPlayerFields.Coinage); }
         }
 
-        public override ulong Guid
+        public override WoWGUID Guid
         {
             get { return ObjectManager.PlayerGuid; }
         }

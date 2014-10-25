@@ -236,7 +236,7 @@ namespace CoolFishNS.Management.CoolManager
                 }
                 return 0;
             }
-            throw new ArgumentException();
+            throw new ArgumentException("Object is not of type Point");
         }
 
         /// <summary>

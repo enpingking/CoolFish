@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using NLog;
@@ -20,7 +19,7 @@ namespace CoolFishNS.Utilities
         /// <value>
         ///     The number of free slots.
         /// </value>
-        public static int FreeSlots
+        public static uint FreeSlots
         {
             get
             {
@@ -35,29 +34,38 @@ namespace CoolFishNS.Utilities
                     return 0;
                 }
 
-                return Convert.ToInt32(slots);
+                return Convert.ToUInt32(slots);
             }
         }
 
-
         /// <summary>
-        ///     Gets the number of fishing lures in the players inventory. Returns 1 if using the fishing hats in the game.
+        ///     Gets the name of a lure to use that e
         /// </summary>
         /// <value>
-        ///     The lure count.
+        ///     The lure name
         /// </value>
-        public static uint LureCount
+        public static string LureName
         {
             get
             {
-                Dictionary<string, string> count = DxHook.ExecuteScript(Resources.GetLureName, new[] {"Count", "LureName"});
+                string name = DxHook.ExecuteScript(Resources.GetLureName, "LureName");
 
-                if (count["Count"] == "1" && !string.IsNullOrEmpty(count["LureName"]))
-                {
-                    return 1;
-                }
-                return 0;
+                return !string.IsNullOrWhiteSpace(name) ? name : null;
             }
+        }
+
+        /// <summary>
+        ///     Returns a bool value indicating whether the local players bags are empty or not
+        /// </summary>
+        /// <returns> true if bags are empty or we failed to determine the bag slots; otherwise, false</returns>
+        public static bool AreBagsEmpty()
+        {
+            return FreeSlots == 0;
+        }
+
+        public static bool HasLures()
+        {
+            return LureName != null;
         }
     }
 }

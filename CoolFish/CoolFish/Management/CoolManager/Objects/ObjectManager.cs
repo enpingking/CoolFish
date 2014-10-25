@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CoolFishNS.Management.CoolManager.Objects.Structs;
+using NLog;
 
 namespace CoolFishNS.Management.CoolManager.Objects
 {
@@ -9,6 +11,8 @@ namespace CoolFishNS.Management.CoolManager.Objects
     /// </summary>
     public static class ObjectManager
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         ///     Expensive call to get a list of all Objects. This will be a currently up to date list.
         ///     Cache this result if you don't need an updated list each call
@@ -19,7 +23,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
             {
                 var objects = new List<WoWObject>();
 
-                ulong playerguid = PlayerGuid;
+                WoWGUID playerguid = PlayerGuid;
                 var currentObject =
                     new WoWObject(
                         BotManager.Memory.Read<IntPtr>(CurrentManager + (int) Offsets.ObjectManager.FirstObject));
@@ -28,31 +32,31 @@ namespace CoolFishNS.Management.CoolManager.Objects
                 {
                     switch (currentObject.Type)
                     {
-                        case (int) ObjectType.Unit:
+                        case ObjectType.Unit:
                             objects.Add(new WoWUnit(currentObject.BaseAddress));
                             break;
 
-                        case (int) ObjectType.Item:
+                        case ObjectType.Item:
                             objects.Add(new WoWItem(currentObject.BaseAddress));
                             break;
 
-                        case (int) ObjectType.Container:
+                        case ObjectType.Container:
                             objects.Add(new WoWContainer(currentObject.BaseAddress));
                             break;
 
-                        case (int) ObjectType.Corpse:
+                        case ObjectType.Corpse:
                             objects.Add(new WoWCorpse(currentObject.BaseAddress));
                             break;
 
-                        case (int) ObjectType.Gameobject:
+                        case ObjectType.GameObject:
                             objects.Add(new WoWGameObject(currentObject.BaseAddress));
                             break;
 
-                        case (int) ObjectType.Dynamicobject:
+                        case ObjectType.Dynamicobject:
                             objects.Add(new WoWDynamicObject(currentObject.BaseAddress));
                             break;
-                        case (int) ObjectType.Player:
-                            if (currentObject.Guid != playerguid)
+                        case ObjectType.Player:
+                            if (!currentObject.Guid.Equals(playerguid))
                             {
                                 objects.Add(new WoWPlayer(currentObject.BaseAddress));
                             }
@@ -95,9 +99,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
             get { return BotManager.Memory.Read<IntPtr>(Offsets.Addresses["s_curMgr"]); }
         }
 
-        internal static ulong PlayerGuid
+        internal static WoWGUID PlayerGuid
         {
-            get { return BotManager.Memory.Read<ulong>(CurrentManager + (int) Offsets.ObjectManager.LocalGuid); }
+            get { return BotManager.Memory.Read<WoWGUID>(CurrentManager + (int) Offsets.ObjectManager.LocalGuid); }
         }
 
         #region <Enums>
@@ -114,7 +118,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
             Container = 2,
             Unit = 3,
             Player = 4,
-            Gameobject = 5,
+            GameObject = 5,
             Dynamicobject = 6,
             Corpse = 7,
             Areatrigger = 8,
@@ -154,41 +158,37 @@ namespace CoolFishNS.Management.CoolManager.Objects
 
         #endregion <Enums>
 
-        private static int GetWoWTypeFromClassType(Type t)
+        private static ObjectType GetWoWTypeFromClassType(Type t)
         {
-            if (t == typeof (WoWObject))
-            {
-                return 0;
-            }
             if (t == typeof (WoWItem))
             {
-                return 1;
+                return ObjectType.Item;
             }
             if (t == typeof (WoWContainer))
             {
-                return 2;
+                return ObjectType.Container;
             }
             if (t == typeof (WoWUnit))
             {
-                return 3;
+                return ObjectType.Unit;
             }
             if (t == typeof (WoWPlayer) || t == typeof (WoWPlayerMe))
             {
-                return 4;
+                return ObjectType.Player;
             }
             if (t == typeof (WoWGameObject))
             {
-                return 5;
+                return ObjectType.GameObject;
             }
             if (t == typeof (WoWDynamicObject))
             {
-                return 6;
+                return ObjectType.Dynamicobject;
             }
             if (t == typeof (WoWCorpse))
             {
-                return 7;
+                return ObjectType.Corpse;
             }
-            return -1;
+            return ObjectType.Object;
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
                 return null;
             }
 
-            int type = GetWoWTypeFromClassType(typeof (T));
+            ObjectType type = GetWoWTypeFromClassType(typeof (T));
             var currentObject =
                 new WoWObject(
                     BotManager.Memory.Read<IntPtr>(CurrentManager + (int) Offsets.ObjectManager.FirstObject));
@@ -229,6 +229,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
                     BotManager.Memory.Read<IntPtr>(
                         currentObject.BaseAddress + (int) Offsets.ObjectManager.NextObject);
             }
+
             return null;
         }
 

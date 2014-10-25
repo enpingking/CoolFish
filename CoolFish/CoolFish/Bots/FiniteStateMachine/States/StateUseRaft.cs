@@ -23,7 +23,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <value>
         ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
         /// </value>
-        public override bool NeedToRun
+        private bool NeedToRun
         {
             get
             {
@@ -41,11 +41,16 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Execute Lua code to use Raft/Water Walking. See UseRaft.lua in Resources for code.
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
+            if (!NeedToRun)
+            {
+                return false;
+            }
             Logger.Info(Name);
             DxHook.ExecuteScript(Resources.UseRaft);
             Thread.Sleep(1000);
+            return true;
         }
     }
 }

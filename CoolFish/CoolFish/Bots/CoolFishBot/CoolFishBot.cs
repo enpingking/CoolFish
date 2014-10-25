@@ -71,26 +71,25 @@ namespace CoolFishNS.Bots.CoolFishBot
                 return;
             }
 
-            if (LocalSettings.Settings["LootOnlyItems"] &&
-                LocalSettings.Settings["DontLootLeft"])
+            if (UserPreferences.Default.LootOnlyItems &&
+                UserPreferences.Default.DontLootLeft)
             {
                 Logger.Warn("You can't \"Loot only items on the left\" and \"Don't loot items on left\" at the same time");
                 return;
             }
 
-            if (LocalSettings.Settings["LootQuality"] < 0)
+            if (UserPreferences.Default.LootQuality < 0)
             {
                 Logger.Warn("Please select a minimum loot quality from the drop down.");
                 return;
             }
 
-            if (LocalSettings.Settings["StopOnTime"])
+            if (UserPreferences.Default.StopOnTime)
             {
                 _stopTimer = new Timer(Callback, null, 0,
-                    (int) (LocalSettings.Settings["MinutesToStop"].As<double>()*60*1000));
+                    (int) (UserPreferences.Default.MinutesToStop*60*1000));
             }
 
-            LocalSettings.DumpSettingsToLog();
             _theEngine.StartEngine();
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Text;
+using CoolFishNS.Management.CoolManager.Objects.Structs;
 
 namespace CoolFishNS.Management.CoolManager.Objects
 {
@@ -45,6 +46,11 @@ namespace CoolFishNS.Management.CoolManager.Objects
             get { return GetStorageField<BitVector32>(Offsets.WoWGameObjectFields.Flags); }
         }
 
+        public bool IsBobbing
+        {
+            get { return BotManager.Memory.Read<bool>(BaseAddress + (int) Offsets.WowGameObject.AnimationState); }
+        }
+
         public bool Locked
         {
             get { return Flags[1]; }
@@ -77,9 +83,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
         ///     The GUID of the object this object was created by.
         ///     <!-- Presumably, hasn't been double-checked. -->
         /// </summary>
-        public ulong CreatedBy
+        public WoWGUID CreatedBy
         {
-            get { return GetStorageField<ulong>(Offsets.WoWGameObjectFields.CreatedBy); }
+            get { return GetStorageField<WoWGUID>(Offsets.WoWGameObjectFields.CreatedBy); }
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <value>
         ///     <c>true</c> if we [need to run]; otherwise, <c>false</c>.
         /// </value>
-        public override bool NeedToRun
+        private bool NeedToRun
         {
             get
             {
@@ -41,14 +41,19 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Runs this state and apply the lure.
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
+            if (!NeedToRun)
+            {
+                return false;
+            }
             Logger.Info(Name);
 
             DxHook.ExecuteScript(
                 "local name = GetItemInfo(85973); if name then RunMacroText(\"/use  \" .. name); end");
 
             Thread.Sleep(3000);
+            return true;
         }
     }
 }

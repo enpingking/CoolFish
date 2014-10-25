@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using CoolFishNS.Management.CoolManager.Objects.Structs;
 
 namespace CoolFishNS.Management.CoolManager.Objects
 {
@@ -27,9 +28,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <summary>
         ///     The object's GUID.
         /// </summary>
-        public virtual ulong Guid
+        public virtual WoWGUID Guid
         {
-            get { return BotManager.Memory.Read<ulong>((BaseAddress + (int) Offsets.WoWObjectFields.VisibleGuid)); }
+            get { return BotManager.Memory.Read<WoWGUID>((BaseAddress + (int) Offsets.WowObject.VisibleGuid)); }
         }
 
         /// <summary>
@@ -43,9 +44,9 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// <summary>
         ///     The object's Type.
         /// </summary>
-        public int Type
+        public ObjectManager.ObjectType Type
         {
-            get { return BotManager.Memory.Read<int>((BaseAddress + (int) Offsets.WoWObjectFields.Type)); }
+            get { return BotManager.Memory.Read<ObjectManager.ObjectType>(BaseAddress + (int) Offsets.WowObject.Type); }
         }
 
         /// <summary>
@@ -107,7 +108,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsMe
         {
-            get { return Guid == ObjectManager.Me.Guid; }
+            get { return Guid.Equals(ObjectManager.Me.Guid); }
         }
 
 

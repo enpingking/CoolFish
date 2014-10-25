@@ -169,7 +169,7 @@ namespace Fasm
 		
 		if (!WriteProcessMemory((HANDLE)hProcess, (void *)dwAddress, fasm_state->output_data, fasm_state->output_length, NULL))
 		{
-			throw gcnew Exception("Failed to inject code. LastError: " + GetLastError());
+			throw gcnew Exception("Failed to inject code. Address: " + dwAddress + " LastError: " + GetLastError());
 		}
 		return true;
 	}

@@ -203,7 +203,15 @@ namespace GreyMagic
         /// <remarks>Created 2012-02-15</remarks>
         public virtual void Dispose()
         {
-            Process.LeaveDebugMode();
+            try
+            {
+                Process.LeaveDebugMode();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.ToString());
+            }
+            
         }
 
         #endregion

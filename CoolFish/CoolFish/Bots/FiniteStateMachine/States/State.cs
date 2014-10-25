@@ -14,19 +14,16 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         public abstract int Priority { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether [need to run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        public abstract bool NeedToRun { get; }
-
-        /// <summary>
         ///     Name of the state. returns the Class name by default
         /// </summary>
         public virtual string Name
         {
             get { return GetType().Name; }
+        }
+
+        public virtual bool ShouldStopRunning
+        {
+            get { return false; }
         }
 
         #region IComparable<State> Members
@@ -53,6 +50,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Runs the current state
         /// </summary>
-        public abstract void Run();
+        public abstract bool Run();
     }
 }

@@ -24,7 +24,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <value>
         ///     <c>true</c> if we [need to run]; otherwise, <c>false</c>.
         /// </value>
-        public override bool NeedToRun
+        private bool NeedToRun
         {
             get
             {
@@ -47,8 +47,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Runs this state and apply the lure.
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
+            if (!NeedToRun)
+            {
+                return false;
+            }
             Logger.Info(Name);
 
             string weaponId = DxHook.ExecuteScript("SpellStopCasting() " +
@@ -60,7 +64,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             {
                 MessageBox.Show("Your current weapon is the spear. Please fix this and restart the bot.");
                 BotManager.StopActiveBot();
-                return;
+                return false;
             }
 
             Thread.Sleep(1000);
@@ -73,6 +77,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             DxHook.ExecuteScript("EquipItemByName(weaponId);");
 
             Thread.Sleep(500);
+            return true;
         }
     }
 }

@@ -16,21 +16,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get { return (int) CoolFishEngine.StatePriority.StateDoLoot; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether [need to run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        public override bool NeedToRun
-        {
-            get
-            {
-                string result = DxHook.ExecuteScript("loot = IsFishingLoot();", "loot");
-                return result == "1";
-            }
-        }
-
         public override string Name
         {
             get { return "Looting items"; }
@@ -39,10 +24,14 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     If the loot window is open, then execute the lua to loot the items. See DoLoot.lua in the Resources for code
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
-            Logger.Info(Name);
-            DxHook.ExecuteScript(Resources.DoLoot);
+            if (DxHook.ExecuteScript(Resources.DoLoot, "StateResult") == "1")
+            {
+                Logger.Info(Name);
+                return true;
+            }
+            return false;
         }
     }
 }

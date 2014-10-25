@@ -17,27 +17,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get { return (int) CoolFishEngine.StatePriority.StateApplyLure; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether we [need to run] this state or not.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if we [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        public override bool NeedToRun
-        {
-            get
-            {
-                string result = DxHook.ExecuteScript("enchant = GetWeaponEnchantInfo();", "enchant");
-
-                if (result == "1")
-                {
-                    return false;
-                }
-
-                return PlayerInventory.LureCount > 0;
-            }
-        }
-
         public override string Name
         {
             get { return "Applying lure"; }
@@ -46,13 +25,20 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Runs this state and apply the lure.
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
-            Logger.Info(Name);
+            string result = DxHook.ExecuteScript("if GetWeaponEnchantInfo() then enchant = 1 else enchant = 0 end;", "enchant");
 
-            DxHook.ExecuteScript("RunMacroText(\"/use \" .. LureName);");
+            if (result != "1" && PlayerInventory.HasLures())
+            {
+                Logger.Info(Name);
 
-            Thread.Sleep(3000);
+                DxHook.ExecuteScript("RunMacroText(\"/use \" .. LureName);");
+
+                Thread.Sleep(3000);
+                return true;
+            }
+            return false;
         }
     }
 }

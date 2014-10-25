@@ -41,12 +41,13 @@ namespace CoolFishNS
                 var cb = new CheckBox {Content = plugin.Key};
                 cb.Checked += changedCheck;
                 cb.Unchecked += changedCheck;
-                cb.IsChecked = LocalSettings.Plugins.ContainsKey(plugin.Key) && (LocalSettings.Plugins[plugin.Key].isEnabled == true);
+                cb.IsChecked = UserPreferences.Default.Plugins.ContainsKey(plugin.Key) &&
+                               (UserPreferences.Default.Plugins[plugin.Key].IsEnabled == true);
 
                 _pluginCheckBoxesList.Add(cb);
             }
 
-            LogLevelCMB.SelectedIndex = LocalSettings.Settings["LogLevel"];
+            LogLevelCMB.SelectedIndex = UserPreferences.Default.LogLevel;
             ScriptsLB.ItemsSource = _pluginCheckBoxesList;
         }
 
@@ -54,13 +55,13 @@ namespace CoolFishNS
         {
             foreach (CheckBox script in _pluginCheckBoxesList)
             {
-                LocalSettings.Plugins[script.Content.ToString()] = new SerializablePlugin
+                UserPreferences.Default.Plugins[script.Content.ToString()] = new SerializablePlugin
                 {
-                    fileName = script.Content.ToString(),
-                    isEnabled = script.IsChecked
+                    FileName = script.Content.ToString(),
+                    IsEnabled = script.IsChecked
                 };
             }
-            LocalSettings.Settings["LogLevel"] = LogLevelCMB.SelectedIndex;
+            UserPreferences.Default.LogLevel = LogLevelCMB.SelectedIndex;
         }
 
         private void RefreshProcesses()
@@ -124,7 +125,6 @@ namespace CoolFishNS
             }
         }
 
-
         #region EventHandlers
 
         private void btn_Attach_Click(object sender, EventArgs e)
@@ -184,7 +184,6 @@ namespace CoolFishNS
         private void UpdateBTN_Click(object sender, RoutedEventArgs e)
         {
             TabControlTC.SelectedItem = MainTab;
-            Updater.Update();
         }
 
         private void MainTab_Click(object sender, RoutedEventArgs e)
@@ -218,12 +217,12 @@ namespace CoolFishNS
 
         private void MetroWindow_Loaded_1(object sender, RoutedEventArgs e)
         {
-            var textbox = new TextBoxTarget(OutputText) { Layout = @"[${date:format=h\:mm\:ss.ff tt}] [${level:uppercase=true}] ${message}" };
+            var textbox = new TextBoxTarget(OutputText) {Layout = @"[${date:format=h\:mm\:ss.ff tt}] [${level:uppercase=true}] ${message}"};
             var asyncWrapper = new AsyncTargetWrapper(textbox);
-            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.FromOrdinal(LocalSettings.Settings["LogLevel"]), asyncWrapper));
+            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.FromOrdinal(UserPreferences.Default.LogLevel), asyncWrapper));
             LogManager.ReconfigExistingLoggers();
 
-            OutputText.Text = Updater.GetNews() + Environment.NewLine;
+            OutputText.Text = Utilities.Utilities.GetNews() + Environment.NewLine;
             Logger.Info("CoolFish Version: " + Utilities.Utilities.Version);
 
             BotManager.StartUp();
@@ -238,8 +237,6 @@ namespace CoolFishNS
             {
                 BotManager.AttachToProcess(_processes.First());
             }
-
-            Updater.Update();
         }
 
         private void PluginsBTN_Click(object sender, RoutedEventArgs e)
