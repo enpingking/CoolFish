@@ -265,18 +265,26 @@ namespace GreyMagic
 
         public override void Dispose()
         {
-            if (ProcessHandle != null)
+            try
             {
-                ProcessHandle.Dispose();
-                ProcessHandle = null;
-            }
+                if (ProcessHandle != null)
+                {
+                    ProcessHandle.Dispose();
+                    ProcessHandle = null;
+                }
 
-            SafeMemoryHandle.CloseHandle(ThreadHandle);
-            if (Asm != null)
-            {
-                Asm.Dispose();
+                SafeMemoryHandle.CloseHandle(ThreadHandle);
+                if (Asm != null)
+                {
+                    Asm.Dispose();
+                }
+                base.Dispose();
             }
-            base.Dispose();
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
+            
         }
 
         #endregion

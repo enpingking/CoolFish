@@ -24,32 +24,9 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
         private static readonly Random Random = new Random();
 
-        private WoWGameObject _bobber;
-
         public override int Priority
         {
             get { return (int) CoolFishEngine.StatePriority.StateBobbing; }
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether [need to run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        public override bool NeedToRun
-        {
-            get
-            {
-                _bobber = ObjectManager.GetSpecificObject(IsBobber, WoWObject.ToWoWGameObject);
-
-                if (_bobber == null)
-                {
-                    return false;
-                }
-
-                return true;
-            }
         }
 
         public override string Name
@@ -59,23 +36,30 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
         private static bool IsBobber(WoWGameObject objectToCheck)
         {
-            return objectToCheck.CreatedBy == ObjectManager.PlayerGuid && objectToCheck.AnimationState == 0x440001;
+            return objectToCheck.CreatedBy.Equals(ObjectManager.PlayerGuid) && objectToCheck.IsBobbing;
         }
 
         /// <summary>
         ///     Interact with the bobber so we can catch the fish
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
+            WoWGameObject bobber = ObjectManager.GetSpecificObject(IsBobber, WoWObject.ToWoWGameObject);
+
+            if (bobber == null)
+            {
+                return false;
+            }
+
             Logger.Info(Name);
             BuggedTimer.Restart();
 
             Thread.Sleep(Random.Next(500, 1750));
-
-            BotManager.Memory.Write(Offsets.Addresses["MouseOverGUID"], _bobber.Guid);
+            BotManager.Memory.Write(Offsets.Addresses["MouseOverGUID"], bobber.Guid);
             Logger.Info("Clicking bobber");
             DxHook.ExecuteScript("InteractUnit(\"mouseover\");");
             Thread.Sleep(1000);
+            return true;
         }
     }
 }

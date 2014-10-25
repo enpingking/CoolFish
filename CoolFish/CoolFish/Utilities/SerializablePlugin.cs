@@ -11,11 +11,11 @@ namespace CoolFishNS.Utilities
         /// <summary>
         ///     true if the plugin is currently enabled; otherwise, false
         /// </summary>
-        public bool? isEnabled { get; set; }
+        public bool? IsEnabled { get; set; }
 
         /// <summary>
         ///     File name of the plugin
         /// </summary>
-        public string fileName { get; set; }
+        public string FileName { get; set; }
     }
 }

@@ -1,6 +1,14 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
 
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
+              GeneratedClassNamespace="CoolFishNS.Properties" GeneratedClassName="Settings">
   <Profiles />
-  <Settings />
+  <Settings>
+    <Setting Name="apiKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">e838c760-c238-41c3-b4bd-51640a8572dc</Value>
+    </Setting>
+    <Setting Name="UserPreferencesFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">UserPreferences.dat</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

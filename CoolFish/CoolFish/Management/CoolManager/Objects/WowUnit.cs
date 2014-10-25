@@ -53,7 +53,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsUnit
         {
-            get { return Type == (int) ObjectManager.ObjectType.Unit; }
+            get { return Type == ObjectManager.ObjectType.Unit; }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace CoolFishNS.Management.CoolManager.Objects
         /// </summary>
         public bool IsPlayer
         {
-            get { return Type == (int) ObjectManager.ObjectType.Player; }
+            get { return Type == ObjectManager.ObjectType.Player; }
         }
 
         /// <summary>

@@ -10,7 +10,9 @@ using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
+using MarkedUp;
 using NLog;
+using LogLevel = NLog.LogLevel;
 
 namespace CoolFishNS.Bots.FiniteStateMachine
 {
@@ -46,12 +48,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine
 
         #endregion
 
-        private Task _workerTask;
-
         /// <summary>
         ///     True if the Engine is running. False otherwise.
         /// </summary>
-        public bool Running { get; private set; }
+        public volatile bool Running;
+
+        private Task _workerTask;
 
         private SortedSet<State> States { get; set; }
 
@@ -104,39 +106,39 @@ namespace CoolFishNS.Bots.FiniteStateMachine
         {
             States = new SortedSet<State> {new StateDoNothing(), new StateStopOrLogout()};
 
-            if (LocalSettings.Settings["DoFishing"])
+            if (UserPreferences.Default.DoFishing)
             {
                 States.Add(new StateFish());
             }
-            if (LocalSettings.Settings["DoBobbing"])
+            if (UserPreferences.Default.DoBobbing)
             {
                 States.Add(new StateBobbing());
             }
-            if (LocalSettings.Settings["DoLoot"])
+            if (UserPreferences.Default.DoLoot)
             {
                 States.Add(new StateDoLoot());
             }
-            if (!LocalSettings.Settings["NoLure"])
+            if (!UserPreferences.Default.NoLure)
             {
                 States.Add(new StateApplyLure());
             }
-            if (LocalSettings.Settings["UseCharm"])
+            if (UserPreferences.Default.UseCharm)
             {
                 States.Add(new StateUseCharm());
             }
-            if (LocalSettings.Settings["UseRaft"])
+            if (UserPreferences.Default.UseRaft)
             {
                 States.Add(new StateUseRaft());
             }
-            if (LocalSettings.Settings["SoundOnWhisper"])
+            if (UserPreferences.Default.SoundOnWhisper)
             {
                 States.Add(new StateDoWhisper());
             }
-            if (LocalSettings.Settings["UseRumsey"])
+            if (UserPreferences.Default.UseRumsey)
             {
                 States.Add(new StateUseRumsey());
             }
-            if (LocalSettings.Settings["UseSpear"])
+            if (UserPreferences.Default.UseSpear)
             {
                 States.Add(new StateUseSpear());
             }
@@ -147,7 +149,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             AddStates();
             StateBobbing.BuggedTimer.Restart();
             var builder = new StringBuilder();
-            foreach (SerializableItem serializableItem in LocalSettings.Items.Where(item => !string.IsNullOrWhiteSpace(item.Value)))
+            foreach (SerializableItem serializableItem in UserPreferences.Default.Items.Where(item => !string.IsNullOrWhiteSpace(item.Value)))
             {
                 builder.Append("[\"");
                 builder.Append(serializableItem.Value);
@@ -163,16 +165,16 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             builder.Clear();
             builder.AppendLine("ItemsList = {" + items + "}");
             builder.AppendLine("LootLeftOnly = " +
-                               LocalSettings.Settings["LootOnlyItems"].ToString().ToLower());
+                               UserPreferences.Default.LootOnlyItems.ToString().ToLower());
             builder.AppendLine("DontLootLeft = " +
-                               LocalSettings.Settings["DontLootLeft"].ToString().ToLower());
-            builder.AppendLine("LootQuality = " + LocalSettings.Settings["LootQuality"]);
+                               UserPreferences.Default.DontLootLeft.ToString().ToLower());
+            builder.AppendLine("LootQuality = " + UserPreferences.Default.LootQuality);
             builder.AppendLine(Resources.WhisperNotes);
-            builder.AppendLine("LootLog = {}");
-            builder.AppendLine("NoLootLog = {}");
+            builder.AppendLine("LootLog = {}; ");
+            builder.AppendLine("NoLootLog = {}; ");
             builder.Append("DODEBUG = " +
-                           ((LocalSettings.Settings["LogLevel"] == LogLevel.Debug.Ordinal ||
-                             LocalSettings.Settings["LogLevel"] == LogLevel.Trace.Ordinal)
+                           ((UserPreferences.Default.LogLevel == LogLevel.Debug.Ordinal ||
+                             UserPreferences.Default.LogLevel == LogLevel.Trace.Ordinal)
                                ? "true"
                                : "false"));
 
@@ -187,9 +189,8 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 {
                     return;
                 }
-                if (state.NeedToRun)
+                if (state.Run())
                 {
-                    state.Run();
                     return;
                 }
             }
@@ -219,6 +220,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                 const string msg = "Stopping bot because we could not execute code required to continue";
                 if (DxHook.TriedHackyHook)
                 {
+                    AnalyticClient.SessionEvent("TriedHackyHook");
                     Logger.Warn(msg, (Exception) ex);
                     Logger.Info(
                         "It seems you tried to create the hook CoolFish needs despite the mention of problems it could cause. This error is likely a result of that. It is recommended that you stop running the interfering program.");
@@ -228,13 +230,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                     Logger.Error(msg, (Exception) ex);
                 }
             }
-            catch (HookNotAppliedException)
+            catch (HookNotAppliedException ex)
             {
-                Logger.Warn("Stopping bot because required hook is no longer applied");
+                Logger.Warn("Stopping bot because required hook is no longer applied", (Exception) ex);
             }
-            catch (AccessViolationException)
+            catch (AccessViolationException ex)
             {
-                Logger.Warn("Stopping bot because we failed to read memory.");
+                Logger.Warn("Stopping bot because we failed to read memory.", (Exception) ex);
             }
             catch (Exception ex)
             {

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{440BA8EC-0DAA-4E57-9EE4-52B2088031AE}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CoolFishNS</RootNamespace>
     <AssemblyName>CoolFish</AssemblyName>
@@ -97,9 +97,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
@@ -141,26 +139,28 @@
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>CoolFishNS.App</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MarkedUp %28NET45%29, Version=1.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MarkedUp %28NET45%29, Version=1.3.9.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MarkedUp.1.3.5\lib\Net45\MarkedUp (NET45).dll</HintPath>
+      <HintPath>..\packages\MarkedUp.1.3.9\lib\Net45\MarkedUp (NET45).dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=3.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NLog">
       <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Octokit, Version=0.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Octokit, Version=0.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Octokit.0.3.5\lib\net45\Octokit.dll</HintPath>
+      <HintPath>..\packages\Octokit.0.4.1\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -181,15 +181,19 @@
     </Compile>
     <Compile Include="Exceptions\CodeInjectFailedException.cs" />
     <Compile Include="Exceptions\HookNotAppliedException.cs" />
-    <Compile Include="GitHub\GithubAPI.cs" />
     <Compile Include="Management\CoolManager\FindPattern.cs" />
+    <Compile Include="Management\CoolManager\Objects\Structs\WoWGUID.cs" />
     <Compile Include="Management\CoolManager\Point.cs" />
     <Compile Include="Management\BotManager.cs" />
     <Compile Include="Bots\CoolFishBot\CoolFishBot.cs" />
     <Compile Include="Bots\IBot.cs" />
+    <Compile Include="Properties\Settings1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Targets\MarkedUpTarget.cs" />
     <Compile Include="Targets\TextBoxTarget.cs" />
-    <Compile Include="Utilities\BotSetting.cs" />
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Management\CoolManager\D3D\D3D11Device.cs" />
     <Compile Include="Management\CoolManager\D3D\D3D9Device.cs" />
@@ -249,19 +253,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utilities\LocalSettings.cs" />
+    <Compile Include="Utilities\UserPreferences.cs" />
     <Compile Include="Utilities\PlayerInventory.cs" />
     <Compile Include="Utilities\Serializer.cs" />
     <Compile Include="Bots\FiniteStateMachine\States\State.cs" />
-    <Compile Include="Utilities\Updater.cs" />
     <Compile Include="Utilities\Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -269,10 +267,13 @@
     </EmbeddedResource>
     <None Include="app.manifest" />
     <Resource Include="Bots\LuaResources\GetLureName.lua" />
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
     <Resource Include="Bots\LuaResources\WhisperNotes.lua" />
@@ -280,7 +281,9 @@
     <Resource Include="Bots\LuaResources\NeedToRunUseRaft.lua" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="process.ico" />
@@ -367,33 +370,12 @@
       <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
-    <PublishFile Include="MahApps.Metro">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
-    </PublishFile>
-    <PublishFile Include="System.Windows.Interactivity">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
-    </PublishFile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <SplashScreen Include="SplashScreen.png" />
-    <None Include="Resources\GreyMagic.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\fasmdll_managed\fasmdll_managed.vcxproj">
@@ -407,9 +389,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>cd $(TargetDir)
-
-Version.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>
@@ -417,7 +398,7 @@ Version.exe $(ProjectDir)Properties\AssemblyInfo.cs</PreBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_DetectChanges="True" />
+      <UserProperties BuildVersion_DetectChanges="True" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

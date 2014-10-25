@@ -32,7 +32,7 @@ namespace CoolFishNS.Targets
 
         protected override void Write(LogEventInfo logEvent)
         {
-            if (_box == null || logEvent.Level == LogLevel.Trace)
+            if (_box == null || logEvent.Level == LogLevel.Trace || Application.Current == null)
             {
                 return;
             }

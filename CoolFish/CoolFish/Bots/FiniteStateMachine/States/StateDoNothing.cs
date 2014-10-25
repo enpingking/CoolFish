@@ -17,30 +17,18 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         }
 
         /// <summary>
-        ///     Gets a value indicating whether [need to run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        public override bool NeedToRun
-        {
-            get
-            {
-                WoWPlayerMe me = ObjectManager.Me;
-                if (me == null)
-                {
-                    return false;
-                }
-                return me.Combat || me.Speed > 0;
-            }
-        }
-
-        /// <summary>
         ///     Do "nothing"
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
-            Logger.Debug("[DoNothingState]");
+            Logger.Trace("[DoNothingState]");
+
+            WoWPlayerMe me = ObjectManager.Me;
+            if (me == null)
+            {
+                return false;
+            }
+            return me.Combat || me.Speed > 0;
         }
     }
 }

@@ -99,10 +99,11 @@ namespace CoolFishNS.Properties {
         ///    _, _, id = string.find(Link, &quot;item:(%d+):&quot;)
         ///        if Quality &gt;= LootQuality then
         ///            if LootLeftOnly or DontLootLeft then 
-        ///                for j=1,# ItemsList do
-        ///                    nameMatch = ItemsList[j] == name
-        ///                    idMatch = ItemsList[j] == id
-        ///                    if [rest of string was truncated]&quot;;.
+        ///                match = ItemsList[name] or ItemsList[id]
+        ///                
+        ///				if (match) and LootLeftOnly then 
+        ///                    LootSlot(i) 
+        ///                   [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DoLoot {
             get {
@@ -149,15 +150,6 @@ namespace CoolFishNS.Properties {
         internal static string HitTimeLimit {
             get {
                 return ResourceManager.GetString("HitTimeLimit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Missing translation for required attribute. Report this to the developer. Setting back to English.
-        /// </summary>
-        internal static string MissingTranslation {
-            get {
-                return ResourceManager.GetString("MissingTranslation", resourceCulture);
             }
         }
         
@@ -302,15 +294,6 @@ namespace CoolFishNS.Properties {
         internal static string SecretBTNMessage {
             get {
                 return ResourceManager.GetString("SecretBTNMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to We could not check the server to see if it is safe to run the bot. Would you like to ignore this check and continue (this session only)?.
-        /// </summary>
-        internal static string ShouldRunException {
-            get {
-                return ResourceManager.GetString("ShouldRunException", resourceCulture);
             }
         }
         

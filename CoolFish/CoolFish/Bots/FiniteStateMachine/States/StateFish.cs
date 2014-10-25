@@ -28,7 +28,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <value>
         ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
         /// </value>
-        public override bool NeedToRun
+        private bool NeedToRun
         {
             get
             {
@@ -50,8 +50,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// <summary>
         ///     Cast fishing
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
+            if (!NeedToRun)
+            {
+                return false;
+            }
             Thread.Sleep(_random.Next(1000));
             Logger.Info(Name);
             DxHook.ExecuteScript("local name = GetSpellInfo(131490);  CastSpellByName(name);");
@@ -61,14 +65,9 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             // We write this value to LastHardwareAction so that our character isn't logged out due to inactivity
             var ticks = BotManager.Memory.Read<int>(Offsets.Addresses["Timestamp"]);
 
-            if (Logger.IsTraceEnabled)
-            {
-                var currentTicks = BotManager.Memory.Read<int>(Offsets.Addresses["LastHardwareAction"]);
-                Logger.Trace("Writing " + ticks + " ticks while previous was " + currentTicks);
-            }
-
             BotManager.Memory.Write(Offsets.Addresses["LastHardwareAction"], ticks);
             Thread.Sleep(500);
+            return true;
         }
     }
 }

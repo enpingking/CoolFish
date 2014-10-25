@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         private static AllocatedMemory _allocatedMemory;
         private static Dirext3D _dxAddress;
         private static byte[] _endSceneOriginalBytes;
-        public static bool TriedHackyHook { get; private set; }
+        public static volatile bool TriedHackyHook;
 
         /// <summary>
         ///     Determine if the hook is currently applied or not
@@ -43,7 +44,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <value>
         ///     <c>true</c> if the hook is applied; otherwise, <c>false</c>.
         /// </value>
-        private static bool IsApplied { get; set; }
+        private static volatile bool _isApplied;
 
         private static int Inject(IEnumerable<string> asm, IntPtr address)
         {
@@ -73,7 +74,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 try
                 {
                     //Lets check if we are already hooked.
-                    if (IsApplied)
+                    if (_isApplied)
                     {
                         return true;
                     }
@@ -180,12 +181,12 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     asm.Add("jmp @top");
 
                     Inject(asm, _dxAddress.HookPtr - 5);
-                    IsApplied = true;
+                    _isApplied = true;
                 }
                 catch (Exception ex)
                 {
                     TriedHackyHook = false;
-                    IsApplied = false;
+                    _isApplied = false;
                     if (_allocatedMemory != null)
                     {
                         _allocatedMemory.Dispose();
@@ -193,7 +194,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     if (_dxAddress != null)
                     {
                         _dxAddress.Device.Dispose();
-                        ;
                     }
                     throw;
                 }
@@ -207,34 +207,41 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// </summary>
         internal static void Restore()
         {
-            lock (LockObject)
+            try
             {
-                //Lets check if were hooked
-                if (!IsApplied)
+                lock (LockObject)
                 {
-                    return;
-                }
-                if (BotManager.Memory == null || BotManager.Memory.Process.HasExited)
-                {
+                    //Lets check if were hooked
+                    if (!_isApplied)
+                    {
+                        return;
+                    }
+                    if (BotManager.Memory == null || BotManager.Memory.Process.HasExited)
+                    {
+                        TriedHackyHook = false;
+                        _isApplied = false;
+                        return;
+                    }
+
+                    // Restore original endscene:
+                    BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
+
+                    if (_allocatedMemory != null)
+                    {
+                        _allocatedMemory.Dispose();
+                    }
+                    if (_dxAddress != null && _dxAddress.Device != null)
+                    {
+                        _dxAddress.Device.Dispose();
+                    }
+
                     TriedHackyHook = false;
-                    IsApplied = false;
-                    return;
+                    _isApplied = false;
                 }
-
-                // Restore original endscene:
-                BotManager.Memory.WriteBytes(_dxAddress.HookPtr - 5, _endSceneOriginalBytes);
-
-                if (_allocatedMemory != null)
-                {
-                    _allocatedMemory.Dispose();
-                }
-                if (_dxAddress != null && _dxAddress.Device != null)
-                {
-                    _dxAddress.Device.Dispose();
-                }
-                
-                TriedHackyHook = false;
-                IsApplied = false;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Exception thrown while restoring original DirectX function", ex);
             }
         }
 
@@ -248,7 +255,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         {
             lock (LockObject)
             {
-                if (!IsApplied)
+                if (!_isApplied)
                 {
                     throw new HookNotAppliedException("Tried to inject code when the Hook was not applied");
                 }
@@ -265,7 +272,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                     Thread.Sleep(1);
                     if (timer.ElapsedMilliseconds >= 5000)
                     {
-                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds");
+                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds. Last Error: " + Marshal.GetLastWin32Error());
                     }
                 } // Wait to launch code
 
@@ -280,15 +287,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public static void ExecuteScript(string command)
         {
-            if (Logger.IsTraceEnabled)
-            {
-                var stackTrace = new StackTrace();
-
-
-                Logger.Trace("ExecuteScript Lua from " +
-                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                             stackTrace.GetFrame(1).GetMethod().Name);
-            }
             if (command == null)
             {
                 throw new Exception("ExecuteScript command can not be null!");
@@ -306,16 +304,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public static string ExecuteScript(string command, string returnVariableName)
         {
-            if (Logger.IsTraceEnabled)
-            {
-                var stackTrace = new StackTrace();
-
-
-                Logger.Trace("ExecuteScript Lua from " +
-                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                             stackTrace.GetFrame(1).GetMethod().Name);
-            }
-
             if (command == null || returnVariableName == null)
             {
                 throw new Exception("ExecuteScript arguments can not be null!");
@@ -334,13 +322,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public static Dictionary<string, string> ExecuteScript(string executeCommand, IEnumerable<string> commands)
         {
-            if (Logger.IsTraceEnabled)
-            {
-                var stackTrace = new StackTrace();
-                Logger.Trace("ExecuteScript (enumerable) Lua from " +
-                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                             stackTrace.GetFrame(1).GetMethod().Name);
-            }
             var returnDict = new Dictionary<string, string>();
 
             if (executeCommand == null || commands == null)
@@ -436,16 +417,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public static string GetLocalizedText(string command)
         {
-            if (Logger.IsTraceEnabled)
-            {
-                var stackTrace = new StackTrace();
-
-
-                Logger.Trace("GetLocalizedText Lua from " +
-                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                             stackTrace.GetFrame(1).GetMethod().Name);
-            }
-
             if (command == null)
             {
                 throw new Exception("GetLocalizedText arguments can not be null!");
@@ -454,7 +425,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
 
             if (Logger.IsTraceEnabled)
             {
-                Logger.Trace("result: " + result);
+                Logger.Trace("GLT result: " + result);
             }
             return result;
         }
@@ -467,17 +438,6 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
         /// <exception cref="HookNotAppliedException">Thrown when the required hook has not been applied</exception>
         public static Dictionary<string, string> GetLocalizedText(IEnumerable<string> commands)
         {
-            if (Logger.IsTraceEnabled)
-            {
-                var stackTrace = new StackTrace();
-
-
-                Logger.Trace("GetLocalizedText (enumerable) Lua from " +
-                             stackTrace.GetFrame(1).GetMethod().ReflectedType.Name + "." +
-                             stackTrace.GetFrame(1).GetMethod().Name);
-            }
-
-
             var returnDict = new Dictionary<string, string>();
 
             if (commands == null)
@@ -580,7 +540,7 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 // We want to call GetLocalizedText
                 asm.AddRange(new[]
                 {
-                    "call " + Offsets.Addresses["ClntObjMgrGetActivePlayerObj"],
+                    "mov eax, [" + Offsets.Addresses["PlayerPointer"] + "]",
                     "test eax, eax",
                     "je @leave",
                     "mov ebx, eax",

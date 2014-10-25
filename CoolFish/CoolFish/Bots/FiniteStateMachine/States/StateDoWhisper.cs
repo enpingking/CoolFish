@@ -19,34 +19,24 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         }
 
         /// <summary>
-        ///     Gets a value indicating whether [need to run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        public override bool NeedToRun
-        {
-            get
-            {
-                string result = DxHook.GetLocalizedText("NewMessage");
-                return result == "1";
-            }
-        }
-
-        /// <summary>
         ///     Get the message and author of the whisper and display it to the user and play a sound.
         /// </summary>
-        public override void Run()
+        public override bool Run()
         {
-            Dictionary<string, string> result = DxHook.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
+            if (DxHook.GetLocalizedText("NewMessage") == "1")
+            {
+                Dictionary<string, string> result = DxHook.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
 
-            Logger.Info("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
+                Logger.Info("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
 
-            SystemSounds.Asterisk.Play();
+                SystemSounds.Asterisk.Play();
 
-            Thread.Sleep(3000);
+                Thread.Sleep(3000);
 
-            SystemSounds.Asterisk.Play();
+                SystemSounds.Asterisk.Play();
+                return true;
+            }
+            return false;
         }
     }
 }

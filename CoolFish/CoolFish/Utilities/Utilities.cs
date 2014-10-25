@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using NLog;
 
@@ -32,6 +33,22 @@ namespace CoolFishNS.Utilities
                 return Assembly.GetExecutingAssembly().
                     GetName().Version;
             }
+        }
+
+        internal static string GetNews()
+        {
+            try
+            {
+                using (var client = new WebClient {Proxy = WebRequest.DefaultWebProxy})
+                {
+                    return client.DownloadString("http://unknowndev.github.io/CoolFish/Message.txt");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Could not connect to news feed. Website is down?", ex);
+            }
+            return string.Empty;
         }
 
         /// <summary>

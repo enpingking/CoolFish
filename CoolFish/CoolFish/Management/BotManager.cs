@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
@@ -11,7 +10,6 @@ using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.PluginSystem;
 using GreyMagic;
-using MarkedUp;
 using NLog;
 
 namespace CoolFishNS.Management
@@ -24,6 +22,8 @@ namespace CoolFishNS.Management
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         internal static readonly Dictionary<string, IBot> LoadedBots = new Dictionary<string, IBot>();
+
+        private static readonly object LockObject = new object();
 
         static BotManager()
         {
@@ -50,26 +50,6 @@ namespace CoolFishNS.Management
         ///     This field should be set to whatever Bot object you want to respond to UI functions (Start, Stop, etc.)
         /// </summary>
         public static IBot ActiveBot { get; private set; }
-
-        /// <summary>
-        ///     Get the currently logged in toon's name
-        /// </summary>
-        /// <returns>string of the player's name</returns>
-        public static string GetToonName
-        {
-            get
-            {
-                try
-                {
-                    return Memory.ReadString(Offsets.Addresses["PlayerName"], Encoding.UTF8);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Error reading ToonName", ex);
-                    return string.Empty;
-                }
-            }
-        }
 
         /// <summary>
         ///     Gets a value indicating whether logged into the game and on a player character.
@@ -160,69 +140,73 @@ namespace CoolFishNS.Management
         /// <param name="process"></param>
         public static void AttachToProcess(Process process)
         {
-            try
+            lock (LockObject)
             {
-                if (process.HasExited)
+                try
                 {
-                    Logger.Warn("The process you have selected has exited. Please select another.");
-                    return;
-                }
-                if (IsAttached)
-                {
-                    DetachFromProcess();
-                }
-                if (Offsets.FindOffsets(process))
-                {
-                    Memory = new ExternalProcessReader(process);
-                    if (DxHook.Apply())
+                    if (process.HasExited)
                     {
-                        Memory.ProcessExited += (sender, args) => DetachFromProcess();
-                        Logger.Info("Attached to: " + process.Id);
+                        Logger.Warn("The process you have selected has exited. Please select another.");
                         return;
                     }
+                    if (IsAttached)
+                    {
+                        DetachFromProcess();
+                    }
+                    if (Offsets.FindOffsets(process))
+                    {
+                        Memory = new ExternalProcessReader(process);
+                        if (DxHook.Apply())
+                        {
+                            Memory.ProcessExited += (sender, args) => DetachFromProcess();
+                            Logger.Info("Attached to: " + process.Id);
+                            return;
+                        }
+                    }
                 }
-            }
-            catch (FileNotFoundException ex)
-            {
-                if (ex.FileName.Contains("fasmdll_managed"))
+                catch (FileNotFoundException ex)
                 {
-                    AnalyticClient.SessionEvent("Missing Redistributable");
-                    Logger.Fatal(
-                        "You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                    if (ex.FileName.Contains("fasmdll_managed"))
+                    {
+                        Logger.Fatal(
+                            "You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
+                    }
+                    else
+                    {
+                        Logger.Error("Failed to attach do to an exception. Missing File: " + ex.FileName, (Exception) ex);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Logger.Error("Failed to attach do to an exception. Missing File: " + ex.FileName, (Exception)ex);
+                    Logger.Error("Failed to attach do to an exception.", ex);
                 }
+                DetachFromProcess();
+                Logger.Warn("Failed to attach to: " + process.Id);
             }
-            catch (Exception ex)
-            {
-                Logger.Error("Failed to attach do to an exception.", ex);
-            }
-            DetachFromProcess();
-            Logger.Warn("Failed to attach to: " + process.Id);
         }
 
         /// <summary>
         /// </summary>
         public static void DetachFromProcess()
         {
-            
-            try
+            lock (LockObject)
             {
-                StopActiveBot();
-                DxHook.Restore();
-                if (Memory != null)
+                try
                 {
-                    Memory.Dispose();
+                    StopActiveBot();
+                    DxHook.Restore();
+                    if (Memory != null)
+                    {
+                        Memory.Dispose();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Failed to detach do to an exception.", ex);
-            }
+                catch (Exception ex)
+                {
+                    Logger.Error("Exception thrown while detaching from process", ex);
+                }
 
-            Memory = null;
+                Memory = null;
+            }
         }
 
         /// <summary>
@@ -273,11 +257,11 @@ namespace CoolFishNS.Management
             try
             {
                 proc = Process.GetProcessesByName("WoW");
-                
+
 
                 if (!proc.Any())
                 {
-                    var proc64Bit = Process.GetProcessesByName("WoW-64");
+                    Process[] proc64Bit = Process.GetProcessesByName("WoW-64");
                     if (proc64Bit.Any())
                     {
                         Logger.Info(
@@ -285,7 +269,8 @@ namespace CoolFishNS.Management
                     }
                     else
                     {
-                        var result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning", MessageBoxButton.YesNo);
+                        MessageBoxResult result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",
+                            MessageBoxButton.YesNo);
 
                         if (result == MessageBoxResult.Yes)
                         {
@@ -295,16 +280,14 @@ namespace CoolFishNS.Management
                         {
                             Logger.Info("No WoW processes were found.");
                         }
-
                     }
                 }
             }
             catch (Exception ex)
             {
-                
                 Logger.Error("Failed to get open Wow processes", ex);
             }
-            
+
             return proc;
         }
 
@@ -334,7 +317,6 @@ namespace CoolFishNS.Management
             }
             catch (Exception ex)
             {
-                
                 Logger.Error("Exception on StartUp", ex);
             }
 
@@ -355,7 +337,6 @@ namespace CoolFishNS.Management
             }
             catch (Exception ex)
             {
-                
                 Logger.Error("Exception thrown on ShutDown", ex);
             }
 

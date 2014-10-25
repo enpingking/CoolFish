@@ -7,7 +7,7 @@
     Title="CoolFish" Height="268.2"
     Width="649.8" ResizeMode="NoResize" Closing="MetroWindow_Closing_1" Visibility="Visible"
     Loaded="MetroWindow_Loaded_1"
-    ShowActivated="True" WindowStyle="None" >
+    ShowActivated="True" WindowStyle="None">
 
 
     <Border x:Uid="Border_1" Padding="6">
@@ -20,25 +20,21 @@
         <Grid x:Name="BackGrid" x:Uid="Grid_1" Height="262" VerticalAlignment="Top" Margin="-6,0,-6,-6"
               MouseLeftButtonDown="OnDragMoveWindow">
 
-            <TextBlock MouseLeftButtonDown="OnDragMoveWindow" Foreground="White" Margin="10,-1,465,241" FontSize="18"
+            <TextBlock MouseLeftButtonDown="OnDragMoveWindow" Foreground="White" Margin="10,-1,399,241" FontSize="18"
                        FontWeight="Bold">
                 CoolFish
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="MainTab_Click" Foreground="White" Margin="185,-1,0,241" FontSize="16"
+            <TextBlock MouseLeftButtonDown="MainTab_Click" Foreground="White" Margin="251,-1,0,241" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Left" Width="52">
                 Main |
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="PluginsBTN_Click" Foreground="White" Margin="237,-1,0,241" FontSize="16"
+            <TextBlock MouseLeftButtonDown="PluginsBTN_Click" Foreground="White" Margin="303,-1,0,241" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Left" Width="69">
                 Plugins |
             </TextBlock>
-            <TextBlock MouseLeftButtonDown="DonateTab_Click" Foreground="White" Margin="306,-1,0,241" FontSize="16"
+            <TextBlock MouseLeftButtonDown="DonateTab_Click" Foreground="White" Margin="372,-1,0,241" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Left" Width="69">
                 Donate |
-            </TextBlock>
-            <TextBlock MouseLeftButtonDown="UpdateBTN_Click" Foreground="White" Margin="375,-1,0,241" FontSize="16"
-                       FontWeight="Bold" HorizontalAlignment="Left" Width="68">
-                Update |
             </TextBlock>
             <TextBlock MouseLeftButtonDown="HelpBTN_Click" Foreground="White" Margin="443,-1,0,241" FontSize="16"
                        FontWeight="Bold" HorizontalAlignment="Left" Width="140">

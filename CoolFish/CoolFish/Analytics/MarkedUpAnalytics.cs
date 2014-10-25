@@ -1,17 +1,15 @@
-﻿using System;
+﻿using CoolFishNS.Targets;
 using MarkedUp;
 using NLog;
+using NLog.Config;
+using NLog.Targets.Wrappers;
+using LogLevel = NLog.LogLevel;
 
 namespace CoolFishNS.Analytics
 {
-    internal static class MarkedUpAnalytics
+    public static class MarkedUpAnalytics
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private static readonly DateTime StartTime = DateTime.Now;
-
-
-        internal static bool IsInitialized
+        public static bool IsInitialized
         {
             get
             {
@@ -22,28 +20,34 @@ namespace CoolFishNS.Analytics
             }
         }
 
-        internal static void Initialize()
+        public static void Initialize(string apiKey, string appName)
         {
 #if DEBUG
             return;
 #endif
-            if (IsInitialized)
+            if (IsInitialized || apiKey == null || appName == null)
             {
                 return;
             }
-            AnalyticClient.Initialize("e838c760-c238-41c3-b4bd-51640a8572dc");
+            AnalyticClient.Initialize(apiKey);
             AnalyticClient.AppStart();
             AnalyticClient.SessionStart();
-            AnalyticClient.EnterPage("CoolFish");
+            AnalyticClient.EnterPage(appName);
+
+            var markedUp = new MarkedUpTarget();
+
+            LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.Error,
+                new AsyncTargetWrapper(markedUp) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
+            LogManager.ReconfigExistingLoggers();
         }
 
 
-        internal static void ShutDown()
+        public static void ShutDown(string appName)
         {
 #if DEBUG
             return;
 #endif
-            AnalyticClient.ExitPage("CoolFish");
+            AnalyticClient.ExitPage(appName);
             AnalyticClient.SessionEnd();
             AnalyticClient.AppExit();
         }
