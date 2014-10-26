@@ -269,7 +269,7 @@ namespace CoolFishNS.Management
                     }
                     else
                     {
-                        MessageBoxResult result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",
+                       /* MessageBoxResult result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",
                             MessageBoxButton.YesNo);
 
                         if (result == MessageBoxResult.Yes)
@@ -279,7 +279,7 @@ namespace CoolFishNS.Management
                         else
                         {
                             Logger.Info("No WoW processes were found.");
-                        }
+                        }*/
                     }
                 }
             }

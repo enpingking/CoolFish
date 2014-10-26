@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using CoolFishNS.Management;
+using CoolFishNS.Properties;
 using NLog;
 using Octokit;
 
@@ -70,67 +71,70 @@ namespace CoolFishNS.GitHub
 
         internal static void DownloadAsset(int id, string tag)
         {
-            IReadOnlyList<ReleaseAsset> assets = Client.Release.GetAssets("unknowndev", "CoolFish", id).Result;
-            if (assets.Any())
-            {
-                using (var client = new WebClient())
-                {
-                    Logger.Info("Downloading File...");
-                    DeleteOldSetupFiles();
-                    client.DownloadFileCompleted += ClientOnDownloadFileCompleted;
-                    client.DownloadFileAsync(
-                        new Uri(string.Format("https://github.com/unknowndev/CoolFish/releases/download/{0}/{1}", tag, assets[0].Name)),
-                        assets[0].Name, assets[0].Name);
-                }
-            }
-        }
-
-        private static void ClientOnDownloadFileCompleted(object sender, AsyncCompletedEventArgs asyncCompletedEventArgs)
-        {
-            if (asyncCompletedEventArgs.Error != null)
-            {
-                Logger.Warn("Error downloading new version", asyncCompletedEventArgs.Error);
-                MessageBox.Show("An error occurred while downloading the new version. Please try again or visit the website to download it manually.");
-            }
-            else
-            {
-                try
-                {
-                    MessageBox.Show("Download Complete.");
-                    ZipFile.ExtractToDirectory(asyncCompletedEventArgs.UserState.ToString(), Utilities.Utilities.ApplicationPath);
-                    if (File.Exists(Utilities.Utilities.ApplicationPath + "\\setup.exe"))
-                    {
-                        Process.Start("setup.exe");
-                    }
-                    else
-                    {
-                        Logger.Warn("Could not find the setup file. Please run it manually.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Warn("Failed to extract and run the setup. Please run it manually.", ex);
-                }
-            }
-        }
-
-        private static void DeleteOldSetupFiles()
-        {
             try
             {
-                // Clean up old setup files if they exist
-                IEnumerable<string> files =
-                    Directory.GetFiles(Utilities.Utilities.ApplicationPath)
-                        .Where(file => file.EndsWith(".zip") || file.EndsWith("setup.exe") || file.EndsWith(".msi"));
-
-                foreach (string file in files)
+                IReadOnlyList<ReleaseAsset> assets = Client.Release.GetAssets("unknowndev", "CoolFish", id).Result;
+                if (assets.Any())
                 {
-                    File.Delete(file);
+                    using (var client = new WebClient())
+                    {
+                        Logger.Info("Downloading File...");
+                        client.DownloadFile(
+                            new Uri(string.Format("https://github.com/unknowndev/CoolFish/releases/download/{0}/{1}", tag, assets[0].Name)),
+                            assets[0].Name);
+                        ClientOnDownloadFileCompleted(assets[0].Name);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to delete old setup files", ex);
+                Logger.Error("Error downloading new version", ex);
+                MessageBox.Show("An error occurred while downloading the new version. Please try again or visit the website to download it manually.");
+            }
+        }
+
+        private static void ClientOnDownloadFileCompleted(string fileName)
+        {
+            try
+            {
+                Logger.Info("Download Complete.");
+                BotManager.DetachFromProcess();
+                App.ShutDown();
+                DeleteOldSetupFiles();
+                ZipFile.ExtractToDirectory(fileName, Utilities.Utilities.ApplicationPath);
+                MessageBox.Show("The update was complete. CoolFish will restart now.");
+                Process.Start("CoolFish.exe");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failed to extract and run the latest version. Please download and run the latest version manually.", ex);
+                MessageBox.Show("Failed to extract and run the latest version. Please download and run the latest version manually.");
+            }
+
+            Process.GetCurrentProcess().Kill();
+        }
+
+        private static void DeleteOldSetupFiles()
+        {
+            var info = new DirectoryInfo(Utilities.Utilities.ApplicationPath);
+            string backup = Utilities.Utilities.ApplicationPath + "\\Backup\\";
+            if (!Directory.Exists(backup))
+            {
+                Directory.CreateDirectory(backup);
+            }
+
+            // Clean up old setup files if they exist
+            IEnumerable<FileInfo> files =
+                info.GetFiles().Where(file => !file.Name.Equals(Settings.Default.UserPreferencesFileName) && !file.Name.EndsWith(".zip"));
+
+            foreach (FileInfo file in files)
+            {
+                string newFile = backup + file.Name + ".bak";
+                if (File.Exists(newFile))
+                {
+                    File.Delete(newFile);
+                }
+                file.MoveTo(newFile);
             }
         }
     }

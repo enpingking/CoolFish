@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using CoolFishNS.Targets;
 using NLog;
+using NLog.Config;
+using NLog.Targets;
+using NLog.Targets.Wrappers;
 
 namespace CoolFishNS.Utilities
 {
@@ -13,6 +18,10 @@ namespace CoolFishNS.Utilities
     public static class Utilities
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        private static bool LoggersInitialized;
+
+        private static readonly object LoggerLock = new object();
 
         /// <summary>
         ///     Gets the application path.
@@ -83,6 +92,53 @@ namespace CoolFishNS.Utilities
         public static void Reconfigure(int ordinal)
         {
             Reconfigure(LogLevel.FromOrdinal(ordinal));
+        }
+
+        internal static void InitializeLoggers()
+        {
+            lock (LoggerLock)
+            {
+                if (LoggersInitialized)
+                {
+                    return;
+                }
+                var config = new LoggingConfiguration();
+
+                DateTime now = DateTime.Now;
+
+                string activeLogFileName = string.Format("{0}\\Logs\\{1}\\[CoolFish-{2}] {3}.txt", ApplicationPath,
+                    now.ToString("MMMM dd yyyy"), Process.GetCurrentProcess().Id,
+                    now.ToString("T").Replace(':', '.'));
+
+
+                var file = new FileTarget
+                {
+                    FileName = activeLogFileName,
+                    Layout =
+                        @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}",
+                    CreateDirs = true,
+                    ConcurrentWrites = false
+                };
+
+
+                config.LoggingRules.Add(new LoggingRule("*", LogLevel.FromOrdinal(UserPreferences.Default.LogLevel),
+                    new AsyncTargetWrapper(file) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
+
+
+                var markedUp = new MarkedUpTarget
+                {
+                    Layout =
+                        @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}"
+                };
+
+
+                config.LoggingRules.Add(new LoggingRule("*", LogLevel.Error,
+                    new AsyncTargetWrapper(markedUp) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
+
+
+                LogManager.Configuration = config;
+                LoggersInitialized = true;
+            }
         }
     }
 }
