@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolFish", "CoolFish\CoolFish.csproj", "{440BA8EC-0DAA-4E57-9EE4-52B2088031AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{12B9D9DD-F195-4EDE-818D-43EBF54921CD} = {12B9D9DD-F195-4EDE-818D-43EBF54921CD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolFishTests", "CoolFishTests\CoolFishTests.csproj", "{D4983991-664A-412E-B364-1D0BADDFD5C4}"
 EndProject
