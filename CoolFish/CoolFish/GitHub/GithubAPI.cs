@@ -49,13 +49,21 @@ namespace CoolFishNS.GitHub
 
                 foreach (Release release in releases)
                 {
-                    var version = new Version(release.TagName.Substring(1) + ".0");
-                    if (version > latestRelease)
+                    try
                     {
-                        latestTag = release.TagName;
-                        latestId = release.Id;
-                        latestRelease = version;
+                        var version = new Version(release.TagName);
+                        if (version > latestRelease)
+                        {
+                            latestTag = release.TagName;
+                            latestId = release.Id;
+                            latestRelease = version;
+                        }
                     }
+                    catch (Exception)
+                    {
+                        //Skip this release because the tagname is probably bad
+                    }
+
                 }
             }
             catch (RateLimitExceededException ex)

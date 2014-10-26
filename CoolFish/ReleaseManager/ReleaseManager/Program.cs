@@ -23,7 +23,7 @@ namespace ReleaseManager
                 var mainFileName = args[0];
 
                 var version = FileVersionInfo.GetVersionInfo(mainFileName).FileVersion;
-                var archive = ZipFile.Open(version + ".zip", ZipArchiveMode.Create);
+                var archive = ZipFile.Open("Release_" + version + ".zip", ZipArchiveMode.Create);
                 archive.CreateEntryFromFile(mainFileName, mainFileName);
                 for (int i = 1; i < args.Length; i++)
                 {
