@@ -23,15 +23,13 @@ namespace ReleaseManager
                 var mainFileName = args[0];
 
                 var version = FileVersionInfo.GetVersionInfo(mainFileName).FileVersion;
-                var stream = File.Create("Release_" + version + ".zip");
-                var archive = new ZipArchive(stream);
+                var archive = ZipFile.Open("Release_" + version + ".zip", ZipArchiveMode.Create);
                 archive.CreateEntryFromFile(mainFileName, mainFileName);
                 for (int i = 1; i < args.Length; i++)
                 {
                     archive.CreateEntryFromFile(args[i], args[i]);
                 }
                 archive.Dispose();
-                stream.Dispose();
 
             }
             catch (Exception ex)
