@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using CoolFishNS.Bots;
 using CoolFishNS.Management;
 using CoolFishNS.PluginSystem;
@@ -232,11 +233,7 @@ namespace CoolFishNS
             BotBaseCB_DropDownOpened(null, null);
             BotBaseCB.SelectedIndex = 0;
 
-            RefreshProcesses();
-            if (_processes.Length == 1)
-            {
-                BotManager.AttachToProcess(_processes.First());
-            }
+            App.CurrentSplashScreen.Close(new TimeSpan(0));
         }
 
         private void PluginsBTN_Click(object sender, RoutedEventArgs e)
@@ -321,5 +318,19 @@ namespace CoolFishNS
         }
 
         #endregion
+
+        private void MainWindow1_ContentRendered(object sender, EventArgs e)
+        {
+            Dispatcher.InvokeAsync(delegate
+            {
+                Updater.Update();
+                this.StartBTN.IsEnabled = true;
+                RefreshProcesses();
+                if (_processes.Length == 1)
+                {
+                    BotManager.AttachToProcess(_processes.First());
+                }
+            }, DispatcherPriority.Background);
+        }
     }
 }

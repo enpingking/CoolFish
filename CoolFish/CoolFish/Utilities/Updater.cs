@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CoolFishNS.GitHub;
 using NLog;
@@ -32,31 +31,26 @@ namespace CoolFishNS.Utilities
 
         internal static void Update()
         {
-            Task.Run(() =>
+            try
             {
-                try
+                Logger.Info("Checking for a new version of CoolFish");
+                Tuple<int, string> latestInfo = GithubAPI.GetLatestVersionInfo();
+                if (latestInfo != null)
                 {
-                    Tuple<int, string> latestInfo = GithubAPI.GetLatestVersionInfo();
-                    if (latestInfo != null)
-                    {
-                        DialogResult result =
-                            MessageBox.Show("There is a new version of CoolFish available. Would you like to download it now?",
-                                "New Version", MessageBoxButtons.YesNo);
-                        if (result == DialogResult.Yes)
-                        {
-                            GithubAPI.DownloadAsset(latestInfo.Item1, latestInfo.Item2);
-                        }
-                    }
-                    else
-                    {
-                        Logger.Info("No new versions available.");
-                    }
+                    Logger.Info("A new version of CoolFish was found. Downloading the latest version.");
+                    MessageBox.Show("A new version of CoolFish was found. We will now update to the latest version", "Update Required",
+                        MessageBoxButtons.OK);
+                    GithubAPI.DownloadAsset(latestInfo.Item1, latestInfo.Item2);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.Warn("Failed to check for a new version due to an exception", ex);
+                    Logger.Info("No new versions available.");
                 }
-            });
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Exception thrown while trying to check for a new version", ex);
+            }
         }
     }
 }

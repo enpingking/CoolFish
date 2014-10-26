@@ -7,7 +7,7 @@
     Title="CoolFish" Height="268.2"
     Width="649.8" ResizeMode="NoResize" Closing="MetroWindow_Closing_1" Visibility="Visible"
     Loaded="MetroWindow_Loaded_1"
-    ShowActivated="True" WindowStyle="None">
+    ShowActivated="True" WindowStyle="None" ContentRendered="MainWindow1_ContentRendered">
 
 
     <Border x:Uid="Border_1" Padding="6">
@@ -76,7 +76,8 @@
                                   DropDownOpened="ComboBox_DropDownOpened_1" HorizontalAlignment="Left" Width="384"
                                   Height="26" VerticalAlignment="Top"
                                   Opacity="0.98" />
-                        <Button x:Uid="StartBTN" x:Name="StartBTN" Content="Start" Margin="482,119,0,0"
+                        <Button x:Uid="StartBTN" x:Name="StartBTN" IsEnabled="False" Content="Start"
+                                Margin="482,119,0,0"
                                 VerticalAlignment="Top" Click="StartBTN_Click" HorizontalAlignment="Left" Width="75"
                                 Height="26" />
                         <Button x:Uid="StopBTN" x:Name="StopBTN" Content="Stop" Margin="562,119,0,0"
