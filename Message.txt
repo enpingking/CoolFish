@@ -1,9 +1,8 @@
 News: 
 Coolfish for Wow 6.0.2 32-bit Client Only
 
-Found some bugs with the latest 6.0.2 release.
-Working on a fix.
-Latest release will be out soon.
+Latest release should be working:
+https://github.com/unknowndev/CoolFish/releases/latest
 
 Follow me on twitter for updates:
 https://twitter.com/TheUnknownDev
