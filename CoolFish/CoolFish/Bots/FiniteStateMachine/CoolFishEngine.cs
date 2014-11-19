@@ -176,8 +176,17 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                                UserPreferences.Default.DontLootLeft.ToString().ToLower());
             builder.AppendLine("LootQuality = " + UserPreferences.Default.LootQuality);
             builder.AppendLine(Resources.WhisperNotes);
-            builder.AppendLine("BaitItemId = " + UserPreferences.Default.BaitItem.Value);
-            builder.AppendLine("BaitSpellId = " + UserPreferences.Default.BaitItem.ValueTwo);
+            if (UserPreferences.Default.BaitItem != null)
+            {
+                builder.AppendLine("BaitItemId = " + UserPreferences.Default.BaitItem.Value);
+                builder.AppendLine("BaitSpellId = " + UserPreferences.Default.BaitItem.ValueTwo);
+            }
+            else
+            {
+                builder.AppendLine("BaitItemId = nil");
+                builder.AppendLine("BaitSpellId = nil");
+            }
+
             builder.AppendLine("LootLog = {}; ");
             builder.AppendLine("NoLootLog = {}; ");
             builder.AppendLine("DODEBUG = " +
