@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -50,9 +51,9 @@ namespace CoolFishNS.Bots.CoolFishBot
             }
         }
 
-        private void CheckDataGrid()
+        private void CheckDataGrid(DataGrid grid)
         {
-            IEditableCollectionView collection = ItemsGrid.Items;
+            IEditableCollectionView collection = grid.Items;
 
             if (collection.IsEditingItem)
             {
@@ -66,7 +67,8 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void SaveButton_OnClick(object sender, RoutedEventArgs e)
         {
-            CheckDataGrid();
+            CheckDataGrid(ItemsGrid);
+
             if (!BotManager.ActiveBot.IsRunning)
             {
                 SaveControlSettings();
@@ -82,17 +84,17 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void CloseButton_OnClick(object sender, RoutedEventArgs e)
         {
-            CheckDataGrid();
+            CheckDataGrid(ItemsGrid);
             Close();
         }
 
 
-        public void FillDataGrid()
+        public void FillDataGrid(DataGrid grid, IEnumerable items )
         {
             try
             {
-                ItemsGrid.ItemsSource = null;
-                ItemsGrid.ItemsSource = UserPreferences.Default.Items;
+                grid.ItemsSource = null;
+                grid.ItemsSource = items;
             }
             catch (InvalidOperationException)
             {
@@ -106,7 +108,6 @@ namespace CoolFishNS.Bots.CoolFishBot
 
         private void UpdateControlSettings()
         {
-            NoLureCB.IsChecked = UserPreferences.Default.NoLure;
             LootOnlyItemsCB.IsChecked = UserPreferences.Default.LootOnlyItems;
             StopTimeMinutesTB.Text = UserPreferences.Default.MinutesToStop.ToString();
             LogoutCB.IsChecked = UserPreferences.Default.LogoutOnStop;
@@ -125,12 +126,13 @@ namespace CoolFishNS.Bots.CoolFishBot
             CastFishingCB.IsChecked = UserPreferences.Default.DoFishing;
             ClickBobberCB.IsChecked = UserPreferences.Default.DoBobbing;
             DoLootingCB.IsChecked = UserPreferences.Default.DoLoot;
-            FillDataGrid();
+            NoLureCB.IsChecked = UserPreferences.Default.NoLure;
+            BaitCMB.SelectedIndex = UserPreferences.Default.BaitIndex;
+            FillDataGrid(ItemsGrid, UserPreferences.Default.Items);
         }
 
         private void SaveControlSettings()
         {
-            UserPreferences.Default.NoLure = NoLureCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.LootOnlyItems = LootOnlyItemsCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.LogoutOnStop = LogoutCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.UseRaft = UseRaftCB.IsChecked.GetValueOrDefault();
@@ -148,6 +150,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             UserPreferences.Default.DoFishing = CastFishingCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.DoBobbing = ClickBobberCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.DoLoot = DoLootingCB.IsChecked.GetValueOrDefault();
+            UserPreferences.Default.NoLure = NoLureCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.Items = new List<SerializableItem>(ItemsGrid.ItemsSource.Cast<SerializableItem>());
             double result;
             if (double.TryParse(StopTimeMinutesTB.Text, out result))
@@ -159,6 +162,9 @@ namespace CoolFishNS.Bots.CoolFishBot
                 Logger.Warn("Invalid Stop Time.");
                 UserPreferences.Default.MinutesToStop = 0;
             }
+
+            UserPreferences.Default.BaitIndex = BaitCMB.SelectedIndex;
+            UserPreferences.Default.BaitItem = BaitCMB.SelectedItem as NullableKeyValuePair<string, uint, uint>;
         }
 
 
@@ -175,6 +181,10 @@ namespace CoolFishNS.Bots.CoolFishBot
                 col1.SetValue(NameProperty, "ItemColumn");
 
                 ItemsGrid.Columns.Add(col1);
+
+                BaitCMB.ItemsSource = null;
+                BaitCMB.ItemsSource = Constants.Baits;
+                
                 UpdateControlSettings();
             }
             catch (Exception ex)

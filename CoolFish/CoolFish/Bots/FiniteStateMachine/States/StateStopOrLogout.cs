@@ -46,8 +46,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         {
             get
             {
-                if (UserPreferences.Default.StopOnNoLures &&
-                    !UserPreferences.Default.NoLure)
+                if (UserPreferences.Default.StopOnNoLures && !UserPreferences.Default.NoLure)
                 {
                     string result = DxHook.ExecuteScript("if GetWeaponEnchantInfo() then enchant = 1 else enchant = 0 end;", "enchant");
 
@@ -90,6 +89,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 if (me.Dead)
                 {
                     Logger.Info("We died :(");
+                    StopBot();
                     return true;
                 }
             }
@@ -97,6 +97,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             if (StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3)
             {
                 Logger.Info("We haven't gotten a bobber in 3 minutes. Somethings wrong.");
+                StopBot();
                 return true;
             }
             return false;
