@@ -35,8 +35,8 @@
     <HelpTitle>CoolFish API</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\CoolFish\bin\x86\Release\CoolFish.XML" />
-      <DocumentationSource sourceFile="..\CoolFish\bin\x86\Release\CoolFish.dll" />
+      <DocumentationSource sourceFile="..\CoolFish\bin\x86\Release\CoolFish.exe" />
+      <DocumentationSource sourceFile="..\CoolFish\bin\x86\Release\CoolFish.xml" />
     </DocumentationSources>
     <WorkingPath>DocumentationWorking\</WorkingPath>
     <WebsiteSdkLinkType>Msdn</WebsiteSdkLinkType>

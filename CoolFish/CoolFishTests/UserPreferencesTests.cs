@@ -18,7 +18,6 @@ namespace CoolFishTests
         [TestMethod]
         public void TestPersistSettings()
         {
-            UserPreferences.Default.NoLure = true;
             UserPreferences.Default.LootOnlyItems = true;
             UserPreferences.Default.LogoutOnStop = true;
             UserPreferences.Default.UseRaft = true;
@@ -44,7 +43,6 @@ namespace CoolFishTests
 
             // Reload the defaults and assert that the defaults have been loaded
             UserPreferences.Default.LoadDefaults();
-            Assert.IsFalse(UserPreferences.Default.NoLure);
             Assert.IsFalse(UserPreferences.Default.LootOnlyItems);
             Assert.IsFalse(UserPreferences.Default.LogoutOnStop);
             Assert.IsFalse(UserPreferences.Default.UseRaft);
@@ -66,8 +64,6 @@ namespace CoolFishTests
 
             // Load our previously persisted settings and assert that the non-defaults were loaded
             UserPreferences.Default.LoadSettings();
-            Assert.IsTrue(UserPreferences.Default.NoLure);
-            Assert.IsTrue(UserPreferences.Default.NoLure);
             Assert.IsTrue(UserPreferences.Default.LootOnlyItems);
             Assert.IsTrue(UserPreferences.Default.LogoutOnStop);
             Assert.IsTrue(UserPreferences.Default.UseRaft);

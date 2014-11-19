@@ -15,34 +15,36 @@ namespace CoolFishNS.Utilities
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public static readonly UserPreferences Default = new UserPreferences();
+
+        public Dictionary<string, SerializablePlugin> Plugins = new Dictionary<string, SerializablePlugin>();
+        
+        public List<SerializableItem> Items = new List<SerializableItem>();
+
+        public bool NoLure = false;
         public bool CloseWoWOnStop = false;
         public bool DoBobbing = true;
         public bool DoFishing = true;
         public bool DoLoot = true;
         public bool DontLootLeft = false;
-
-        public List<SerializableItem> Items = new List<SerializableItem>();
-        public int LogLevel = NLog.LogLevel.Info.Ordinal;
-
         public bool LogoutOnStop = false;
         public bool LootOnlyItems = false;
-
-        public int LootQuality = -1;
-        public double MinutesToStop = 0;
-        public bool NoLure = false;
-        public Dictionary<string, SerializablePlugin> Plugins = new Dictionary<string, SerializablePlugin>();
         public bool ShutdownPcOnStop = false;
-
         public bool SoundOnWhisper = false;
         public bool StopOnBagsFull = false;
         public bool StopOnNoLures = false;
         public bool StopOnTime = false;
         public bool UseCharm = false;
         public bool UseRaft = false;
-
         public bool UseRumsey = false;
-
         public bool UseSpear = false;
+
+        public NullableKeyValuePair<string, uint, uint> BaitItem = null;
+
+        public int BaitIndex = -1;
+        public int LootQuality = -1;
+        public int LogLevel = NLog.LogLevel.Info.Ordinal;
+
+        public double MinutesToStop = 0;
 
         private UserPreferences()
         {
@@ -65,8 +67,10 @@ namespace CoolFishNS.Utilities
             }
 
             Items = src.Items ?? new List<SerializableItem>();
-            Plugins = src.Plugins ?? new Dictionary<string, SerializablePlugin>();
             NoLure = src.NoLure;
+            BaitItem = src.BaitItem;
+            BaitIndex = src.BaitIndex;
+            Plugins = src.Plugins ?? new Dictionary<string, SerializablePlugin>();
             LootOnlyItems = src.LootOnlyItems;
             StopOnNoLures = src.StopOnNoLures;
             StopOnBagsFull = src.StopOnBagsFull;

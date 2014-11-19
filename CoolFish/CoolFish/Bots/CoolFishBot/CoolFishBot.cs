@@ -86,8 +86,8 @@ namespace CoolFishNS.Bots.CoolFishBot
 
             if (UserPreferences.Default.StopOnTime)
             {
-                _stopTimer = new Timer(Callback, null, 0,
-                    (int) (UserPreferences.Default.MinutesToStop*60*1000));
+                var ms = (int) (UserPreferences.Default.MinutesToStop*60*1000);
+                _stopTimer = new Timer(Callback, null, ms, ms);
             }
 
             _theEngine.StartEngine();
@@ -124,6 +124,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             {
                 Logger.Info(Resources.HitTimeLimit);
                 StopBot();
+                _stopTimer = null;
             }
         }
 
