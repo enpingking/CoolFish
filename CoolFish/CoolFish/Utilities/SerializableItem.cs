@@ -6,5 +6,6 @@ namespace CoolFishNS.Utilities
     public class SerializableItem
     {
         public string Value { get; set; }
+
     }
 }

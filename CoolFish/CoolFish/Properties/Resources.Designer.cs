@@ -89,21 +89,23 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to local numLootItems = GetNumLootItems()
-        ///for i=1,numLootItems do 
-        ///local Link = GetLootSlotLink(i)
-        ///local _,name, lootQuantity ,Quality  = GetLootSlotInfo(i)
+        ///   Looks up a localized string similar to if IsFishingLoot() then 
+        ///	local numLootItems = GetNumLootItems()
+        ///	for i=1,numLootItems do 
+        ///	local Link = GetLootSlotLink(i)
+        ///	local _,name, lootQuantity ,Quality  = GetLootSlotInfo(i)
         ///	
-        ///    if Link and Quality and name and lootQuantity then
+        ///		if Link and Quality and name and lootQuantity then
         ///
-        ///    _, _, id = string.find(Link, &quot;item:(%d+):&quot;)
-        ///        if Quality &gt;= LootQuality then
-        ///            if LootLeftOnly or DontLootLeft then 
-        ///                match = ItemsList[name] or ItemsList[id]
+        ///		_, _, id = string.find(Link, &quot;item:(%d+):&quot;)
+        ///			if Quality &gt;= LootQuality then
+        ///				if LootLeftOnly or DontLootLeft then 
+        ///					match = ItemsList[name] or ItemsList[id]
         ///                
-        ///				if (match) and LootLeftOnly then 
-        ///                    LootSlot(i) 
-        ///                   [rest of string was truncated]&quot;;.
+        ///					if (match) and LootLeftOnly then 
+        ///						LootSlot(i) 
+        ///						ConfirmLootSlot(i)
+        ///					 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DoLoot {
             get {
@@ -121,22 +123,34 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count = 0; 
-        ///LureName = nil; 
-        ///local ItemID = GetInventoryItemID(&quot;player&quot;,1); 
-        ///if ItemID == 33820 or ItemID == 88710 then 
-        ///    local start, duration = GetInventoryItemCooldown(&quot;player&quot;, 1);
-        ///    if start+duration-GetTime() &lt; 0 then 
-        ///	    LureName = GetItemInfo(ItemID);
-        ///		Count = 1;
-        ///		return; 
-        ///    end 
-        ///end
+        ///   Looks up a localized string similar to LureName = nil;
         ///
-        ///for i=0,4 do numberOfSlots = GetContainerNumSlots(i); 
-        ///    for j=1,numberOfSlots do itemid = GetContainerItemID(i,j) 
-        ///        if itemid == 67407 or itemid == 69907 or itemid == 6529 or 
-        ///           itemid ==  [rest of string was truncated]&quot;;.
+        ///local Lures = {
+        ///	-- Consumable Lures
+        ///	[67404] = true,
+        ///	[6529] = true,
+        ///	[6811] = true,
+        ///	[6530] = true,
+        ///	[6532] = true,
+        ///	[7307] = true,
+        ///	[6533] = true,
+        ///	[62673] = true,
+        ///	[46006] = true,
+        ///	[34861] = true,
+        ///	[68049] = true,
+        ///	[118391] = true; -- Worm Supreme
+        ///	-- Hats
+        ///	[33820] = true, -- Weather
+        ///	[117405] = true, -- Nat&apos;s Drinking Hat
+        ///	[88710] = true, -- Nat&apos;s Hat
+        ///	-- Poles
+        ///	[116826] = true, -- Draenic Fishing Pole
+        ///	[116825] = true -- Savage Fishing Pole
+        ///}
+        ///
+        ///
+        ///
+        ///-- Function to find inventory slot lure [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetLureName {
             get {
@@ -150,6 +164,15 @@ namespace CoolFishNS.Properties {
         internal static string HitTimeLimit {
             get {
                 return ResourceManager.GetString("HitTimeLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string NeedToApplyBait {
+            get {
+                return ResourceManager.GetString("NeedToApplyBait", resourceCulture);
             }
         }
         
@@ -248,12 +271,13 @@ namespace CoolFishNS.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///
         ///&lt;Patterns&gt;
-        ///  &lt;Pattern desc=&quot;ClntObjMgrGetActivePlayerObj&quot;
-        ///           pattern=&quot;\xa1\x00\x00\x00\x00\x85\xc0\x75\x00\xe8\x00\x00\x00\x00\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\x6a\x10\x52\x50\xe8\x00\x00\x00\x00\x83\xc4\x14\xa3\x00\x00\x00\x00\xc3&quot;
-        ///           mask=&quot;x????xxx?x????x????x????xxxxx????xxxx????x&quot;&gt;
-        ///  &lt;/Pattern&gt;
         ///  &lt;Pattern desc=&quot;PlayerPointer&quot;
-        ///           pattern=&quot;\xa1\x00\x00\x00\x00\x85\xc0\x75\x00\xe8\x00\x00\x00\x00\x68\x00\x00\x00\x00\x68\x00\x00\ [rest of string was truncated]&quot;;.
+        ///           pattern=&quot;\x55\x8b\xec\xa1\x00\x00\x00\x00\x83\xec\x10\x85\xc0\x75\x00\x8d\x45\xf0\x50\xe8\x00\x00\x00\x00\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\x8d\x45\xf0\x6a\x10\x50\xe8\x00\x00\x00\x00\x83\xc4\x14\xa3\x00\x00\x00\x00\xc9\xc3&quot;
+        ///           mask=&quot;xxxx????xxxxxx?xxxxx????x????x????xxxxxxx????xxxx????xx&quot;&gt;
+        ///    &lt;Add value=&quot;4&quot; /&gt;
+        ///    &lt;Lea /&gt;
+        ///  &lt;/Pattern&gt;
+        ///  &lt;Pattern desc=&quot;FrameScript_ExecuteBuffer&quot; pattern=&quot;\x5 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Patterns {
             get {

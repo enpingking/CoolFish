@@ -183,6 +183,7 @@
     <Compile Include="Bots\CoolFishBot\CoolFishBotSettings.xaml.cs">
       <DependentUpon>CoolFishBotSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Bots\FiniteStateMachine\States\StateApplyBait.cs" />
     <Compile Include="Exceptions\CodeInjectFailedException.cs" />
     <Compile Include="Exceptions\HookNotAppliedException.cs" />
     <Compile Include="GitHub\GithubAPI.cs" />
@@ -236,6 +237,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\Constants.cs" />
+    <Compile Include="Utilities\NullableKeyValuePair.cs" />
     <Compile Include="Utilities\Updater.cs" />
     <Compile Include="Utilities\ErrorHandling.cs" />
     <Compile Include="Utilities\SerializableItem.cs" />
@@ -273,6 +276,7 @@
     </EmbeddedResource>
     <Resource Include="Bots\LuaResources\GetLureName.lua" />
     <None Include="app.manifest" />
+    <Resource Include="Bots\LuaResources\NeedToApplyBait.lua" />
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>

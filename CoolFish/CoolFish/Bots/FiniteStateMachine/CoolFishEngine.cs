@@ -36,6 +36,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             StateUseRumsey,
             StateUseSpear,
             StateApplyLure,
+            StateApplyBait,
             StateUseCharm,
             StateUseRaft,
             StateRunScripts,
@@ -142,6 +143,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             {
                 States.Add(new StateUseSpear());
             }
+            if (UserPreferences.Default.BaitItem != null)
+            {
+                States.Add(new StateApplyBait());
+            }
         }
 
         private void InitOptions()
@@ -163,6 +168,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
 
             builder.Clear();
+
             builder.AppendLine("ItemsList = {" + items + "}");
             builder.AppendLine("LootLeftOnly = " +
                                UserPreferences.Default.LootOnlyItems.ToString().ToLower());
@@ -170,13 +176,15 @@ namespace CoolFishNS.Bots.FiniteStateMachine
                                UserPreferences.Default.DontLootLeft.ToString().ToLower());
             builder.AppendLine("LootQuality = " + UserPreferences.Default.LootQuality);
             builder.AppendLine(Resources.WhisperNotes);
+            builder.AppendLine("BaitItemId = " + UserPreferences.Default.BaitItem.Value);
+            builder.AppendLine("BaitSpellId = " + UserPreferences.Default.BaitItem.ValueTwo);
             builder.AppendLine("LootLog = {}; ");
             builder.AppendLine("NoLootLog = {}; ");
-            builder.Append("DODEBUG = " +
+            builder.AppendLine("DODEBUG = " +
                            ((UserPreferences.Default.LogLevel == LogLevel.Debug.Ordinal ||
                              UserPreferences.Default.LogLevel == LogLevel.Trace.Ordinal)
-                               ? "true"
-                               : "false"));
+                               ? "true;"
+                               : "false;"));
 
             DxHook.ExecuteScript(builder.ToString());
         }
