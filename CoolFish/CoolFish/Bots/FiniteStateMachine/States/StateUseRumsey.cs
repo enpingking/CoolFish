@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -17,22 +18,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get { return (int) CoolFishEngine.StatePriority.StateUseRumsey; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether we [need to run] this state or not.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if we [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        private bool NeedToRun
-        {
-            get
-            {
-                string res = DxHook.ExecuteScript(Resources.NeedToRunUseRumsey, "expires");
-
-                return res == "1";
-            }
-        }
-
         public override string Name
         {
             get { return "Using Rumsey"; }
@@ -43,17 +28,20 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
-            if (!NeedToRun)
+            if (!UserPreferences.Default.UseRumsey)
             {
                 return false;
             }
-            Logger.Info(Name);
 
-            DxHook.ExecuteScript(
-                "local name = GetItemInfo(34832); if name then RunMacroText(\"/use  \" .. name); end");
+            string res = DxHook.ExecuteScript(Resources.NeedToRunUseRumsey, "UsedRumsey");
 
-            Thread.Sleep(1500);
-            return true;
+            if (res == "1")
+            {
+                Logger.Info(Name);
+                Thread.Sleep(1500);
+                return true;
+            }
+            return false;
         }
     }
 }

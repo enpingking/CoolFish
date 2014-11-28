@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using CoolFishNS.Bots.FiniteStateMachine;
 using CoolFishNS.Management;
 using CoolFishNS.Properties;
@@ -11,18 +10,16 @@ namespace CoolFishNS.Bots.CoolFishBot
     /// <summary>
     ///     Default CoolFish fishing bot that runs the provided IEngine.
     /// </summary>
-    public sealed class CoolFishBot : IBot, IDisposable
+    public sealed class CoolFishBot : IBot
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly CoolFishEngine _theEngine;
 
-        private Timer _stopTimer;
-
         private CoolFishBotSettings _window;
 
         /// <summary>
-        ///     Constructor for default CoolFish bot. Assigns the passed IEngine object.
+        ///     Constructor for default CoolFish bot. Assigns the passed Engine object.
         /// </summary>
         public CoolFishBot()
         {
@@ -71,23 +68,29 @@ namespace CoolFishNS.Bots.CoolFishBot
                 return;
             }
 
-            if (UserPreferences.Default.LootOnlyItems &&
-                UserPreferences.Default.DontLootLeft)
+            if (UserPreferences.Default.DoLoot && (UserPreferences.Default.LootOnlyItems &&
+                                                   UserPreferences.Default.DontLootLeft))
             {
                 Logger.Warn("You can't \"Loot only items on the left\" and \"Don't loot items on left\" at the same time");
                 return;
             }
 
-            if (UserPreferences.Default.LootQuality < 0)
+            if (UserPreferences.Default.DoLoot && UserPreferences.Default.LootQuality < 0)
             {
                 Logger.Warn("Please select a minimum loot quality from the drop down.");
                 return;
             }
-
             if (UserPreferences.Default.StopOnTime)
             {
-                var ms = (int) (UserPreferences.Default.MinutesToStop*60*1000);
-                _stopTimer = new Timer(Callback, null, ms, ms);
+                try
+                {
+                    var stoptime = DateTime.Now.AddMinutes(UserPreferences.Default.MinutesToStop);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Invalid stop time. Please specify a valid number of minutes to stop after.", ex);
+                    return;
+                }
             }
 
             _theEngine.StartEngine();
@@ -101,7 +104,6 @@ namespace CoolFishNS.Bots.CoolFishBot
         public void StopBot()
         {
             _theEngine.StopEngine();
-            _stopTimer = null;
         }
 
         /// <inheritdoc />
@@ -116,39 +118,5 @@ namespace CoolFishNS.Bots.CoolFishBot
                 _window = new CoolFishBotSettings();
             }
         }
-
-
-        private void Callback(object state)
-        {
-            if (IsRunning)
-            {
-                Logger.Info(Resources.HitTimeLimit);
-                StopBot();
-                _stopTimer = null;
-            }
-        }
-
-        #region IDisposable Members
-
-        /// <summary>
-        ///     IDisposable implementation
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            _stopTimer = null;
-        }
-
-        ~CoolFishBot()
-        {
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

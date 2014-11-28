@@ -4,13 +4,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 using CoolFishNS.Bots;
 using CoolFishNS.Management;
 using CoolFishNS.PluginSystem;
+using CoolFishNS.RemoteNotification.Analytics;
 using CoolFishNS.Targets;
 using CoolFishNS.Utilities;
 using NLog;
@@ -27,11 +28,16 @@ namespace CoolFishNS
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IList<IBot> _bots = new List<IBot>();
+        private readonly AnalyticsManager _manager;
         private readonly ICollection<CheckBox> _pluginCheckBoxesList = new Collection<CheckBox>();
+        private readonly SplashScreen _splashScreen;
         private Process[] _processes = new Process[0];
 
-        public MainWindow()
+
+        public MainWindow(SplashScreen splashScreen)
         {
+            _splashScreen = splashScreen;
+            _manager = new AnalyticsManager();
             InitializeComponent();
         }
 
@@ -86,6 +92,7 @@ namespace CoolFishNS
 
         private void OnCloseWindow(object sender, MouseButtonEventArgs e)
         {
+            _manager.SendAnalyticsEvent((DateTime.Now - Utilities.Utilities.StartTime).TotalMilliseconds, "ApplicationClose");
             Application.Current.Shutdown();
         }
 
@@ -122,8 +129,30 @@ namespace CoolFishNS
             }
             catch (Exception ex)
             {
-                Logger.Error("Exception throw while changing log level", ex);
+                Logger.Error("Exception thrown while changing log level", ex);
             }
+        }
+
+        private void MainWindow1_ContentRendered(object sender, EventArgs e)
+        {
+            OutputText.Text = Utilities.Utilities.GetNews() + Environment.NewLine;
+            Logger.Info("CoolFish Version: " + Constants.Version.Value);
+            BotBaseCB_DropDownOpened(null, null);
+            BotBaseCB.SelectedIndex = 0;
+            UpdateControlSettings();
+
+            Task.Run(() =>
+            {
+                BotManager.StartUp();
+                _manager.SendAnalyticsEvent(0, "ApplicationStart");
+                Updater.Update();
+                Process[] procs = BotManager.GetWowProcesses();
+                if (procs.Length == 1)
+                {
+                    BotManager.AttachToProcess(procs.First());
+                }
+            });
+            _splashScreen.Close(new TimeSpan(0));
         }
 
         #region EventHandlers
@@ -182,11 +211,6 @@ namespace CoolFishNS
             }
         }
 
-        private void UpdateBTN_Click(object sender, RoutedEventArgs e)
-        {
-            TabControlTC.SelectedItem = MainTab;
-        }
-
         private void MainTab_Click(object sender, RoutedEventArgs e)
         {
             TabControlTC.SelectedItem = MainTab;
@@ -222,19 +246,8 @@ namespace CoolFishNS
             var asyncWrapper = new AsyncTargetWrapper(textbox);
             LogManager.Configuration.LoggingRules.Add(new LoggingRule("*", LogLevel.FromOrdinal(UserPreferences.Default.LogLevel), asyncWrapper));
             LogManager.ReconfigExistingLoggers();
-
-            OutputText.Text = Utilities.Utilities.GetNews() + Environment.NewLine;
-            Logger.Info("CoolFish Version: " + Utilities.Utilities.Version);
-
-            BotManager.StartUp();
-
-            UpdateControlSettings();
-
-            BotBaseCB_DropDownOpened(null, null);
-            BotBaseCB.SelectedIndex = 0;
-
-            App.CurrentSplashScreen.Close(new TimeSpan(0));
         }
+
 
         private void PluginsBTN_Click(object sender, RoutedEventArgs e)
         {
@@ -318,19 +331,5 @@ namespace CoolFishNS
         }
 
         #endregion
-
-        private void MainWindow1_ContentRendered(object sender, EventArgs e)
-        {
-            Dispatcher.InvokeAsync(delegate
-            {
-                Updater.Update();
-                this.StartBTN.IsEnabled = true;
-                RefreshProcesses();
-                if (_processes.Length == 1)
-                {
-                    BotManager.AttachToProcess(_processes.First());
-                }
-            }, DispatcherPriority.Background);
-        }
     }
 }

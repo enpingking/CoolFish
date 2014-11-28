@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Management.CoolManager.Objects;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -15,13 +15,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
     public class StateBobbing : State
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        /// <summary>
-        ///     Create a timer to timeout after 5 minutes of no caught fish. This is to prevent the bot from running endlessly if
-        ///     something unexpected breaks it.
-        /// </summary>
-        public static Stopwatch BuggedTimer = new Stopwatch();
-
         private static readonly Random Random = new Random();
 
         public override int Priority
@@ -44,6 +37,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
+            if (!UserPreferences.Default.DoBobbing)
+            {
+                return false;
+            }
+
             WoWGameObject bobber = ObjectManager.GetSpecificObject(IsBobber, WoWObject.ToWoWGameObject);
 
             if (bobber == null)
@@ -52,7 +50,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             }
 
             Logger.Info(Name);
-            BuggedTimer.Restart();
 
             Thread.Sleep(Random.Next(500, 1750));
             BotManager.Memory.Write(Offsets.Addresses["MouseOverGUID"], bobber.Guid);

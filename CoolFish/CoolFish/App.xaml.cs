@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using CoolFishNS.Analytics;
 using CoolFishNS.Management;
-using CoolFishNS.Properties;
 using CoolFishNS.Utilities;
 using NLog;
 
@@ -16,32 +14,20 @@ namespace CoolFishNS
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        internal static SplashScreen CurrentSplashScreen;
-
         internal static void StartUp()
         {
-            CurrentSplashScreen = new SplashScreen("SplashScreen.png");
-            CurrentSplashScreen.Show(false, true);
             AppDomain.CurrentDomain.UnhandledException += ErrorHandling.UnhandledException;
             TaskScheduler.UnobservedTaskException += ErrorHandling.TaskSchedulerOnUnobservedTaskException;
+            Current.DispatcherUnhandledException += ErrorHandling.CurrentOnDispatcherUnhandledException;
             UserPreferences.Default.LoadSettings();
             Utilities.Utilities.InitializeLoggers();
-            MarkedUpAnalytics.Initialize(Settings.Default.apiKey, "CoolFish");
         }
 
         internal static void ShutDown()
         {
-            try
-            {
-                BotManager.ShutDown();
-                UserPreferences.Default.SaveSettings();
-                MarkedUpAnalytics.ShutDown("CoolFish");
-                LogManager.Shutdown();
-            }
-            catch (Exception ex)
-            {
-                Logger.Fatal("Error while shutting down", ex);
-            }
+            BotManager.ShutDown();
+            UserPreferences.Default.SaveSettings();
+            LogManager.Shutdown();
         }
 
         [STAThread]
@@ -49,8 +35,12 @@ namespace CoolFishNS
         {
             try
             {
+                var screen = new SplashScreen("SplashScreen.png");
+                screen.Show(false, true);
+                var app = new App();
                 StartUp();
-                new App().Run(new MainWindow());
+                var window = new MainWindow(screen);
+                app.Run(window);
             }
             catch (Exception ex)
             {

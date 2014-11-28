@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using CoolFishNS.Bots;
 using CoolFishNS.Bots.CoolFishBot;
 using CoolFishNS.Management.CoolManager;
@@ -266,20 +265,6 @@ namespace CoolFishNS.Management
                     {
                         Logger.Info(
                             "It seems you are running a 64bit version of WoW. CoolFish does not support that version. Please start the 32bit version instead.");
-                    }
-                    else
-                    {
-                       /* MessageBoxResult result = MessageBox.Show("No WoW process were found. Would you like to include all processes?", "Warning",
-                            MessageBoxButton.YesNo);
-
-                        if (result == MessageBoxResult.Yes)
-                        {
-                            proc = Process.GetProcesses();
-                        }
-                        else
-                        {
-                            Logger.Info("No WoW processes were found.");
-                        }*/
                     }
                 }
             }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using CoolFishNS.Properties;
 using NLog;
 
 namespace CoolFishNS.Utilities
@@ -16,39 +15,35 @@ namespace CoolFishNS.Utilities
 
         public static readonly UserPreferences Default = new UserPreferences();
 
-        public Dictionary<string, SerializablePlugin> Plugins = new Dictionary<string, SerializablePlugin>();
-        
-        public List<SerializableItem> Items = new List<SerializableItem>();
-
-        public bool NoLure = false;
+        public int BaitIndex = -1;
+        public NullableKeyValuePair<string, uint, uint> BaitItem = null;
         public bool CloseWoWOnStop = false;
         public bool DoBobbing = true;
         public bool DoFishing = true;
         public bool DoLoot = true;
         public bool DontLootLeft = false;
+        public List<SerializableItem> Items = new List<SerializableItem>();
+        public int LogLevel = NLog.LogLevel.Info.Ordinal;
         public bool LogoutOnStop = false;
         public bool LootOnlyItems = false;
+        public int LootQuality = -1;
+        public double MinutesToStop = 0;
+        public bool NoLure = false;
+        public Dictionary<string, SerializablePlugin> Plugins = new Dictionary<string, SerializablePlugin>();
         public bool ShutdownPcOnStop = false;
         public bool SoundOnWhisper = false;
         public bool StopOnBagsFull = false;
         public bool StopOnNoLures = false;
         public bool StopOnTime = false;
-        public bool UseCharm = false;
         public bool UseRaft = false;
         public bool UseRumsey = false;
         public bool UseSpear = false;
 
-        public NullableKeyValuePair<string, uint, uint> BaitItem = null;
-
-        public int BaitIndex = -1;
-        public int LootQuality = -1;
-        public int LogLevel = NLog.LogLevel.Info.Ordinal;
-
-        public double MinutesToStop = 0;
-
         private UserPreferences()
         {
         }
+
+        public DateTime? StopTime { get; set; }
 
         /// <summary>
         ///     Loads default CoolFish settings
@@ -76,7 +71,6 @@ namespace CoolFishNS.Utilities
             StopOnBagsFull = src.StopOnBagsFull;
             LogoutOnStop = src.LogoutOnStop;
             UseRaft = src.UseRaft;
-            UseCharm = src.UseCharm;
             ShutdownPcOnStop = src.ShutdownPcOnStop;
             DontLootLeft = src.DontLootLeft;
             MinutesToStop = src.MinutesToStop;
@@ -99,7 +93,7 @@ namespace CoolFishNS.Utilities
         {
             try
             {
-                Serializer.Serialize(Settings.Default.UserPreferencesFileName, this);
+                Serializer.Serialize(Constants.UserPreferencesFileName, this);
             }
             catch (Exception ex)
             {
@@ -114,7 +108,7 @@ namespace CoolFishNS.Utilities
         {
             try
             {
-                CopySettings(Serializer.DeSerialize<UserPreferences>(Settings.Default.UserPreferencesFileName));
+                CopySettings(Serializer.DeSerialize<UserPreferences>(Constants.UserPreferencesFileName));
             }
             catch (FileNotFoundException)
             {

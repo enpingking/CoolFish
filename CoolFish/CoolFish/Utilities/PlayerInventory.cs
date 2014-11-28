@@ -48,10 +48,6 @@ namespace CoolFishNS.Utilities
         {
             get
             {
-                if (UserPreferences.Default.NoLure)
-                {
-                    return null;
-                }
                 string name = DxHook.ExecuteScript(Resources.GetLureName, "LureName");
 
                 return !string.IsNullOrWhiteSpace(name) ? name : null;

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Media;
 using System.Threading;
+using System.Threading.Tasks;
 using CoolFishNS.Management.CoolManager.HookingLua;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -23,17 +25,24 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
+            if (!UserPreferences.Default.SoundOnWhisper)
+            {
+                return false;
+            }
             if (DxHook.GetLocalizedText("NewMessage") == "1")
             {
                 Dictionary<string, string> result = DxHook.ExecuteScript("NewMessage = 0;", new[] {"Message", "Author"});
 
                 Logger.Info("Whisper from: " + result["Author"] + " Message: " + result["Message"]);
 
-                SystemSounds.Asterisk.Play();
-
-                Thread.Sleep(3000);
-
-                SystemSounds.Asterisk.Play();
+                Task.Run(() =>
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        SystemSounds.Hand.Play();
+                        Thread.Sleep(3000);
+                    }
+                });
                 return true;
             }
             return false;

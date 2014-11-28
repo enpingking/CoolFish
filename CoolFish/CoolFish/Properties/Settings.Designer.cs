@@ -22,23 +22,5 @@ namespace CoolFishNS.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("e838c760-c238-41c3-b4bd-51640a8572dc")]
-        public string apiKey {
-            get {
-                return ((string)(this["apiKey"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("UserPreferences.dat")]
-        public string UserPreferencesFileName {
-            get {
-                return ((string)(this["UserPreferencesFileName"]));
-            }
-        }
     }
 }

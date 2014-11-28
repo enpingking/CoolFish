@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CoolFishNS.Properties;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.PluginSystem
@@ -95,12 +96,12 @@ namespace CoolFishNS.PluginSystem
 
         internal static void LoadPlugins()
         {
-            if (!Directory.Exists(Utilities.Utilities.ApplicationPath + "\\Plugins"))
+            if (!Directory.Exists(Constants.ApplicationPath.Value + "\\Plugins"))
             {
-                Directory.CreateDirectory(Utilities.Utilities.ApplicationPath + "\\Plugins");
+                Directory.CreateDirectory(Constants.ApplicationPath.Value + "\\Plugins");
             }
             Plugins.Clear();
-            string[] plugins = Directory.GetFiles(Utilities.Utilities.ApplicationPath + "\\Plugins", "*.dll");
+            string[] plugins = Directory.GetFiles(Constants.ApplicationPath.Value + "\\Plugins", "*.dll");
 
             foreach (string plugin in plugins)
             {

@@ -28,12 +28,16 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
+            if (UserPreferences.Default.BaitIndex <= 0)
+            {
+                return false;
+            }
+
             string result = DxHook.ExecuteScript(Resources.NeedToApplyBait, "AppliedBait");
 
             if (result == "1")
             {
                 Logger.Info(Name);
-
                 Thread.Sleep(1500);
                 return true;
             }

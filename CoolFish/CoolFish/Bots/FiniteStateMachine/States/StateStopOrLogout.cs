@@ -36,6 +36,21 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             }
         }
 
+        private static bool TimeCondition
+        {
+            get
+            {
+                if (UserPreferences.Default.StopTime != null)
+                {
+                    if (DateTime.Now >= UserPreferences.Default.StopTime)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         /// <summary>
         ///     Gets a value indicating whether we are out of fishing lures and we want to stop on this condition.
         /// </summary>
@@ -69,7 +84,12 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
         public override bool Run()
         {
-            WoWPlayerMe me = ObjectManager.Me;
+            if (TimeCondition)
+            {
+                Logger.Info("We hit the time limit.");
+                StopBot();
+                return true;
+            }
 
             if (BagsCondition)
             {
@@ -84,22 +104,15 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 return true;
             }
 
-            if (me != null)
-            {
-                if (me.Dead)
-                {
-                    Logger.Info("We died :(");
-                    StopBot();
-                    return true;
-                }
-            }
+            WoWPlayerMe me = ObjectManager.Me;
 
-            if (StateBobbing.BuggedTimer.ElapsedMilliseconds > 1000*60*3)
+            if (me != null && me.Dead)
             {
-                Logger.Info("We haven't gotten a bobber in 3 minutes. Somethings wrong.");
+                Logger.Info("We died :(");
                 StopBot();
                 return true;
             }
+
             return false;
         }
 
@@ -107,7 +120,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         private static void StopBot()
         {
             BotManager.StopActiveBot();
-            StateBobbing.BuggedTimer.Stop();
             Task.Run(() =>
             {
                 for (int i = 0; i < 3; i++)
@@ -122,11 +134,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 DxHook.ExecuteScript("Logout();");
             }
 
-            if (UserPreferences.Default.ShutdownPcOnStop)
-            {
-                Process.Start("shutdown", "/s /t 0");
-            }
-
             if (UserPreferences.Default.CloseWoWOnStop)
             {
                 Process proc = BotManager.Memory.Process;
@@ -135,6 +142,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
                 proc.Close();
                 App.ShutDown();
                 Environment.Exit(0);
+            }
+
+            if (UserPreferences.Default.ShutdownPcOnStop)
+            {
+                Process.Start("shutdown", "/s /t 0");
             }
         }
     }

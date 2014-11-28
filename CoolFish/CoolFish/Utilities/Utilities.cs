@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
-using System.Reflection;
 using CoolFishNS.Targets;
 using NLog;
 using NLog.Config;
@@ -18,31 +16,9 @@ namespace CoolFishNS.Utilities
     public static class Utilities
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private static bool LoggersInitialized;
-
         private static readonly object LoggerLock = new object();
+        public static readonly DateTime StartTime = DateTime.Now;
 
-        /// <summary>
-        ///     Gets the application path.
-        ///     <value>The application path.</value>
-        /// </summary>
-        public static string ApplicationPath
-        {
-            get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); }
-        }
-
-        /// <summary>
-        ///     Gets the application version.
-        /// </summary>
-        public static Version Version
-        {
-            get
-            {
-                return Assembly.GetExecutingAssembly().
-                    GetName().Version;
-            }
-        }
 
         internal static string GetNews()
         {
@@ -98,7 +74,7 @@ namespace CoolFishNS.Utilities
         {
             lock (LoggerLock)
             {
-                if (LoggersInitialized)
+                if (LogManager.Configuration != null)
                 {
                     return;
                 }
@@ -106,7 +82,7 @@ namespace CoolFishNS.Utilities
 
                 DateTime now = DateTime.Now;
 
-                string activeLogFileName = string.Format("{0}\\Logs\\{1}\\[CoolFish-{2}] {3}.txt", ApplicationPath,
+                string activeLogFileName = string.Format("{0}\\Logs\\{1}\\[CoolFish-{2}] {3}.txt", Constants.ApplicationPath.Value,
                     now.ToString("MMMM dd yyyy"), Process.GetCurrentProcess().Id,
                     now.ToString("T").Replace(':', '.'));
 
@@ -125,19 +101,16 @@ namespace CoolFishNS.Utilities
                     new AsyncTargetWrapper(file) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
 
 
-                var markedUp = new MarkedUpTarget
+                var remoteTarget = new RemoteTarget
                 {
-                    Layout =
-                        @"[${date:format=MM/dd/yy h\:mm\:ss.ffff tt}] [${level:uppercase=true}] ${message} ${onexception:inner=${newline}${exception:format=tostring}}"
+                    Layout = @"[${level:uppercase=true}] ${message}"
                 };
 
 
                 config.LoggingRules.Add(new LoggingRule("*", LogLevel.Error,
-                    new AsyncTargetWrapper(markedUp) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
-
+                    new AsyncTargetWrapper(remoteTarget) {OverflowAction = AsyncTargetWrapperOverflowAction.Grow}));
 
                 LogManager.Configuration = config;
-                LoggersInitialized = true;
             }
         }
     }

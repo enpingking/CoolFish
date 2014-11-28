@@ -1,5 +1,6 @@
 ﻿using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -26,6 +27,10 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
+            if (!UserPreferences.Default.DoLoot)
+            {
+                return false;
+            }
             if (DxHook.ExecuteScript(Resources.DoLoot, "StateResult") == "1")
             {
                 Logger.Info(Name);
