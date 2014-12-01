@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using CoolFishNS.Management.CoolManager.HookingLua;
 using CoolFishNS.Properties;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -17,22 +18,6 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             get { return (int) CoolFishEngine.StatePriority.StateUseRaft; }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether [need to run].
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if [need to run]; otherwise, <c>false</c>.
-        /// </value>
-        private bool NeedToRun
-        {
-            get
-            {
-                string res = DxHook.ExecuteScript(Resources.NeedToRunUseRaft, "expires");
-
-                return res == "1";
-            }
-        }
-
         public override string Name
         {
             get { return "Using water walk"; }
@@ -43,14 +28,19 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
-            if (!NeedToRun)
+            if (!UserPreferences.Default.UseRaft)
             {
                 return false;
             }
-            Logger.Info(Name);
-            DxHook.ExecuteScript(Resources.UseRaft);
-            Thread.Sleep(1000);
-            return true;
+            string res = DxHook.ExecuteScript(Resources.UseRaft, "UsedRaft");
+
+            if (res == "1")
+            {
+                Logger.Info(Name);
+                Thread.Sleep(1000);
+                return true;
+            }
+            return false;
         }
     }
 }

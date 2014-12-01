@@ -270,9 +270,9 @@ namespace CoolFishNS.Management.CoolManager.HookingLua
                 while (_allocatedMemory.Read<int>("addressInjection") > 0)
                 {
                     Thread.Sleep(1);
-                    if (timer.ElapsedMilliseconds >= 5000)
+                    if (timer.ElapsedMilliseconds >= 10000)
                     {
-                        throw new CodeInjectionFailedException("Failed to inject code after 5 seconds. Last Error: " + Marshal.GetLastWin32Error());
+                        throw new CodeInjectionFailedException("Failed to inject code after 10 seconds. Last Error: " + Marshal.GetLastWin32Error());
                     }
                 } // Wait to launch code
 

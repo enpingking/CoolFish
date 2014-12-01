@@ -89,7 +89,7 @@ namespace CoolFishNS.Bots.CoolFishBot
         }
 
 
-        public void FillDataGrid(DataGrid grid, IEnumerable items )
+        public void FillDataGrid(DataGrid grid, IEnumerable items)
         {
             try
             {
@@ -120,7 +120,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             DontLootCB.IsChecked = UserPreferences.Default.DontLootLeft;
             QualityCMB.SelectedIndex = UserPreferences.Default.LootQuality + 1;
             SoundWhisperCB.IsChecked = UserPreferences.Default.SoundOnWhisper;
-            UseCharmCB.IsChecked = UserPreferences.Default.UseCharm;
             UseRumseyCB.IsChecked = UserPreferences.Default.UseRumsey;
             UseSpearCB.IsChecked = UserPreferences.Default.UseSpear;
             CastFishingCB.IsChecked = UserPreferences.Default.DoFishing;
@@ -144,7 +143,6 @@ namespace CoolFishNS.Bots.CoolFishBot
             UserPreferences.Default.DontLootLeft = DontLootCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.LootQuality = QualityCMB.SelectedIndex - 1;
             UserPreferences.Default.SoundOnWhisper = SoundWhisperCB.IsChecked.GetValueOrDefault();
-            UserPreferences.Default.UseCharm = UseCharmCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.UseRumsey = UseRumseyCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.UseSpear = UseSpearCB.IsChecked.GetValueOrDefault();
             UserPreferences.Default.DoFishing = CastFishingCB.IsChecked.GetValueOrDefault();
@@ -160,7 +158,7 @@ namespace CoolFishNS.Bots.CoolFishBot
             else
             {
                 Logger.Warn("Invalid Stop Time.");
-                UserPreferences.Default.MinutesToStop = 0;
+                UserPreferences.Default.MinutesToStop = -1;
             }
 
             UserPreferences.Default.BaitIndex = BaitCMB.SelectedIndex;
@@ -184,7 +182,7 @@ namespace CoolFishNS.Bots.CoolFishBot
 
                 BaitCMB.ItemsSource = null;
                 BaitCMB.ItemsSource = Constants.Baits;
-                
+
                 UpdateControlSettings();
             }
             catch (Exception ex)

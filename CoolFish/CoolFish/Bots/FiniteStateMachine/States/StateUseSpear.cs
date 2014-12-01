@@ -1,7 +1,6 @@
 ﻿using System.Threading;
-using System.Windows.Forms;
-using CoolFishNS.Management;
 using CoolFishNS.Management.CoolManager.HookingLua;
+using CoolFishNS.Utilities;
 using NLog;
 
 namespace CoolFishNS.Bots.FiniteStateMachine.States
@@ -49,24 +48,20 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
+            if (!UserPreferences.Default.UseSpear)
+            {
+                return false;
+            }
+
             if (!NeedToRun)
             {
                 return false;
             }
             Logger.Info(Name);
 
-            string weaponId = DxHook.ExecuteScript("SpellStopCasting() " +
-                                                   " weaponId = GetInventoryItemID(\"player\", 16); " +
-                                                   " EquipItemByName(88535);", "weaponId");
-
-
-            if (weaponId == "88535")
-            {
-                MessageBox.Show("Your current weapon is the spear. Please fix this and restart the bot.");
-                BotManager.StopActiveBot();
-                return false;
-            }
-
+            DxHook.ExecuteScript("SpellStopCasting() " +
+                                 " CFweaponId = GetInventoryItemID(\"player\", 16); " +
+                                 " EquipItemByName(88535);");
             Thread.Sleep(1000);
 
             DxHook.ExecuteScript("RunMacroText(\"/use 16 \"); ");
@@ -74,7 +69,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
 
             Thread.Sleep(1500);
 
-            DxHook.ExecuteScript("EquipItemByName(weaponId);");
+            DxHook.ExecuteScript("EquipItemByName(CFweaponId);");
 
             Thread.Sleep(500);
             return true;

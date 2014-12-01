@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using CoolFishNS.Properties;
-using MarkedUp;
 using NLog;
 
 namespace CoolFishNS.Management.CoolManager
@@ -79,7 +78,6 @@ namespace CoolFishNS.Management.CoolManager
             {
                 if (ex.FileName.Contains("fasmdll_managed"))
                 {
-                    AnalyticClient.SessionEvent("Missing Redistributable");
                     Logger.Fatal(
                         "You have not downloaded a required prerequisite for CoolFish. Please visit the following download page for the Visual C++ Redistributable: http://www.microsoft.com/en-us/download/details.aspx?id=40784 (Download the vcredist_x86.exe when asked)");
                 }

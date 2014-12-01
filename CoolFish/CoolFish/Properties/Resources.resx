@@ -154,12 +154,6 @@
   <data name="GetLureName" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Bots\LuaResources\GetLureName.lua;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
-  <data name="NeedToRunCharm" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Bots\LuaResources\NeedToRunCharm.lua;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="NeedToRunUseRaft" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Bots\LuaResources\NeedToRunUseRaft.lua;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="NeedToRunUseRumsey" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Bots\LuaResources\NeedToRunUseRumsey.lua;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>

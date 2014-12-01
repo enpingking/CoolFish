@@ -29,7 +29,6 @@ namespace CoolFishTests
             UserPreferences.Default.DontLootLeft = true;
             UserPreferences.Default.LootQuality = 10;
             UserPreferences.Default.SoundOnWhisper = true;
-            UserPreferences.Default.UseCharm = true;
             UserPreferences.Default.UseRumsey = true;
             UserPreferences.Default.UseSpear = true;
             UserPreferences.Default.DoFishing = false;
@@ -54,7 +53,6 @@ namespace CoolFishTests
             Assert.IsFalse(UserPreferences.Default.DontLootLeft);
             Assert.AreEqual(-1, UserPreferences.Default.LootQuality);
             Assert.IsFalse(UserPreferences.Default.SoundOnWhisper);
-            Assert.IsFalse(UserPreferences.Default.UseCharm);
             Assert.IsFalse(UserPreferences.Default.UseRumsey);
             Assert.IsFalse(UserPreferences.Default.UseSpear);
             // These normally default to true
@@ -75,7 +73,6 @@ namespace CoolFishTests
             Assert.IsTrue(UserPreferences.Default.DontLootLeft);
             Assert.AreEqual(10, UserPreferences.Default.LootQuality);
             Assert.IsTrue(UserPreferences.Default.SoundOnWhisper);
-            Assert.IsTrue(UserPreferences.Default.UseCharm);
             Assert.IsTrue(UserPreferences.Default.UseRumsey);
             Assert.IsTrue(UserPreferences.Default.UseSpear);
             // We changed these to false since default is true

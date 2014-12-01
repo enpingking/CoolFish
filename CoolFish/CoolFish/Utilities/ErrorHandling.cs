@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using NLog;
 
 namespace CoolFishNS.Utilities
@@ -13,6 +14,14 @@ namespace CoolFishNS.Utilities
         {
             Logger.Error("Unhandled error has occurred on another thread. This may cause an unstable state of the application.",
                 (Exception) unobservedTaskExceptionEventArgs.Exception);
+        }
+
+        internal static void CurrentOnDispatcherUnhandledException(object sender,
+            DispatcherUnhandledExceptionEventArgs dispatcherUnhandledExceptionEventArgs)
+        {
+            Logger.Fatal("An unhandled error has occurred. Please send the log file to the developer.",
+                dispatcherUnhandledExceptionEventArgs.Exception);
+            dispatcherUnhandledExceptionEventArgs.Handled = true;
         }
 
         internal static void UnhandledException(object sender, UnhandledExceptionEventArgs ex)

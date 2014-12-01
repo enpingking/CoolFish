@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Web.Script.Serialization;
 
 namespace CoolFishNS.Utilities
 {
@@ -8,6 +9,8 @@ namespace CoolFishNS.Utilities
     /// </summary>
     public static class Serializer
     {
+        private static readonly JavaScriptSerializer ScriptSerializer = new JavaScriptSerializer();
+
         /// <summary>
         ///     Deserialize a previously stored object
         /// </summary>
@@ -36,6 +39,16 @@ namespace CoolFishNS.Utilities
                 var formatter = new BinaryFormatter();
                 formatter.Serialize(fs, objectToSerialize);
             }
+        }
+
+        /// <summary>
+        ///     Serializes an generic item
+        /// </summary>
+        /// <param name="objectToSerialize">generic object to serialize</param>
+        /// <typeparam name="T">The generic type to serialize</typeparam>
+        public static string SerializeToJSON<T>(T objectToSerialize)
+        {
+            return ScriptSerializer.Serialize(objectToSerialize);
         }
     }
 }

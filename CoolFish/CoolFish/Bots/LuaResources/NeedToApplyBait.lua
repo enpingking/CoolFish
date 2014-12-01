@@ -1,5 +1,9 @@
 ﻿-- Check to see if the buff has expired already
 AppliedBait = nil;
+if not BaitSpellId or not BaitItemId then
+	return;
+end
+
 local name = GetSpellInfo(BaitSpellId);  
 local _,_,_,_,_,_,expires = UnitBuff("player",name); 
 if expires then 

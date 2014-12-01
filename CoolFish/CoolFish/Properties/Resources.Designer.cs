@@ -148,9 +148,7 @@ namespace CoolFishNS.Properties {
         ///	[116825] = true -- Savage Fishing Pole
         ///}
         ///
-        ///
-        ///
-        ///-- Function to find inventory slot lure [rest of string was truncated]&quot;;.
+        ///-- Check to see if we have any lures in o [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetLureName {
             get {
@@ -168,61 +166,34 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to -- Check to see if the buff has expired already
+        ///AppliedBait = nil;
+        ///if not BaitSpellId or not BaitItemId then
+        ///	return;
+        ///end
+        ///
+        ///local name = GetSpellInfo(BaitSpellId);  
+        ///local _,_,_,_,_,_,expires = UnitBuff(&quot;player&quot;,name); 
+        ///if expires then 
+        ///	expires = expires-GetTime();
+        ///	if expires &lt;= 10 then
+        ///		expires = true
+        ///	else
+        ///		expires = false
+        ///	end
+        ///else
+        ///	expires = true
+        ///end
+        ///
+        ///if expires then
+        ///	-- Check to see if we have any baits in our inventory
+        ///	for i=0,4 do 
+        ///		local numberOfSlots = GetContainerNumSlots(i); 
+        ///		for j=1,numbe [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string NeedToApplyBait {
             get {
                 return ResourceManager.GetString("NeedToApplyBait", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to local name; 
-        ///
-        ///name = GetSpellInfo(125167); 
-        ///_,_,_,_,_,_,expires = UnitBuff(&quot;player&quot;,name); 
-        ///
-        ///if expires then 
-        ///expires = expires-GetTime()
-        ///
-        ///if expires
-        ///&lt; 30 then
-        ///  expires= 1
-        ///  else
-        ///  expires= 0
-        ///  end
-        ///  else
-        ///  expires= 1
-        ///  end.
-        /// </summary>
-        internal static string NeedToRunCharm {
-            get {
-                return ResourceManager.GetString("NeedToRunCharm", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to local _, englishClass = UnitClass(&quot;player&quot;) 
-        ///local name; 
-        ///
-        ///if englishClass == &quot;SHAMAN&quot; then 
-        ///name = GetSpellInfo(546);  _,_,_,_,_,_,expires = UnitBuff(&quot;player&quot;,name); 
-        ///if expires then 
-        ///expires = expires-GetTime() 
-        ///end 
-        ///else 
-        ///if englishClass == &quot;DEATHKNIGHT&quot; then 
-        ///name = GetSpellInfo(3714); _,_,_,_,_,_,expires = UnitBuff(&quot;player&quot;,name); 
-        ///if expires then 
-        ///expires = expires-GetTime() 
-        ///end 
-        ///else 
-        ///if englishClass == &quot;WARLOCK&quot; and GetSpecialization() == 1 then 
-        ///name = GetSpellInfo(5697); _,_,_,_,_,_,expires = Uni [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string NeedToRunUseRaft {
-            get {
-                return ResourceManager.GetString("NeedToRunUseRaft", resourceCulture);
             }
         }
         
@@ -322,28 +293,26 @@ namespace CoolFishNS.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to local _, englishClass = UnitClass(&quot;player&quot;) 
+        ///   Looks up a localized string similar to 
         ///local name; 
         ///
-        ///if englishClass == &quot;SHAMAN&quot; then 
-        ///name = GetSpellInfo(546)
-        ///TargetUnit(&quot;player&quot;) 
-        ///CastSpellByName(name)
-        ///TargetLastTarget()
-        ///else 
-        ///if englishClass == &quot;DEATHKNIGHT&quot; then 
-        ///name = GetSpellInfo(3714) 
-        ///TargetUnit(&quot;player&quot;) 
-        ///CastSpellByName(name)
-        ///TargetLastTarget()
-        ///else 
-        ///if englishClass == &quot;WARLOCK&quot; and GetSpecialization() == 1 then 
-        ///if UnitPower(&quot;player&quot;,7)
-        ///&lt; 1  then
-        ///  name= GetSpellInfo(101976)
-        ///  CastSpellByName( name)
-        ///  while UnitChannelInfo(&quot;player&quot;) do
-        /// [rest of string was truncated]&quot;;.
+        ///-- See if we have the water walking raft and use it instead of spells
+        ///for i=0,4 do 
+        ///	local numberOfSlots = GetContainerNumSlots(i); 
+        ///	for j=1,numberOfSlots do 
+        ///		local itemId = GetContainerItemID(i,j) 
+        ///		if itemId == 124036 then -- The raft item id
+        ///			   name = GetItemInfo(itemId);
+        ///			   RunMacroText(&quot;/use &quot; .. name);
+        ///			   return;
+        ///		end 
+        ///	end 
+        ///end
+        ///
+        ///-- If we don&apos;t have the raft, check to see if we have a water walking spell instead
+        ///local _, englishClass = UnitClass(&quot;player&quot;) 
+        ///
+        ///if englishClass [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string UseRaft {
             get {

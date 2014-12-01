@@ -67,7 +67,6 @@
                             <TextBlock Text="Info" />
                             <TextBlock Text="Warn" />
                             <TextBlock Text="Error" />
-                            <TextBlock Text="Fatal" />
                         </ComboBox>
                         <Button x:Uid="AttachBTN" x:Name="AttachBTN" Content="Attach" Margin="399,88,0,0"
                                 VerticalAlignment="Top" Click="btn_Attach_Click" HorizontalAlignment="Left" Width="75"
@@ -76,7 +75,7 @@
                                   DropDownOpened="ComboBox_DropDownOpened_1" HorizontalAlignment="Left" Width="384"
                                   Height="26" VerticalAlignment="Top"
                                   Opacity="0.98" />
-                        <Button x:Uid="StartBTN" x:Name="StartBTN" IsEnabled="False" Content="Start"
+                        <Button x:Uid="StartBTN" x:Name="StartBTN" Content="Start"
                                 Margin="482,119,0,0"
                                 VerticalAlignment="Top" Click="StartBTN_Click" HorizontalAlignment="Left" Width="75"
                                 Height="26" />

@@ -27,6 +27,11 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
         /// </summary>
         public override bool Run()
         {
+            if (UserPreferences.Default.NoLure)
+            {
+                return false;
+            }
+
             string result = DxHook.ExecuteScript("if GetWeaponEnchantInfo() then enchant = 1 else enchant = 0 end;", "enchant");
 
             if (result != "1" && PlayerInventory.HasLures())

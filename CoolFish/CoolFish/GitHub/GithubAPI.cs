@@ -5,9 +5,10 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Windows.Forms;
 using CoolFishNS.Management;
-using CoolFishNS.Properties;
+using CoolFishNS.Utilities;
 using NLog;
 using Octokit;
 
@@ -45,7 +46,7 @@ namespace CoolFishNS.GitHub
             try
             {
                 IReadOnlyList<Release> releases = Client.Release.GetAll("unknowndev", "CoolFish").Result;
-                Version latestRelease = Utilities.Utilities.Version;
+                var latestRelease = new Version(Constants.Version.Value);
 
                 foreach (Release release in releases)
                 {
@@ -63,7 +64,6 @@ namespace CoolFishNS.GitHub
                     {
                         //Skip this release because the tagname is probably bad
                     }
-
                 }
             }
             catch (RateLimitExceededException ex)
@@ -81,6 +81,7 @@ namespace CoolFishNS.GitHub
         {
             try
             {
+                ;
                 IReadOnlyList<ReleaseAsset> assets = Client.Release.GetAssets("unknowndev", "CoolFish", id).Result;
                 if (assets.Any())
                 {
@@ -109,7 +110,7 @@ namespace CoolFishNS.GitHub
                 BotManager.DetachFromProcess();
                 App.ShutDown();
                 DeleteOldSetupFiles();
-                ZipFile.ExtractToDirectory(fileName, Utilities.Utilities.ApplicationPath);
+                ZipFile.ExtractToDirectory(fileName, Constants.ApplicationPath.Value);
                 MessageBox.Show("The update was complete. CoolFish will restart now.");
                 Process.Start("CoolFish.exe");
             }
@@ -124,8 +125,8 @@ namespace CoolFishNS.GitHub
 
         private static void DeleteOldSetupFiles()
         {
-            var info = new DirectoryInfo(Utilities.Utilities.ApplicationPath);
-            string backup = Utilities.Utilities.ApplicationPath + "\\Backup\\";
+            var info = new DirectoryInfo(Constants.ApplicationPath.Value);
+            string backup = Constants.ApplicationPath.Value + "\\Backup\\";
             if (!Directory.Exists(backup))
             {
                 Directory.CreateDirectory(backup);
@@ -133,7 +134,7 @@ namespace CoolFishNS.GitHub
 
             // Clean up old setup files if they exist
             IEnumerable<FileInfo> files =
-                info.GetFiles().Where(file => !file.Name.Equals(Settings.Default.UserPreferencesFileName) && !file.Name.EndsWith(".zip"));
+                info.GetFiles().Where(file => !file.Name.Equals(Constants.UserPreferencesFileName) && !file.Name.EndsWith(".zip"));
 
             foreach (FileInfo file in files)
             {
