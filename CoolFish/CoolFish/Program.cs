@@ -12,17 +12,12 @@ namespace CoolFish
             try
             {
                 Updater.Update().Wait();
-                Process.EnterDebugMode();
                 Application.Run(new MainWindow());
 
             }
             catch (Exception ex)
             {
                 MessageBox.Show("An unexpected error has occurred. Please send a screenshot to the developer \n" + ex);
-            }
-            finally
-            {
-                Process.LeaveDebugMode();
             }
         }
     }
