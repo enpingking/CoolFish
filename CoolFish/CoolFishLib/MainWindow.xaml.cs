@@ -121,7 +121,6 @@ namespace CoolFishNS
             {
                 BotManager.StartUp();
                 _manager.SendAnalyticsEvent(0, "ApplicationStart");
-                BotManager.AttachToProcess();
             });
         }
 

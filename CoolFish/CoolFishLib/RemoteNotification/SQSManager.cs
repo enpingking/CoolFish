@@ -33,9 +33,6 @@ namespace CoolFishNS.RemoteNotification
 
         public void SendAnalyticsPayload(AnalyticsPayload analyticspayload)
         {
-#if DEBUG
-            return;
-#endif
             try
             {
                 var payload = Serializer.SerializeToJSON(analyticspayload);
@@ -51,10 +48,6 @@ namespace CoolFishNS.RemoteNotification
 
         public void SendLoggingPayload(LoggingPayload loggingPayload)
         {
-#if DEBUG
-            return;
-#endif
-
             try
             {
                 var payload = Serializer.SerializeToJSON(loggingPayload);
