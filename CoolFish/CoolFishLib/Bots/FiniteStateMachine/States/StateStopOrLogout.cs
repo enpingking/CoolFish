@@ -135,7 +135,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine.States
             if (UserPreferences.Default.CloseWoWOnStop)
             {
                 Logger.Info("Closing WoW");
-                BotManager.DetachFromProcess();
+                BotManager.ShutDown();
                 App.ShutDown();
                 Process.GetCurrentProcess().Close();
             }

@@ -116,7 +116,7 @@ namespace CoolFishNS.Management.CoolManager.Internal
             {
                 throw new ArgumentNullException("command");
             }
-            if (!_isApplied)
+            if (_mainThreadDispatcher == null || _executeBufferHandler == null)
             {
                 return;
             }
@@ -134,7 +134,7 @@ namespace CoolFishNS.Management.CoolManager.Internal
             {
                 throw new ArgumentNullException("command");
             }
-            if (!_isApplied)
+            if (_mainThreadDispatcher == null || _executeBufferHandler == null)
             {
                 return string.Empty;
             }
