@@ -129,7 +129,7 @@ namespace CoolFishNS.Management
         ///     Attach all manipulation related classes to the passed process.
         ///     ObjectManager and Hook related operations will be available after this call
         /// </summary>
-        public static void AttachToProcess()
+        private static void AttachToProcess()
         {
             lock (LockObject)
             {
@@ -156,7 +156,7 @@ namespace CoolFishNS.Management
             }
         }
 
-        public static void DetachFromProcess()
+        private static void DetachFromProcess()
         {
             lock (LockObject)
             {
@@ -231,6 +231,8 @@ namespace CoolFishNS.Management
         {
             try
             {
+                AttachToProcess();
+
                 PluginManager.LoadPlugins();
 
                 PluginManager.StartPlugins();
@@ -249,11 +251,11 @@ namespace CoolFishNS.Management
             {
                 StopActiveBot();
 
-                DetachFromProcess();
-
                 PluginManager.StopPlugins();
 
                 PluginManager.ShutDownPlugins();
+
+                DetachFromProcess();
             }
             catch (Exception ex)
             {
