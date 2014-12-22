@@ -147,6 +147,7 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             }
             builder.AppendLine("LootLog = {}; ");
             builder.AppendLine("NoLootLog = {}; ");
+
             _manager.ExecuteScript(builder.ToString());
         }
 
@@ -156,13 +157,13 @@ namespace CoolFishNS.Bots.FiniteStateMachine
             {
                 if (!Running || !BotManager.LoggedIn)
                 {
-                    break;
+                    return;
                 }
                 if (state.Run())
                 {
-                    break;
+                    return;
                 }
-            }          
+            }
         }
 
         private void Run()
